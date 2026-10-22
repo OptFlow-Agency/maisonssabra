@@ -1,0 +1,29 @@
+---
+import "../styles/global.css";
+import jostUrl from "@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url";
+import cormorantUrl from "@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url";
+const { title, description } = Astro.props;
+---
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#6b1a33" />
+    <script is:inline>document.documentElement.classList.add("js")</script>
+    <link rel="icon" href="/img/logo-ms.png" />
+    <link rel="preload" href={cormorantUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={jostUrl} as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <a class="absolute -top-16 left-4 z-100 bg-burgundy px-4 py-3 font-semibold text-cream no-underline transition-[top] duration-200 focus:top-4" href="#contenu">Aller au contenu</a>
+    <slot />
+    <script>
+      import "../scripts/smooth";
+      import "../scripts/cart";
+      import "../scripts/reveal";
+    </script>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+---
+const live = "https://maisonsabra.ma";
+const cols = [
+  { title: "Service client", links: [["Commandes", `${live}/commandes-maison-sabra/`], ["Retours", `${live}/retours-reclamations-maison-sabra/`], ["Cartes-cadeaux", `${live}/cartes-cadeaux-maison-sabra/`], ["Livraison", `${live}/livraison-maison-sabra/`], ["Annulation de commande", `${live}/annulation-de-commande-maison-sabra/`]] },
+  { title: "Visitez-nous", links: [["Boutique", "/boutique"], ["Collection Bladi", "/collection-bladi"], ["Collection Z’man", "/collection-zman"], ["À propos de nous", "/a-propos"]] },
+  { title: "Informations", links: [["Aide (FAQ)", `${live}/aide-faq-maison-sabra/`], ["Nos politiques", `${live}/nos-politiques-maison-sabra/`], ["Politique de confidentialité", `${live}/privacy-policy/`]] },
+];
+const social = [["Instagram", "https://www.instagram.com/maison_sabra"], ["Facebook", "https://www.facebook.com/"], ["Pinterest", "https://www.pinterest.com/"]];
+---
+<div class="bg-rose px-(--gutter) py-3 text-center text-step--1 font-medium tracking-[0.04em] text-burgundy-deep">
+  Achetez maintenant et obtenez 10 % de réduction sur tous les produits.
+</div>
+
+<footer class="on-dark bg-burgundy-deep text-cream">
+  <div class="mx-auto grid max-w-(--max) gap-16 px-(--gutter) pt-20 pb-10 min-[60rem]:grid-cols-[1.1fr_2fr] min-[60rem]:gap-24">
+    <section aria-labelledby="news-title" class="grid content-start gap-5" data-reveal>
+      <h2 id="news-title" class="text-step-2 text-cream">S’abonner</h2>
+      <p class="max-w-[38ch] text-cream/90">Abonnez-vous à notre newsletter hebdomadaire pour recevoir toutes les dernières nouveautés, vous êtes les premiers !</p>
+      <form class="grid gap-3" novalidate data-newsletter>
+        <label class="text-sm font-semibold tracking-[0.08em] uppercase" for="nl-email">Adresse e-mail</label>
+        <div class="flex flex-col gap-3 min-[30rem]:flex-row">
+          <input class="min-h-13 min-w-0 flex-1 border border-cream/50 bg-transparent px-4 text-cream placeholder:text-cream/60 focus-visible:border-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream" id="nl-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="vous@exemple.com" aria-describedby="nl-msg" />
+          <button class="btn justify-center" type="submit">S’abonner</button>
+        </div>
+        <p id="nl-msg" class="min-h-6 text-sm text-cream/90" role="status"></p>
+      </form>
+    </section>
+
+    <nav class="grid grid-cols-2 gap-x-6 gap-y-10 min-[48rem]:grid-cols-3" aria-label="Pied de page">
+      {cols.map((c) => (
+        <div data-reveal>
+          <h2 class="mb-4 font-body text-sm font-semibold tracking-[0.1em] text-cream uppercase">{c.title}</h2>
+          <ul class="m-0 grid list-none gap-2.5 p-0">
+            {c.links.map(([t, h]) => <li><a class="text-cream/90 underline decoration-transparent decoration-1 underline-offset-4 transition-colors hover:text-rose hover:decoration-gold" href={h}>{t}</a></li>)}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  </div>
+
+  <div class="mx-auto flex max-w-(--max) flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-gold/40 px-(--gutter) py-8 text-sm">
+    <a class="flex items-center gap-3 text-cream no-underline" href="/" aria-label="Maison Sabra, accueil">
+      <img class="size-9 object-contain brightness-0 invert" src="/img/logo-ms.png" alt="" width="36" height="36" loading="lazy" />
+      <span class="font-display text-lg font-semibold tracking-[0.12em] uppercase">Maison Sabra</span>
+    </a>
+    <ul class="m-0 flex list-none gap-6 p-0">
+      {social.map(([t, h]) => <li><a class="text-cream/90 underline decoration-gold decoration-1 underline-offset-4 hover:text-rose" href={h} rel="noopener">{t}</a></li>)}
+    </ul>
+    <p class="text-cream/80">© 2026 Maison Sabra. · Powered by Bayoussef Media</p>
+  </div>
+</footer>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-newsletter]");
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = form.querySelector<HTMLInputElement>("input")!;
+    const msg = form.querySelector<HTMLElement>("#nl-msg")!;
+    if (!input.validity.valid) { msg.textContent = "Saisissez une adresse e-mail valide, par exemple nom@exemple.com."; input.setAttribute("aria-invalid", "true"); input.focus(); return; }
+    input.removeAttribute("aria-invalid");
+    msg.textContent = "Merci ! Vous recevrez nos prochaines nouveautés.";
+    form.reset();
+  });
+</script>

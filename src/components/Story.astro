@@ -1,0 +1,32 @@
+---
+const points = ["100 % fait au Maroc", "Pour le quotidien ou vos plus beaux événements", "Une histoire dans chaque création"];
+const arch = "relative overflow-hidden rounded-t-full ring-1 ring-gold/70 ring-offset-8 ring-offset-white";
+---
+<section class="overflow-hidden bg-white py-24 min-[48rem]:py-32" aria-labelledby="story-title">
+  <div class="mx-auto grid max-w-(--max) items-center gap-16 px-(--gutter) min-[60rem]:grid-cols-2 min-[60rem]:gap-24">
+    <div class="relative mx-auto grid w-full max-w-lg grid-cols-[1fr_1fr] items-end gap-6 px-2" data-reveal>
+      <div class={`${arch} aspect-[3/4] translate-y-0`}>
+        <img class="size-full scale-[1.9] object-cover object-[50%_82%]" src="/maisonsabra/Azerwal-sac-3-_ms-1000x999.webp" alt="Détail du tissu berbère rayé d’un sac Azerwal" width="1000" height="999" loading="lazy" decoding="async" />
+      </div>
+      <div class={`${arch} aspect-[3/4] -translate-y-12`}>
+        <img class="size-full scale-[2.1] object-cover object-[50%_42%]" src="/maisonsabra/083A5723ms-blan-casser-_ms-1000x988.webp" alt="Détail de la broderie dorée sur velours beige d’un sac Z’man" width="1000" height="988" loading="lazy" decoding="async" />
+      </div>
+    </div>
+
+    <div class="grid max-w-[52ch] gap-8" data-reveal style="--d:.1s">
+      <h2 id="story-title" class="text-step-3">Chaque sac raconte une histoire</h2>
+      <div class="grid gap-5 text-step-0 text-ink-soft">
+        <p>Plongez dans l’univers de Maison Sabra, où chaque sac est une pièce unique, faite main par des artisanes marocaines.</p>
+        <p>Des matériaux nobles, un savoir-faire ancestral, et une touche d’âme dans chaque couture.</p>
+      </div>
+      <ul class="m-0 grid list-none gap-3 border-t border-gold/60 p-0 pt-6">
+        {points.map((t) => (
+          <li class="flex items-center gap-3 text-ink">
+            <svg class="shrink-0 text-gold" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="6" y="6" width="12" height="12"/><rect x="6" y="6" width="12" height="12" transform="rotate(45 12 12)"/></svg>
+            {t}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>

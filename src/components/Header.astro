@@ -1,0 +1,83 @@
+---
+const nav = [
+  { href: "/", label: "Accueil", current: true },
+  { href: "/a-propos", label: "À propos de nous" },
+  { href: "/boutique", label: "Boutique" },
+  { href: "/collection-bladi", label: "Collection Bladi" },
+  { href: "/collection-zman", label: "Collection Z’man" },
+  { href: "/contact", label: "Contactez-Nous" },
+];
+const s = { fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", width: 24, height: 24, viewBox: "0 0 24 24" } as const;
+---
+<div data-sentinel aria-hidden="true" class="-mb-px h-px"></div>
+<header class="group/h sticky top-0 z-50 border-b border-transparent bg-cream-soft/95 backdrop-blur-md backdrop-saturate-120 transition-[border-color,box-shadow] duration-300 data-[stuck=true]:border-gold/55 data-[stuck=true]:shadow-[0_8px_24px_-16px_rgb(74_15_34/0.35)]" data-header>
+  <div class="mx-auto grid h-(--header-h) max-w-(--max) grid-cols-[3rem_1fr_7rem] items-center px-(--gutter) transition-[height] duration-350 ease-(--ease-out) group-data-[stuck=true]/h:h-(--header-h-stuck) nav:grid-cols-[auto_1fr_auto] nav:gap-8">
+    <button class="icon-btn -ml-2 nav:hidden" type="button" aria-expanded="false" aria-controls="menu-mobile" aria-label="Ouvrir le menu">
+      <svg {...s}><path d="M4 8h16M4 16h16"/></svg>
+    </button>
+
+    <a class="flex items-center gap-3 justify-self-center text-burgundy no-underline nav:justify-self-start" href="/" aria-label="Maison Sabra, accueil">
+      <img class="size-11 object-contain transition-[width,height] duration-350 ease-(--ease-out) group-data-[stuck=true]/h:size-9" src="/img/logo-ms.png" alt="" width="44" height="44" />
+      <span class="hidden font-display text-xl leading-none font-semibold tracking-[0.12em] uppercase min-[30rem]:block">Maison Sabra</span>
+    </a>
+
+    <nav class="hidden justify-self-center nav:block" aria-label="Navigation principale">
+      <ul class="m-0 flex list-none gap-[clamp(1rem,1.7vw,2.25rem)] p-0">
+        {nav.map((n) => (
+          <li>
+            <a class="relative block py-2 text-xs leading-none font-semibold tracking-[0.08em] whitespace-nowrap text-ink uppercase no-underline transition-colors duration-200 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-gold after:transition-transform after:duration-400 after:ease-(--ease-out) hover:text-burgundy hover:after:scale-x-100 aria-[current]:text-burgundy aria-[current]:after:scale-x-100" href={n.href} aria-current={n.current ? "page" : undefined}>{n.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="-mr-2 flex justify-self-end">
+      <a class="icon-btn hidden nav:grid" href="/mon-compte" aria-label="Mon compte">
+        <svg {...s}><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>
+      </a>
+      <a class="icon-btn" href="/favoris" aria-label="Liste de souhaits, 0 article">
+        <svg {...s}><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>
+      </a>
+      <a class="icon-btn" href="/panier" aria-label="Panier, 0 article" data-cart-link>
+        <svg {...s}><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+        <span class="absolute top-0.5 right-0 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-burgundy px-1 text-[0.6875rem] leading-none font-semibold text-cream" aria-hidden="true" data-cart-count>0</span>
+      </a>
+    </div>
+  </div>
+
+  <div id="menu-mobile" inert class="invisible absolute inset-x-0 top-full h-[calc(100dvh-var(--header-h))] overflow-y-auto border-t border-gold/55 bg-cream-soft px-(--gutter) pt-6 pb-8 [clip-path:inset(0_0_100%_0)] transition-[clip-path,visibility] duration-500 ease-(--ease-out) [transition-delay:0s,0.5s] group-data-[open=true]/h:visible group-data-[open=true]/h:[clip-path:inset(0)] group-data-[open=true]/h:[transition-delay:0s] nav:hidden">
+    <nav aria-label="Menu mobile">
+      <ul class="m-0 list-none p-0">
+        {nav.map((n) => (
+          <li class="not-first:border-t not-first:border-burgundy/15">
+            <a class="block py-4 font-display text-step-2 leading-tight text-burgundy no-underline hover:text-rose-dusty aria-[current]:text-rose-dusty" href={n.href} aria-current={n.current ? "page" : undefined}>{n.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <a class="mt-6 inline-block text-[0.9375rem] leading-none font-semibold tracking-[0.08em] text-burgundy uppercase no-underline hover:text-rose-dusty" href="/mon-compte">Mon compte</a>
+  </div>
+</header>
+
+<script>
+  import { lockScroll } from "../scripts/smooth";
+
+  const header = document.querySelector<HTMLElement>("[data-header]")!;
+  new IntersectionObserver(([e]) => { header.dataset.stuck = String(!e.isIntersecting); })
+    .observe(document.querySelector("[data-sentinel]")!);
+
+  const btn = header.querySelector<HTMLButtonElement>("button[aria-controls]")!;
+  const drawer = header.querySelector<HTMLElement>("#menu-mobile")!;
+  const setOpen = (open: boolean) => {
+    header.dataset.open = String(open);
+    btn.setAttribute("aria-expanded", String(open));
+    btn.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
+    btn.querySelector("path")!.setAttribute("d", open ? "M6 6l12 12M18 6L6 18" : "M4 8h16M4 16h16");
+    drawer.toggleAttribute("inert", !open);
+    lockScroll(open);
+  };
+  btn.addEventListener("click", () => setOpen(btn.getAttribute("aria-expanded") !== "true"));
+  header.addEventListener("keydown", (e) => { if (e.key === "Escape" && header.dataset.open === "true") { setOpen(false); btn.focus(); } });
+  drawer.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  matchMedia("(min-width: 78rem)").addEventListener("change", (m) => m.matches && setOpen(false));
+</script>

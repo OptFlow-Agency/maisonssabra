@@ -1,0 +1,39 @@
+---
+import type { Product } from "../data/products";
+import { discount } from "../data/products";
+interface Props { product: Product; delay?: number }
+const { product: p, delay = 0 } = Astro.props;
+const href = `/produit/${p.slug}`;
+---
+<article class="group/card relative flex flex-col" data-reveal style={`--d:${delay}s`}>
+  <div class="relative aspect-square overflow-hidden bg-white">
+    <a class="block size-full" href={href} tabindex="-1" aria-hidden="true">
+      <img class={`absolute inset-0 size-full object-cover transition-[opacity,scale] duration-700 ease-(--ease-out) ${p.img2 ? "" : "can-hover:group-hover/card:scale-105"}`} src={p.img} alt="" width="1000" height="988" loading="lazy" decoding="async" />
+      {p.img2 && <img class="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-700 ease-(--ease-out) can-hover:group-hover/card:opacity-100" src={p.img2} alt="" width="800" height="790" loading="lazy" decoding="async" />}
+    </a>
+
+    <div class="pointer-events-none absolute top-3 left-3 flex flex-col items-start gap-1.5">
+      <span class="bg-burgundy px-2 py-1 text-[0.6875rem] leading-none font-semibold tracking-[0.08em] text-cream uppercase">−{discount(p)} %</span>
+      {p.isNew && <span class="bg-cream-soft px-2 py-1 text-[0.6875rem] leading-none font-semibold tracking-[0.08em] text-burgundy uppercase">Nouveau</span>}
+    </div>
+
+    <button class="group/heart icon-btn absolute top-1.5 right-1.5 text-burgundy" type="button" data-wish={p.name} aria-pressed="false" aria-label={`Ajouter à la liste de souhaits : ${p.name}`}>
+      <svg class="transition-[fill,scale] duration-300 group-aria-pressed/heart:scale-110 group-aria-pressed/heart:fill-current" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>
+    </button>
+
+    <button class="absolute inset-x-0 bottom-0 flex h-11 cursor-pointer items-center justify-center gap-2 border-0 bg-burgundy text-[0.6875rem] leading-none font-semibold tracking-[0.08em] text-cream uppercase transition-[background-color,translate] duration-500 ease-(--ease-out) hover:bg-rose-dusty hover:text-white can-hover:translate-y-full can-hover:group-focus-within/card:translate-y-0 can-hover:group-hover/card:translate-y-0 min-[30rem]:text-xs" type="button" data-add={p.slug} data-name={p.name} data-price={p.price} data-img={p.img} aria-label={`Ajouter au panier : ${p.name}`}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+      Ajouter au panier
+    </button>
+  </div>
+
+  <div class="flex flex-1 flex-col gap-2 pt-4">
+    <h3 class="text-[1.125rem] leading-snug min-[30rem]:text-step-1">
+      <a class="text-burgundy no-underline hover:text-rose-dusty" href={href}>{p.name}</a>
+    </h3>
+    <p class="flex flex-wrap items-baseline gap-x-2.5 text-ink tabular-nums">
+      <span class="sr-only">Prix actuel :</span><span class="font-semibold">{p.price} dhs</span>
+      <span class="sr-only">Prix initial :</span><s class="text-sm text-ink-soft">{p.was} dhs</s>
+    </p>
+  </div>
+</article>

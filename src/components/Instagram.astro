@@ -1,0 +1,28 @@
+---
+const posts = [
+  { src: "im4", alt: "Sac cabas noir à tissu berbère devant un décor de cèdre sculpté : From the heart of Moroccan culture" },
+  { src: "m7", alt: "Visuel « Pourquoi Maison Sabra ? » : 100 % fait au Maroc" },
+  { src: "im3", alt: "Visuel « Chaque sac raconte une histoire » : portrait d’une femme voilée" },
+  { src: "im5", alt: "Sac en tissu brocart beige et doré devant un décor de cèdre sculpté" },
+  { src: "im2", alt: "Visuel « Chaque sac raconte une histoire » : femme en tenue blanche portant un sac" },
+  { src: "im6", alt: "Sac en patchwork coloré devant un décor de cèdre sculpté" },
+];
+---
+<section class="bg-white py-24 min-[48rem]:py-32" aria-labelledby="insta-title">
+  <div class="mx-auto max-w-(--max) px-(--gutter)">
+    <div class="mb-10 grid gap-3" data-reveal>
+      <h2 id="insta-title" class="text-step-3">Suivez notre univers en ligne</h2>
+      <a class="w-fit text-step-1 text-burgundy underline decoration-gold decoration-1 underline-offset-8 hover:text-rose-dusty" href="https://www.instagram.com/maison_sabra" rel="noopener">@maison_sabra</a>
+    </div>
+    <ul class="m-0 grid list-none grid-cols-2 gap-3 p-0 min-[48rem]:grid-cols-3 min-[75rem]:grid-cols-6">
+      {posts.map((p, i) => (
+        <li data-reveal style={`--d:${(i % 3) * 0.08}s`}>
+          <a class="group relative block aspect-[4/5] overflow-hidden bg-cream" href="https://www.instagram.com/maison_sabra" rel="noopener" aria-label={`Voir sur Instagram : ${p.alt}`}>
+            <img class="size-full object-cover transition-transform duration-700 ease-(--ease-out) can-hover:group-hover:scale-105" src={`/maisonsabra/social/${p.src}.webp`} alt={p.alt} width="640" height="800" loading="lazy" decoding="async" />
+            <span class="pointer-events-none absolute inset-0 bg-burgundy-deep/0 transition-colors duration-500 can-hover:group-hover:bg-burgundy-deep/25"></span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

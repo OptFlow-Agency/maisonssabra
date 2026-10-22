@@ -1,0 +1,52 @@
+/* Maison Sabra design tokens (Tailwind v4 @theme: each token becomes a utility, e.g. bg-burgundy, text-step-4, font-display) */
+@theme {
+  /* Brand */
+  --color-burgundy: #6b1a33;
+  --color-burgundy-deep: #4a0f22; /* text on rose, hero depth; 11:1 on cream */
+  --color-rose: #e8829b; /* primary CTA, announcement bar */
+  --color-rose-dusty: #b5546f; /* hover/active; white text 4.7:1 */
+  --color-cream: #eadfc8;
+  --color-cream-soft: #f6f0e2;
+  --color-white: #ffffff;
+
+  /* Text */
+  --color-ink: #141414;
+  --color-ink-soft: #5a5553;
+
+  /* Accents: sparing. Gold is decorative only (1.8:1 on cream), never body text. */
+  --color-teal: #1f6b6b;
+  --color-terracotta: #c9794a;
+  --color-gold: #c9a24b;
+
+  /* Type */
+  --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-body: "Jost Variable", "Jost", "Poppins", system-ui, sans-serif;
+  --text-step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --text-step-0: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --text-step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --text-step-2: clamp(1.75rem, 1.5rem + 1.2vw, 2.5rem);
+  --text-step-3: clamp(2.5rem, 1.9rem + 3vw, 4.25rem);
+  --text-step-4: clamp(3.25rem, 2.2rem + 5.2vw, 6rem);
+
+  /* Breakpoints (mobile first: 360 / 768 / 1280 verified) */
+  --breakpoint-split: 60rem;
+  --breakpoint-nav: 78rem;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-rise: rise 1.1s var(--ease-out) both;
+  --animate-fade: fade 1s var(--ease-out) both;
+  --animate-draw: draw 1.8s var(--ease-out) forwards;
+  --animate-lift: lift 1.4s var(--ease-out) both;
+  @keyframes rise { from { transform: translateY(105%); } }
+  @keyframes fade { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes lift { from { opacity: 0; translate: -50% 24px; } }
+}
+
+:root {
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --max: 90rem;
+  --header-h: 4.5rem;
+  --header-h-stuck: 3.75rem;
+}

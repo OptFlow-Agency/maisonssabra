@@ -1,0 +1,45 @@
+@import "@fontsource/cormorant-garamond/latin-500.css";
+@import "@fontsource/cormorant-garamond/latin-600.css";
+@import "@fontsource/cormorant-garamond/latin-500-italic.css";
+@import "@fontsource-variable/jost/index.css";
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+@import "./tokens.css";
+
+/* Hover effects only where a real hover exists; touch devices get the always-visible state. */
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h) + 1rem); scrollbar-color: var(--color-burgundy) var(--color-cream); }
+  body { @apply bg-cream-soft font-body text-step-0 leading-relaxed text-ink antialiased; }
+  img, svg { @apply block h-auto max-w-full; }
+  a { text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
+  h1, h2, h3 { @apply font-display font-medium leading-[1.02] text-burgundy text-balance; }
+  p { @apply text-pretty; }
+  ::selection { @apply bg-rose text-burgundy-deep; }
+  :focus-visible { @apply rounded-xs outline-2 outline-offset-3 outline-burgundy; }
+  .on-dark :focus-visible { @apply outline-cream; }
+  ::-webkit-scrollbar { width: 12px; }
+  ::-webkit-scrollbar-track { background: var(--color-cream); }
+  ::-webkit-scrollbar-thumb { background: var(--color-burgundy); border: 3px solid var(--color-cream); border-radius: 8px; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-13 cursor-pointer items-center gap-3 whitespace-nowrap rounded-none border-0 bg-rose px-6 font-body text-sm leading-none font-semibold tracking-[0.07em] text-burgundy-deep uppercase no-underline transition-colors duration-300 hover:bg-rose-dusty hover:text-white active:bg-burgundy active:text-white;
+  }
+  .btn svg { transition: transform 0.35s var(--ease-out); }
+  .btn:hover svg { transform: translateX(4px); }
+  .icon-btn {
+    @apply relative grid size-11 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-burgundy transition-colors duration-200 hover:bg-rose/15 hover:text-rose-dusty;
+  }
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+html.js [data-reveal]:not(.is-in) { opacity: 0; translate: 0 1.5rem; }
+[data-reveal] { transition: opacity 0.9s var(--ease-out) var(--d, 0s), translate 0.9s var(--ease-out) var(--d, 0s); }
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal]:not(.is-in) { opacity: 1; translate: none; }
+}

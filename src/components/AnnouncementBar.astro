@@ -1,0 +1,42 @@
+---
+const messages = [
+  { text: "Livraison gratuite pour toute commande supérieure à 1000 dhs.", link: { href: "/boutique", label: "Achetez maintenant" } },
+  { text: "Bénéficiez de 15 % de réduction dès 800 dhs d’achat. Code : GIFT64" },
+  { text: "Un cadeau toujours génial ! Obtenez des coupons-cadeaux dès maintenant !" },
+];
+// Two identical groups: the track slides by exactly one group's width, so the loop has no seam.
+const groups = [false, true];
+---
+<div class="group/bar relative flex min-h-11 items-center overflow-hidden bg-rose text-burgundy-deep [mask-image:linear-gradient(90deg,transparent,#000_5%,#000_95%,transparent)] motion-reduce:justify-center motion-reduce:[mask-image:none]" role="region" aria-label="Annonces" data-announce>
+  <div class="flex w-max animate-[marquee_var(--dur,60s)_linear_infinite] will-change-transform group-hover/bar:[animation-play-state:paused] group-focus-within/bar:[animation-play-state:paused] motion-reduce:w-auto motion-reduce:animate-none" data-track>
+    {groups.map((dup) => (
+      <ul class="m-0 flex min-w-screen shrink-0 list-none items-center p-0 motion-reduce:min-w-0" aria-hidden={dup ? "true" : undefined} data-group>
+        {messages.map((m, i) => (
+          <li class={`flex items-center whitespace-nowrap ${i > 0 ? "motion-reduce:hidden" : ""}`}>
+            <span class="px-8 text-step--1 leading-snug font-medium tracking-[0.04em] min-[48rem]:px-14">
+              {m.text}
+              {m.link && <> <a class="font-semibold underline hover:bg-burgundy-deep hover:px-1 hover:text-white hover:no-underline focus-visible:outline-burgundy-deep" href={m.link.href} tabindex={dup ? -1 : undefined}>{m.link.label}</a></>}
+            </span>
+            <svg class="shrink-0 text-burgundy-deep/60" width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><path d="M4 0l4 4-4 4-4-4z"/></svg>
+          </li>
+        ))}
+      </ul>
+    ))}
+  </div>
+</div>
+
+<style is:global>
+  @keyframes marquee { to { transform: translateX(-50%); } }
+</style>
+
+<script>
+  // Constant, unhurried speed regardless of text length or screen width.
+  const bar = document.querySelector<HTMLElement>("[data-announce]");
+  const track = bar?.querySelector<HTMLElement>("[data-track]");
+  const group = bar?.querySelector<HTMLElement>("[data-group]");
+  if (track && group) {
+    const setSpeed = () => track.style.setProperty("--dur", `${Math.max(20, group.offsetWidth / 38)}s`);
+    setSpeed();
+    new ResizeObserver(setSpeed).observe(group);
+  }
+</script>

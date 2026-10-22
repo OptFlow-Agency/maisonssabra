@@ -1,0 +1,14 @@
+---
+---
+<a class="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid size-14 translate-y-24 place-items-center rounded-full bg-burgundy text-cream no-underline shadow-[0_14px_28px_-10px_rgb(74_15_34/0.6)] ring-1 ring-gold transition-[translate,background-color,box-shadow] duration-500 ease-(--ease-out) hover:bg-rose-dusty hover:text-white data-[show=true]:translate-y-0 min-[48rem]:right-8 min-[48rem]:bottom-8 min-[48rem]:size-16 focus-visible:outline-burgundy" href="/panier" aria-label="Panier, 0 article" data-cart-link data-floating-cart>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+  <span class="absolute -top-1 -right-1 grid h-6 min-w-6 place-items-center rounded-full bg-rose px-1.5 text-xs leading-none font-semibold text-burgundy-deep ring-2 ring-cream-soft" aria-hidden="true" data-cart-count>0</span>
+</a>
+<script>
+  import { onScroll } from "../scripts/smooth";
+  const btn = document.querySelector<HTMLElement>("[data-floating-cart]")!;
+  onScroll((y) => { btn.dataset.show = String(y > 480 || Number(btn.querySelector("[data-cart-count]")!.textContent) > 0); });
+  document.addEventListener("cart:change", (e) => {
+    if ((e as CustomEvent).detail.count > 0) btn.dataset.show = "true";
+  });
+</script>

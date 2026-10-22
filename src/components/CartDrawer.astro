@@ -1,0 +1,35 @@
+---
+---
+<dialog class="m-0 ml-auto h-dvh max-h-none w-[min(100vw,27rem)] max-w-none translate-x-full overflow-hidden border-0 bg-cream-soft p-0 text-ink shadow-[-24px_0_48px_-24px_rgb(74_15_34/0.5)] transition-transform duration-[380ms] ease-(--ease-out) backdrop:bg-burgundy-deep/55 backdrop:backdrop-blur-[2px] data-[open=true]:translate-x-0 motion-reduce:transition-none" data-cart-dialog aria-labelledby="cart-title">
+  <div class="flex h-full flex-col">
+    <header class="flex items-center justify-between border-b border-gold/55 px-6 py-4">
+      <h2 id="cart-title" class="text-step-1">Votre panier<span data-cart-title-count></span></h2>
+      <button class="icon-btn -mr-2" type="button" data-cart-close aria-label="Fermer le panier">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+
+    <div class="flex-1 overflow-y-auto px-6" data-lenis-prevent>
+      <ul class="m-0 list-none divide-y divide-burgundy/15 p-0" data-cart-lines hidden></ul>
+      <div class="grid h-full content-center justify-items-center gap-5 py-16 text-center" data-cart-empty>
+        <svg class="text-gold" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+        <p class="m-0 font-display text-step-1 text-burgundy">Votre panier est vide</p>
+        <p class="m-0 max-w-[28ch] text-sm text-ink-soft">Découvrez nos sacs en velours, cuir et tissu berbère.</p>
+        <a class="btn" href="/boutique" data-cart-close>Découvrir la collection</a>
+      </div>
+    </div>
+
+    <footer class="grid gap-4 border-t border-gold/55 bg-white px-6 pt-5 pb-6" data-cart-foot hidden>
+      <div class="grid gap-2">
+        <p class="m-0 text-sm text-ink" data-free-msg role="status"></p>
+        <div class="h-1 bg-cream" aria-hidden="true"><div class="h-full w-(--w,0%) bg-gold transition-[width] duration-500 ease-(--ease-out)" data-free-bar></div></div>
+      </div>
+      <p class="m-0 flex items-baseline justify-between">
+        <span class="text-sm font-semibold tracking-[0.08em] uppercase">Sous-total</span>
+        <span class="text-step-1 font-semibold text-burgundy tabular-nums" data-cart-total></span>
+      </p>
+      <a class="btn justify-center" href="/commande">Commander</a>
+      <button class="cursor-pointer border-0 bg-transparent p-0 text-sm text-ink-soft underline underline-offset-4 hover:text-rose-dusty" type="button" data-cart-close>Continuer mes achats</button>
+    </footer>
+  </div>
+</dialog>
