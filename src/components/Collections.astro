@@ -13,8 +13,11 @@ const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" strok
       <a class="inline-flex items-center gap-3 text-sm font-semibold tracking-[0.08em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-8 hover:text-rose-dusty" href="/collection-bladi">Voir la collection <Fragment set:html={arrow} /></a>
     </div>
 
-    <div class="-mx-(--gutter) flex snap-x snap-mandatory gap-4 overflow-x-auto px-(--gutter) pb-2 [scrollbar-width:none] min-[48rem]:mx-0 min-[48rem]:grid min-[48rem]:grid-cols-3 min-[48rem]:gap-8 min-[48rem]:overflow-visible min-[48rem]:px-0">
-      {bladi.map((p, i) => <div class="w-[78%] shrink-0 snap-start min-[48rem]:w-auto"><ProductCard product={p} delay={i * 0.1} /></div>)}
+    <div class="-mx-(--gutter) flex snap-x snap-mandatory scroll-px-(--gutter) gap-4 overflow-x-auto overscroll-x-contain px-(--gutter) pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-[48rem]:mx-0 min-[48rem]:grid min-[48rem]:grid-cols-3 min-[48rem]:gap-8 min-[48rem]:overflow-visible min-[48rem]:px-0" data-slider tabindex="0" role="group" aria-roledescription="carrousel" aria-label="Collection Bladi">
+      {bladi.map((p, i) => <div class="w-[78%] shrink-0 snap-start min-[48rem]:w-auto" data-slide role="group" aria-roledescription="diapositive" aria-label={`${i + 1} sur ${bladi.length}`}><ProductCard product={p} delay={i * 0.1} /></div>)}
+    </div>
+    <div class="mt-5 flex justify-center gap-2 min-[48rem]:hidden" data-dots>
+      {bladi.map((p, i) => <button class="relative size-2 cursor-pointer rounded-full border-0 bg-burgundy/25 p-0 transition-[background-color,width] duration-300 before:absolute before:-inset-2.5 before:content-[''] aria-current:w-6 aria-current:bg-burgundy" type="button" aria-label={`Aller au sac ${i + 1}`} aria-current={i === 0 ? "true" : undefined}></button>)}
     </div>
   </div>
 </section>
@@ -35,3 +38,18 @@ const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" strok
     </div>
   </div>
 </section>
+
+<script>
+  const slider = document.querySelector<HTMLElement>("[data-slider]");
+  const dots = [...document.querySelectorAll<HTMLButtonElement>("[data-dots] button")];
+  const slides = slider ? [...slider.querySelectorAll<HTMLElement>("[data-slide]")] : [];
+  if (slider && slides.length) {
+    const mark = (n: number) => dots.forEach((d, i) => (i === n ? d.setAttribute("aria-current", "true") : d.removeAttribute("aria-current")));
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) mark(slides.indexOf(e.target as HTMLElement)); }),
+      { root: slider, threshold: 0.6 },
+    );
+    slides.forEach((el) => io.observe(el));
+    dots.forEach((d, i) => d.addEventListener("click", () => slides[i].scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" })));
+  }
+</script>
