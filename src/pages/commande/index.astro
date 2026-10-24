@@ -1,0 +1,249 @@
+---
+import Page from "../../layouts/Page.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { site } from "../../data/site";
+
+const fields = [
+  { id: "first_name", label: "Prénom", autocomplete: "given-name", half: true },
+  { id: "last_name", label: "Nom", autocomplete: "family-name", half: true },
+  { id: "phone", label: "Téléphone", autocomplete: "tel", type: "tel", inputmode: "tel", hint: "Pour la livraison, par exemple 06 12 34 56 78" },
+  { id: "address", label: "Adresse", autocomplete: "street-address", hint: "Rue, numéro, quartier" },
+  { id: "city", label: "Ville", autocomplete: "address-level2" },
+];
+---
+<Page title="Finaliser ma commande | Maison Sabra" description="Renseignez vos coordonnées de livraison pour finaliser votre commande Maison Sabra." noindex bare>
+  <section class="bg-cream-soft pt-8 pb-20 min-[48rem]:pt-10 min-[48rem]:pb-28" aria-labelledby="checkout-title">
+    <div class="mx-auto max-w-(--max) px-(--gutter)">
+      <Breadcrumbs crumbs={[["Accueil", "/"], ["Boutique", "/boutique"], ["Commande", "/commande"]]} />
+      <h1 id="checkout-title" class="mt-8 mb-10 text-step-3 min-[48rem]:mb-14">Finaliser ma commande</h1>
+
+      <div class="hidden max-w-[34rem] gap-5 border border-gold/55 bg-white p-8" data-empty>
+        <p class="m-0 font-display text-step-1 text-burgundy">Votre panier est vide</p>
+        <p class="m-0 text-ink-soft">Ajoutez un sac pour passer commande.</p>
+        <a class="btn justify-self-start" href="/boutique">Découvrir la boutique</a>
+      </div>
+
+      <div class="grid gap-12 min-[60rem]:grid-cols-[1.1fr_1fr] min-[60rem]:items-start min-[60rem]:gap-20" data-checkout hidden>
+        <form class="grid gap-6" novalidate data-form aria-describedby="form-error">
+          <h2 class="text-step-1">Vos coordonnées</h2>
+
+          <p id="form-error" class="m-0 hidden border border-burgundy-deep bg-white p-4 text-burgundy-deep" role="alert" tabindex="-1" data-form-error></p>
+
+          <div class="grid gap-x-5 gap-y-6 min-[30rem]:grid-cols-2">
+            {fields.map((f) => (
+              <div class={`grid content-start gap-2 ${f.half ? "" : "min-[30rem]:col-span-2"}`}>
+                <label class="field-label" for={f.id}>{f.label}</label>
+                <input class="field" id={f.id} name={f.id} type={f.type ?? "text"} inputmode={f.inputmode} autocomplete={f.autocomplete} required maxlength="300" aria-describedby={`${f.id}-msg`} />
+                <p id={`${f.id}-msg`} class="m-0 min-h-5 text-sm text-ink-soft" data-msg data-hint={f.hint ?? ""}>{f.hint}</p>
+              </div>
+            ))}
+          </div>
+
+          <div class="absolute -left-[9999px]" aria-hidden="true">
+            <label>Ne pas remplir <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+          </div>
+
+          <button class="btn justify-center disabled:cursor-wait disabled:opacity-70" type="submit" data-submit>
+            <span data-submit-label>Confirmer ma commande</span>
+          </button>
+        </form>
+
+        <aside class="order-first grid gap-6 border border-gold/55 bg-white p-6 min-[48rem]:p-8 min-[60rem]:order-none min-[60rem]:sticky min-[60rem]:top-28" aria-labelledby="summary-title">
+          <div class="flex items-baseline justify-between gap-4">
+            <h2 id="summary-title" class="text-step-1">Votre commande</h2>
+            <a class="text-sm text-ink-soft underline underline-offset-4 hover:text-rose-dusty" href="/commande" data-cart-link>Modifier</a>
+          </div>
+          <ul class="m-0 list-none divide-y divide-burgundy/15 p-0" data-summary-lines></ul>
+
+          <form class="grid gap-2 border-t border-gold/55 pt-5" novalidate data-promo-form>
+            <label class="field-label" for="promo">Code promo</label>
+            <div class="flex gap-2">
+              <input class="field min-w-0 flex-1 tracking-[0.08em] uppercase" id="promo" name="promo" type="text" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="promo-msg" />
+              <button class="btn-ghost min-h-13" type="submit" data-promo-btn>Appliquer</button>
+            </div>
+            <p id="promo-msg" class="m-0 min-h-5 text-sm text-ink-soft" role="status" data-promo-msg></p>
+          </form>
+
+          <p class="m-0 hidden items-baseline justify-between text-sm" data-discount-row>
+            <span>Réduction <span class="font-semibold tracking-[0.06em]" data-discount-code></span></span>
+            <span class="font-semibold tabular-nums" data-discount-amount></span>
+          </p>
+          <p class="m-0 flex items-baseline justify-between border-t border-gold/55 pt-5">
+            <span class="text-sm font-semibold tracking-[0.08em] uppercase">Total</span>
+            <span class="text-step-1 font-semibold text-burgundy tabular-nums" data-summary-total></span>
+          </p>
+          <p class="m-0 text-sm text-ink-soft" data-summary-ship>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} dhs.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { getLines, subtotal, clearCart } from "../../scripts/cart";
+
+  const SUPABASE_URL = import.meta.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
+  const SUPABASE_KEY = import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+  const fmt = (n: number) => `${n.toLocaleString("fr-FR")} dhs`;
+
+  const empty = document.querySelector<HTMLElement>("[data-empty]")!;
+  const wrap = document.querySelector<HTMLElement>("[data-checkout]")!;
+  const form = document.querySelector<HTMLFormElement>("[data-form]")!;
+  const formError = form.querySelector<HTMLElement>("[data-form-error]")!;
+  const submit = form.querySelector<HTMLButtonElement>("[data-submit]")!;
+  const submitLabel = form.querySelector<HTMLElement>("[data-submit-label]")!;
+  const list = document.querySelector<HTMLElement>("[data-summary-lines]")!;
+  const total = document.querySelector<HTMLElement>("[data-summary-total]")!;
+  const promoForm = document.querySelector<HTMLFormElement>("[data-promo-form]")!;
+  const promoInput = promoForm.querySelector<HTMLInputElement>("#promo")!;
+  const promoBtn = promoForm.querySelector<HTMLButtonElement>("[data-promo-btn]")!;
+  const promoMsg = promoForm.querySelector<HTMLElement>("[data-promo-msg]")!;
+  const discountRow = document.querySelector<HTMLElement>("[data-discount-row]")!;
+
+  type Promo = { code: string; percent: number; discount: number };
+  let promo: Promo | null = null;
+  const payable = () => subtotal() - (promo?.discount ?? 0);
+  const items = () => getLines().map((l) => ({ slug: l.id, qty: l.qty }));
+  const rpc = (fn: string, body: object) => fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", apikey: SUPABASE_KEY!, Authorization: `Bearer ${SUPABASE_KEY}` },
+    body: JSON.stringify(body),
+  });
+
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text = "") => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  };
+
+  function renderSummary() {
+    const lines = getLines();
+    const has = lines.length > 0;
+    empty.classList.toggle("hidden", has);
+    empty.classList.toggle("grid", !has);
+    wrap.hidden = !has;
+    list.replaceChildren(...lines.map((l) => {
+      const li = el("li", "grid grid-cols-[4.5rem_1fr_auto] items-center gap-4 py-4");
+      const img = el("img", "size-18 bg-cream-soft object-cover");
+      img.src = l.img; img.alt = l.name; img.width = 72; img.height = 72;
+      const body = el("div", "grid gap-1");
+      body.append(el("p", "m-0 font-display text-lg leading-tight text-burgundy", l.name), el("p", "m-0 text-sm text-ink-soft tabular-nums", `Quantité : ${l.qty}`));
+      li.append(img, body, el("p", "m-0 font-semibold tabular-nums", fmt(l.price * l.qty)));
+      return li;
+    }));
+    total.textContent = fmt(payable());
+    submitLabel.textContent = has ? `Confirmer ma commande · ${fmt(payable())}` : "Confirmer ma commande";
+    discountRow.classList.toggle("hidden", !promo);
+    discountRow.classList.toggle("flex", !!promo);
+    if (promo) {
+      discountRow.querySelector("[data-discount-code]")!.textContent = `${promo.code} (−${promo.percent} %)`;
+      discountRow.querySelector("[data-discount-amount]")!.textContent = `−${fmt(promo.discount)}`;
+    }
+    promoInput.disabled = !!promo;
+    promoBtn.textContent = promo ? "Retirer" : "Appliquer";
+  }
+
+  /* ---------- Promo code ---------- */
+  const say = (text: string, bad = false) => {
+    promoMsg.textContent = text;
+    promoMsg.className = `m-0 min-h-5 text-sm ${bad ? "font-medium text-burgundy-deep" : "text-ink-soft"}`;
+    promoInput.toggleAttribute("aria-invalid", bad);
+  };
+  async function checkPromo(code: string): Promise<Promo | null> {
+    const res = await rpc("apply_promo", { p_code: code, p_items: items() });
+    if (!res.ok) throw new Error(String(res.status));
+    const r = (await res.json()) as { percent: number; discount: number } | null;
+    return r ? { code, ...r } : null;
+  }
+  promoForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (promo) { promo = null; promoInput.value = ""; say(""); renderSummary(); promoInput.focus(); return; }
+    const code = promoInput.value.trim().toUpperCase();
+    if (!code) { say("Saisissez votre code promo.", true); promoInput.focus(); return; }
+    if (!SUPABASE_URL || !SUPABASE_KEY) { say("Les codes promo sont momentanément indisponibles.", true); return; }
+    promoBtn.disabled = true; promoBtn.textContent = "Vérification…";
+    try {
+      const r = await checkPromo(code);
+      if (r) { promo = r; say(`Code appliqué : −${fmt(r.discount)}.`); }
+      else say("Ce code n’est pas valide pour les produits de votre panier.", true);
+    } catch { say("Impossible de vérifier le code. Réessayez.", true); }
+    promoBtn.disabled = false;
+    renderSummary();
+  });
+  // The cart can change while a code is applied (drawer): keep the discount honest.
+  async function refreshPromo() {
+    if (!promo) return;
+    try { const r = await checkPromo(promo.code); promo = r; say(r ? `Code appliqué : −${fmt(r.discount)}.` : "Ce code ne s’applique plus à votre panier.", !r); } catch { /* keep the last known discount; the server recomputes at checkout */ }
+    renderSummary();
+  }
+  renderSummary();
+  document.addEventListener("cart:change", () => { renderSummary(); refreshPromo(); });
+
+  /* ---------- Validation ---------- */
+  const rules: Record<string, (v: string) => string> = {
+    first_name: (v) => (v.length < 2 ? "Saisissez votre prénom." : ""),
+    last_name: (v) => (v.length < 2 ? "Saisissez votre nom." : ""),
+    phone: (v) => (v.replace(/[\s.\-()]/g, "").match(/^(\+?212|0)[5-7]\d{8}$/) ? "" : "Saisissez un numéro marocain valide, par exemple 06 12 34 56 78."),
+    address: (v) => (v.length < 5 ? "Saisissez votre adresse complète : rue, numéro, quartier." : ""),
+    city: (v) => (v.length < 2 ? "Saisissez votre ville." : ""),
+  };
+  const input = (id: string) => form.elements.namedItem(id) as HTMLInputElement;
+  const message = (id: string) => form.querySelector<HTMLElement>(`#${id}-msg`)!;
+
+  function check(id: string): boolean {
+    const i = input(id), m = message(id);
+    const err = rules[id](i.value.trim());
+    if (err) { i.setAttribute("aria-invalid", "true"); m.textContent = err; m.className = "m-0 min-h-5 text-sm font-medium text-burgundy-deep"; }
+    else { i.removeAttribute("aria-invalid"); m.textContent = m.dataset.hint ?? ""; m.className = "m-0 min-h-5 text-sm text-ink-soft"; }
+    return !err;
+  }
+  Object.keys(rules).forEach((id) => {
+    input(id).addEventListener("blur", () => { if (input(id).value) check(id); });
+    input(id).addEventListener("input", () => { if (input(id).getAttribute("aria-invalid")) check(id); });
+  });
+
+  const showError = (text: string) => { formError.textContent = text; formError.classList.remove("hidden"); formError.focus(); };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    formError.classList.add("hidden");
+    const bad = Object.keys(rules).filter((id) => !check(id));
+    if (bad.length) { showError(`Veuillez corriger ${bad.length > 1 ? "les champs signalés" : "le champ signalé"} avant de confirmer.`); input(bad[0]).focus(); return; }
+    if ((form.elements.namedItem("website") as HTMLInputElement).value) { location.assign("/commande/merci"); return; } // honeypot
+
+    if (!SUPABASE_URL || !SUPABASE_KEY) { showError("La commande en ligne est momentanément indisponible. Merci de réessayer plus tard."); return; }
+
+    submit.disabled = true;
+    submitLabel.textContent = "Envoi en cours…";
+    try {
+      const res = await rpc("place_order", {
+        p_first_name: input("first_name").value.trim(),
+        p_last_name: input("last_name").value.trim(),
+        p_phone: input("phone").value.trim(),
+        p_address: input("address").value.trim(),
+        p_city: input("city").value.trim(),
+        p_items: items(),
+        ...(promo ? { p_promo: promo.code } : {}),
+      });
+      if (!res.ok) {
+        if ((await res.text()).includes("invalid_promo")) {
+          promo = null; promoInput.value = "";
+          say("Ce code n’est plus valide. Il a été retiré de votre commande.", true);
+          renderSummary();
+          showError("Le code promo n’est plus valide : le total a été mis à jour. Vérifiez-le puis confirmez à nouveau.");
+          submit.disabled = false;
+          return;
+        }
+        throw new Error(String(res.status));
+      }
+      const { order_number } = await res.json();
+      clearCart();
+      location.assign(`/commande/merci?n=${encodeURIComponent(order_number)}`);
+    } catch {
+      showError("Votre commande n’a pas pu être envoyée. Votre panier est conservé : vérifiez votre connexion puis réessayez.");
+      submit.disabled = false;
+      renderSummary();
+    }
+  });
+</script>

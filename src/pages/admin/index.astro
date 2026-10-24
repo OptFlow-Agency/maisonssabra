@@ -1,0 +1,88 @@
+---
+import Admin from "../../layouts/Admin.astro";
+import AdminShell from "../../components/AdminShell.astro";
+import ProductSheet from "../../components/ProductSheet.astro";
+---
+<Admin title="Produits">
+  <AdminShell current="produits">
+    <main class="mx-auto max-w-5xl px-(--gutter) py-10 min-[48rem]:py-14">
+      <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div class="grid gap-1">
+          <h1 class="text-step-2">Produits</h1>
+          <p class="m-0 text-sm text-ink-soft" data-count aria-live="polite">Chargement…</p>
+        </div>
+        <button class="btn" type="button" data-add-product>Ajouter un produit</button>
+      </div>
+
+      <p class="m-0 hidden border border-burgundy-deep bg-white p-4 text-burgundy-deep" role="alert" data-list-error></p>
+
+      <div class="hidden border border-gold/55 bg-white" data-table>
+        <div class="hidden grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_6rem_5rem] items-center gap-4 border-b border-gold/55 px-4 py-3 text-xs font-semibold tracking-[0.08em] text-ink-soft uppercase min-[48rem]:grid" aria-hidden="true">
+          <span></span><span>Produit</span><span>Collection</span><span>Prix</span><span>Statut</span><span></span>
+        </div>
+        <ul class="m-0 list-none divide-y divide-burgundy/15 p-0" data-rows></ul>
+      </div>
+
+      <div class="hidden max-w-md gap-4 border border-gold/55 bg-white p-8" data-empty>
+        <p class="m-0 font-display text-step-1 text-burgundy">Aucun produit pour le moment</p>
+        <p class="m-0 text-ink-soft">Ajoutez votre premier produit : il apparaît dans la boutique dès l’enregistrement.</p>
+        <button class="btn justify-self-start" type="button" data-add-product>Ajouter un produit</button>
+      </div>
+    </main>
+    <ProductSheet />
+  </AdminShell>
+</Admin>
+
+<script>
+  import { guard } from "../../scripts/admin/auth";
+  import { supabase, variant, fmt, toast, type ProductRow } from "../../scripts/admin/supabase";
+  import { openSheet } from "../../scripts/admin/sheet";
+
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text = "") => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  };
+
+  const afterChange = async (what: "saved" | "deleted") => { await load(); toast(what === "deleted" ? "Produit supprimé." : "Produit enregistré."); };
+
+  async function load() {
+    const { data, error } = await supabase.from("products").select("*").order("sort_order").order("created_at", { ascending: false });
+    const count = document.querySelector<HTMLElement>("[data-count]")!;
+    const table = document.querySelector<HTMLElement>("[data-table]")!;
+    const empty = document.querySelector<HTMLElement>("[data-empty]")!;
+    const err = document.querySelector<HTMLElement>("[data-list-error]")!;
+    if (error) { err.textContent = "Impossible de charger les produits. Vérifiez votre connexion puis rechargez la page."; err.classList.remove("hidden"); count.textContent = ""; return; }
+
+    const rows = (data ?? []) as ProductRow[];
+    count.textContent = `${rows.length} produit${rows.length > 1 ? "s" : ""}, ${rows.filter((r) => r.active).length} visible${rows.filter((r) => r.active).length > 1 ? "s" : ""} dans la boutique`;
+    table.classList.toggle("hidden", rows.length === 0);
+    empty.classList.toggle("hidden", rows.length > 0);
+    empty.classList.toggle("grid", rows.length === 0);
+
+    document.querySelector("[data-rows]")!.replaceChildren(...rows.map((p) => {
+      const li = el("li", "grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-4 min-[48rem]:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_6rem_5rem]");
+      const img = el("img", "size-14 bg-cream-soft object-cover");
+      img.src = variant(p.image, 480); img.alt = ""; img.width = 56; img.height = 56; img.loading = "lazy";
+      const name = el("div", "grid min-w-0 gap-0.5");
+      name.append(el("p", "m-0 truncate font-semibold text-ink", p.name), el("p", "m-0 truncate text-sm text-ink-soft", `/produit/${p.slug}`));
+      const coll = el("p", "m-0 col-start-2 text-sm text-ink-soft min-[48rem]:col-start-auto", p.collection === "bladi" ? "Bladi" : "Z’man");
+      const price = el("p", "m-0 col-start-2 text-sm tabular-nums min-[48rem]:col-start-auto");
+      price.append(el("span", "font-semibold", fmt(p.price)));
+      if (p.was_price) { price.append(" "); price.append(el("s", "text-ink-soft", fmt(p.was_price))); }
+      const badge = el("p", "m-0 col-start-2 min-[48rem]:col-start-auto");
+      badge.append(el("span", `inline-block px-2 py-1 text-[0.6875rem] leading-none font-semibold tracking-[0.08em] uppercase ${p.active ? "bg-teal text-white" : "text-ink-soft ring-1 ring-ink-soft/50 ring-inset"}`, p.active ? "Visible" : "Masqué"));
+      const edit = el("button", "btn-ghost col-start-2 justify-self-start min-[48rem]:col-start-auto min-[48rem]:justify-self-end", "Modifier");
+      edit.type = "button";
+      edit.setAttribute("aria-label", `Modifier ${p.name}`);
+      edit.addEventListener("click", () => openSheet(p, afterChange));
+      li.append(img, name, coll, price, badge, edit);
+      return li;
+    }));
+  }
+
+  document.querySelectorAll("[data-add-product]").forEach((b) => b.addEventListener("click", () => openSheet(null, afterChange)));
+
+  guard(load);
+</script>

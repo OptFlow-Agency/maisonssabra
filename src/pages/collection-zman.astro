@@ -1,0 +1,25 @@
+---
+import Page from "../layouts/Page.astro";
+import CollectionView from "../components/CollectionView.astro";
+import { getCatalog, cacheShort } from "../lib/catalog";
+import { breadcrumbLd, itemListLd } from "../data/seo";
+export const prerender = false;
+const products = await getCatalog();
+cacheShort(Astro.response);
+const list = products.filter((p) => p.collection === "zman");
+const crumbs: [string, string][] = [["Accueil", "/"], ["Boutique", "/boutique"], ["Collection Z’man", "/collection-zman"]];
+---
+<Page
+  title="Collection Z’man : sacs en velours brodé et dorures | Maison Sabra"
+  description="Sacs Z’man en velours rehaussé de dorures et chaîne dorée : multicolore, vert, beige, rouge, violet royal. Fait main au Maroc."
+  image="/maisonsabra/083A5723ms-blan-casser-_ms-1000x988.webp"
+  jsonLd={[breadcrumbLd(crumbs), itemListLd(list)]}
+>
+  <CollectionView
+    title="Collection Z’man"
+    intro="Velours, broderies dorées et chaîne : une collection chic et colorée pour vos plus beaux événements."
+    products={list}
+    crumbs={crumbs}
+    others={[{ href: "/collection-bladi", label: "Collection Bladi" }, { href: "/boutique", label: "Toute la boutique" }]}
+  />
+</Page>

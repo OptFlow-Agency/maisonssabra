@@ -1,0 +1,33 @@
+---
+import Base from "./Base.astro";
+import AnnouncementBar from "../components/AnnouncementBar.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CartDrawer from "../components/CartDrawer.astro";
+import FloatingCart from "../components/FloatingCart.astro";
+import WhatsAppButton from "../components/WhatsAppButton.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  ogType?: "website" | "product";
+  noindex?: boolean;
+  jsonLd?: object[];
+  /** Checkout hides the floating cart and the cart drawer: the page is the cart. */
+  bare?: boolean;
+  whatsappText?: string;
+}
+const { bare = false, whatsappText, ...seo } = Astro.props;
+---
+<Base {...seo}>
+  <AnnouncementBar />
+  <Header />
+  <main id="contenu">
+    <slot />
+  </main>
+  <Footer />
+  {!bare && <FloatingCart />}
+  <CartDrawer />
+  <WhatsAppButton text={whatsappText} />
+</Base>

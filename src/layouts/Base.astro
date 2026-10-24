@@ -2,7 +2,20 @@
 import "../styles/global.css";
 import jostUrl from "@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url";
 import cormorantUrl from "@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url";
-const { title, description } = Astro.props;
+import { site } from "../data/site";
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  ogType?: "website" | "product";
+  noindex?: boolean;
+  jsonLd?: object[];
+  preloadImage?: string;
+}
+const { title, description, image = site.ogImage, ogType = "website", noindex = false, jsonLd = [], preloadImage } = Astro.props;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const ogImage = new URL(image, site.url).href;
 ---
 <!doctype html>
 <html lang="fr">
@@ -12,10 +25,30 @@ const { title, description } = Astro.props;
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#6b1a33" />
+    {noindex ? <meta name="robots" content="noindex, follow" /> : <meta name="robots" content="index, follow, max-image-preview:large" />}
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {jsonLd.map((d) => <script type="application/ld+json" set:html={JSON.stringify({ "@context": "https://schema.org", ...d })} />)}
+
     <script is:inline>document.documentElement.classList.add("js")</script>
-    <link rel="icon" href="/img/logo-ms.png" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/img/logo-ms.png" />
     <link rel="preload" href={cormorantUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={jostUrl} as="font" type="font/woff2" crossorigin />
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
   </head>
   <body>
     <a class="absolute -top-16 left-4 z-100 bg-burgundy px-4 py-3 font-semibold text-cream no-underline transition-[top] duration-200 focus:top-4" href="#contenu">Aller au contenu</a>

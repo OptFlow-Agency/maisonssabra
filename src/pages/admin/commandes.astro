@@ -1,0 +1,199 @@
+---
+import Admin from "../../layouts/Admin.astro";
+import AdminShell from "../../components/AdminShell.astro";
+
+const filters = [
+  ["", "Toutes"], ["new", "Nouvelles"], ["confirmed", "Confirmées"], ["shipped", "Expédiées"], ["delivered", "Livrées"], ["cancelled", "Annulées"],
+] as const;
+---
+<Admin title="Commandes">
+  <AdminShell current="commandes">
+    <main class="mx-auto max-w-5xl px-(--gutter) py-10 min-[48rem]:py-14">
+      <div class="mb-6 grid gap-1">
+        <h1 class="text-step-2">Commandes</h1>
+        <p class="m-0 text-sm text-ink-soft" data-count aria-live="polite">Chargement…</p>
+      </div>
+
+      <div class="-mx-(--gutter) mb-8 flex gap-2 overflow-x-auto px-(--gutter) pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filtrer par statut">
+        {filters.map(([value, label], i) => (
+          <button class="min-h-11 shrink-0 cursor-pointer border-0 bg-transparent px-4 text-sm font-semibold tracking-[0.06em] text-burgundy uppercase ring-1 ring-burgundy/35 transition-colors duration-200 ring-inset hover:bg-rose/15 aria-pressed:bg-burgundy aria-pressed:text-cream aria-pressed:ring-burgundy" type="button" data-filter={value} aria-pressed={i === 0 ? "true" : "false"}>{label}</button>
+        ))}
+      </div>
+
+      <p class="m-0 mb-6 hidden border border-burgundy-deep bg-white p-4 text-burgundy-deep" role="alert" data-list-error></p>
+
+      <ul class="m-0 grid list-none gap-6 p-0" data-orders></ul>
+
+      <div class="mt-8 hidden justify-center" data-more-wrap>
+        <button class="btn-ghost min-h-13" type="button" data-more>Afficher plus de commandes</button>
+      </div>
+
+      <div class="hidden max-w-md gap-3 border border-gold/55 bg-white p-8" data-empty>
+        <p class="m-0 font-display text-step-1 text-burgundy" data-empty-title>Aucune commande pour le moment</p>
+        <p class="m-0 text-ink-soft" data-empty-text>Les commandes passées sur la boutique apparaîtront ici, avec les coordonnées de la cliente et les produits demandés.</p>
+      </div>
+    </main>
+  </AdminShell>
+</Admin>
+
+<script>
+  import { guard } from "../../scripts/admin/auth";
+  import { supabase, fmt, toast, type OrderRow, type OrderStatus } from "../../scripts/admin/supabase";
+
+  const PAGE = 20;
+  const STATUS: Record<OrderStatus, { label: string; badge: string }> = {
+    new: { label: "Nouvelle", badge: "bg-rose text-burgundy-deep" },
+    confirmed: { label: "Confirmée", badge: "bg-teal text-white" },
+    shipped: { label: "Expédiée", badge: "bg-burgundy text-cream" },
+    delivered: { label: "Livrée", badge: "bg-burgundy-deep text-cream" },
+    cancelled: { label: "Annulée", badge: "text-ink-soft ring-1 ring-ink-soft/50 ring-inset" },
+  };
+
+  const list = document.querySelector<HTMLElement>("[data-orders]")!;
+  const count = document.querySelector<HTMLElement>("[data-count]")!;
+  const err = document.querySelector<HTMLElement>("[data-list-error]")!;
+  const empty = document.querySelector<HTMLElement>("[data-empty]")!;
+  const moreWrap = document.querySelector<HTMLElement>("[data-more-wrap]")!;
+  const moreBtn = document.querySelector<HTMLButtonElement>("[data-more]")!;
+  const filterBtns = [...document.querySelectorAll<HTMLButtonElement>("[data-filter]")];
+
+  let status = "";
+  let loaded = 0;
+  let total = 0;
+
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text = "") => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  };
+
+  // Images are snapshotted with an absolute maisonsabra.ma URL; bundled site images are served by this same host.
+  const imgSrc = (u: string) => { try { const x = new URL(u); return x.hostname === "maisonsabra.ma" ? x.pathname : u; } catch { return u; } };
+  const whatsapp = (phone: string) => {
+    const d = phone.replace(/[\s.\-()+]/g, "");
+    const m = d.match(/^(?:212|0)([5-7]\d{8})$/);
+    return m ? `https://wa.me/212${m[1]}` : "";
+  };
+
+  function card(o: OrderRow) {
+    const li = el("li", "grid gap-0 border border-gold/55 bg-white");
+
+    const head = el("div", "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-gold/55 px-5 py-4");
+    const title = el("div", "grid gap-0.5");
+    title.append(
+      el("h2", "m-0 font-display text-step-1 leading-none text-burgundy lining-nums", `MS-${o.order_number}`),
+      el("p", "m-0 text-sm text-ink-soft", new Date(o.created_at).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })),
+    );
+    const badge = el("span", `inline-block px-2.5 py-1.5 text-[0.6875rem] leading-none font-semibold tracking-[0.08em] uppercase ${STATUS[o.status].badge}`, STATUS[o.status].label);
+    head.append(title, badge);
+
+    const body = el("div", "grid gap-6 px-5 py-5 min-[48rem]:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] min-[48rem]:gap-10");
+
+    // Customer
+    const who = el("div", "grid content-start gap-1.5");
+    who.append(el("p", "m-0 text-xs font-semibold tracking-[0.08em] text-ink-soft uppercase", "Cliente"), el("p", "m-0 font-semibold", `${o.first_name} ${o.last_name}`));
+    const tel = el("a", "w-fit text-burgundy underline underline-offset-4 hover:text-rose-dusty tabular-nums", o.phone);
+    tel.href = `tel:${o.phone.replace(/[\s.\-()]/g, "")}`;
+    const contact = el("p", "m-0 flex flex-wrap items-center gap-x-4 gap-y-1");
+    contact.append(tel);
+    const wa = whatsapp(o.phone);
+    if (wa) { const a = el("a", "text-sm text-ink-soft underline underline-offset-4 hover:text-burgundy", "WhatsApp"); a.href = wa; a.target = "_blank"; a.rel = "noopener"; contact.append(a); }
+    who.append(contact, el("p", "m-0 text-ink-soft", o.address), el("p", "m-0 text-ink-soft", o.city));
+
+    // Products
+    const what = el("div", "grid content-start gap-3");
+    what.append(el("p", "m-0 text-xs font-semibold tracking-[0.08em] text-ink-soft uppercase", `Produits demandés (${o.order_items.reduce((n, i) => n + i.quantity, 0)})`));
+    const items = el("ul", "m-0 grid list-none gap-3 p-0");
+    for (const it of o.order_items) {
+      const row = el("li", "grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-3");
+      const img = el("img", "size-14 bg-cream-soft object-cover");
+      img.src = imgSrc(it.product_image); img.alt = ""; img.width = 56; img.height = 56; img.loading = "lazy";
+      const txt = el("div", "grid min-w-0 gap-0.5");
+      txt.append(el("p", "m-0 text-sm font-semibold leading-snug", it.product_name), el("p", "m-0 text-sm text-ink-soft tabular-nums", `${it.quantity} × ${fmt(it.unit_price)}`));
+      row.append(img, txt, el("p", "m-0 text-sm font-semibold tabular-nums", fmt(it.line_total)));
+      items.append(row);
+    }
+    what.append(items);
+    body.append(who, what);
+
+    // Footer: status + totals
+    const foot = el("div", "flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-t border-gold/55 bg-cream-soft px-5 py-4");
+    const sel = el("div", "grid gap-1.5");
+    const id = `status-${o.id}`;
+    const lab = el("label", "field-label", "Statut");
+    lab.htmlFor = id;
+    const select = el("select", "field min-h-11 w-auto min-w-44 py-0");
+    select.id = id;
+    for (const [v, s] of Object.entries(STATUS)) { const op = el("option", "", s.label); op.value = v; select.append(op); }
+    select.value = o.status;
+    select.addEventListener("change", async () => {
+      const next = select.value as OrderStatus, prev = o.status;
+      select.disabled = true;
+      const { error } = await supabase.from("orders").update({ status: next }).eq("id", o.id);
+      select.disabled = false;
+      if (error) { select.value = prev; toast("Impossible de changer le statut. Réessayez.", "error"); return; }
+      o.status = next;
+      badge.textContent = STATUS[next].label;
+      badge.className = `inline-block px-2.5 py-1.5 text-[0.6875rem] leading-none font-semibold tracking-[0.08em] uppercase ${STATUS[next].badge}`;
+      toast(`Commande MS-${o.order_number} : ${STATUS[next].label.toLowerCase()}.`);
+    });
+    sel.append(lab, select);
+
+    const sums = el("div", "grid gap-1 text-right text-sm tabular-nums");
+    if (o.discount > 0) {
+      sums.append(
+        el("p", "m-0 text-ink-soft", `Sous-total ${fmt(o.subtotal ?? o.total + o.discount)}`),
+        el("p", "m-0 text-ink-soft", `Code ${o.promo_code ?? ""} : −${fmt(o.discount)}`),
+      );
+    }
+    const tot = el("p", "m-0 flex items-baseline justify-end gap-3");
+    tot.append(el("span", "text-xs font-semibold tracking-[0.08em] uppercase", "Total"), el("span", "text-step-1 font-semibold text-burgundy", fmt(o.total)));
+    sums.append(tot);
+    foot.append(sel, sums);
+
+    li.append(head, body, foot);
+    return li;
+  }
+
+  async function load(more = false) {
+    err.classList.add("hidden");
+    moreBtn.disabled = true;
+    if (!more) { loaded = 0; list.replaceChildren(); }
+    let q = supabase.from("orders").select("*, order_items(*)", { count: "exact" }).order("created_at", { ascending: false }).range(loaded, loaded + PAGE - 1);
+    if (status) q = q.eq("status", status);
+    const { data, error, count: n } = await q;
+    moreBtn.disabled = false;
+    if (error) {
+      err.textContent = error.code === "42703" || error.code === "42P01"
+        ? "La base n’est pas à jour : exécutez la migration 20261023020000_promo_codes.sql."
+        : "Impossible de charger les commandes. Vérifiez votre connexion puis rechargez la page.";
+      err.classList.remove("hidden"); count.textContent = ""; return;
+    }
+    const rows = (data ?? []) as OrderRow[];
+    total = n ?? rows.length;
+    loaded += rows.length;
+    list.append(...rows.map(card));
+
+    count.textContent = total === 0 ? "" : `${total} commande${total > 1 ? "s" : ""}${status ? ` ${STATUS[status as OrderStatus].label.toLowerCase()}${total > 1 ? "s" : ""}` : ""}`;
+    const none = total === 0;
+    empty.classList.toggle("hidden", !none);
+    empty.classList.toggle("grid", none);
+    if (none) {
+      empty.querySelector("[data-empty-title]")!.textContent = status ? "Aucune commande dans ce statut" : "Aucune commande pour le moment";
+      empty.querySelector("[data-empty-text]")!.textContent = status ? "Choisissez un autre filtre pour voir les autres commandes." : "Les commandes passées sur la boutique apparaîtront ici, avec les coordonnées de la cliente et les produits demandés.";
+      count.textContent = "";
+    }
+    moreWrap.classList.toggle("hidden", loaded >= total);
+    moreWrap.classList.toggle("flex", loaded < total);
+  }
+
+  filterBtns.forEach((b) => b.addEventListener("click", () => {
+    status = b.dataset.filter ?? "";
+    filterBtns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    load();
+  }));
+  moreBtn.addEventListener("click", () => load(true));
+
+  guard(() => load());
+</script>

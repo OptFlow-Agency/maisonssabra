@@ -1,0 +1,63 @@
+---
+const legend = "float-left mb-1 w-full font-display text-step-1 text-burgundy";
+const hint = "m-0 min-h-5 text-sm text-ink-soft";
+---
+<dialog class="m-0 ml-auto h-dvh max-h-none w-[min(100vw,30rem)] max-w-none translate-x-full overflow-hidden border-0 bg-cream-soft p-0 text-ink shadow-[-24px_0_48px_-24px_rgb(74_15_34/0.5)] transition-transform duration-[380ms] ease-(--ease-out) backdrop:bg-burgundy-deep/55 backdrop:backdrop-blur-[2px] data-[open=true]:translate-x-0 motion-reduce:transition-none" data-sheet aria-labelledby="sheet-title">
+  <form class="flex h-full flex-col" novalidate data-form>
+    <header class="flex items-center justify-between gap-4 border-b border-gold/55 bg-white px-6 py-4">
+      <h2 id="sheet-title" class="text-step-1" data-title>Créer un code promo</h2>
+      <button class="icon-btn -mr-2" type="button" data-sheet-close aria-label="Fermer">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+
+    <div class="flex-1 overflow-y-auto px-6 py-6">
+      <p class="m-0 mb-6 hidden border border-burgundy-deep bg-white p-4 text-burgundy-deep" role="alert" tabindex="-1" data-form-error></p>
+
+      <div class="grid gap-9">
+        <fieldset class="m-0 grid gap-5 border-0 p-0">
+          <legend class={legend}>Le code</legend>
+          <div class="grid gap-x-5 gap-y-5 min-[30rem]:grid-cols-[1.4fr_1fr]">
+            <div class="grid content-start gap-2">
+              <label class="field-label" for="code">Code</label>
+              <input class="field font-semibold tracking-[0.08em] uppercase" id="code" name="code" type="text" maxlength="20" required autocapitalize="characters" autocomplete="off" spellcheck="false" aria-describedby="code-msg" />
+              <p id="code-msg" class={hint} data-msg data-hint="Lettres et chiffres, 3 à 20. Ex. : BLADI15.">Lettres et chiffres, 3 à 20. Ex. : BLADI15.</p>
+            </div>
+            <div class="grid content-start gap-2">
+              <label class="field-label" for="percent">Réduction (%)</label>
+              <input class="field tabular-nums" id="percent" name="percent" type="number" inputmode="numeric" min="1" max="90" step="1" required aria-describedby="percent-msg" />
+              <p id="percent-msg" class={hint} data-msg data-hint="De 1 à 90.">De 1 à 90.</p>
+            </div>
+          </div>
+          <label class="flex min-h-11 cursor-pointer items-center gap-3"><input class="size-5 accent-burgundy" type="checkbox" name="active" checked /> Code actif</label>
+        </fieldset>
+
+        <fieldset class="m-0 grid gap-4 border-0 border-t border-gold/55 p-0 pt-8" aria-describedby="products-msg">
+          <legend class={legend}>Produits concernés</legend>
+          <p id="products-msg" class={hint} data-msg data-hint="La réduction s’applique uniquement à ces produits.">La réduction s’applique uniquement à ces produits.</p>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-sm text-ink-soft" data-selected-count aria-live="polite"></span>
+            <button class="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-burgundy underline underline-offset-4 hover:text-rose-dusty" type="button" data-toggle-all>Tout sélectionner</button>
+          </div>
+          <ul class="m-0 grid max-h-96 list-none gap-px overflow-y-auto border border-burgundy/25 bg-burgundy/15 p-0" data-products></ul>
+        </fieldset>
+
+        <button class="btn-ghost hidden justify-self-start text-burgundy-deep" type="button" data-delete>Supprimer le code</button>
+      </div>
+    </div>
+
+    <footer class="flex gap-3 border-t border-gold/55 bg-white px-6 py-4">
+      <button class="btn flex-1 justify-center disabled:cursor-wait disabled:opacity-70" type="submit" data-submit><span data-submit-label>Enregistrer</span></button>
+      <button class="btn-ghost min-h-13" type="button" data-sheet-close>Annuler</button>
+    </footer>
+  </form>
+</dialog>
+
+<dialog class="m-auto w-[min(92vw,26rem)] border border-gold/55 bg-white p-8 text-ink backdrop:bg-burgundy-deep/55" data-delete-dialog aria-labelledby="del-title">
+  <h2 id="del-title" class="mb-3 text-step-1">Supprimer ce code ?</h2>
+  <p class="m-0 mb-6 text-ink-soft">Le code <strong class="font-semibold" data-delete-name></strong> ne pourra plus être utilisé. Les commandes passées avec ce code sont conservées. Pour le suspendre seulement, décochez « Code actif ».</p>
+  <div class="flex flex-wrap gap-3">
+    <button class="btn-danger" type="button" data-delete-confirm>Supprimer</button>
+    <button class="btn-ghost" type="button" data-delete-cancel autofocus>Garder</button>
+  </div>
+</dialog>

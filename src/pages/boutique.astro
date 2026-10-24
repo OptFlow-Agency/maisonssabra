@@ -1,0 +1,24 @@
+---
+import Page from "../layouts/Page.astro";
+import CollectionView from "../components/CollectionView.astro";
+import { getCatalog, cacheShort } from "../lib/catalog";
+import { breadcrumbLd, itemListLd } from "../data/seo";
+export const prerender = false;
+const products = await getCatalog();
+cacheShort(Astro.response);
+const list = products;
+const crumbs: [string, string][] = [["Accueil", "/"], ["Boutique", "/boutique"]];
+---
+<Page
+  title="Boutique : sacs artisanaux marocains en cuir et velours | Maison Sabra"
+  description="Tous les sacs Maison Sabra : collection Bladi en cuir et tissu berbère, collection Z’man en velours et dorures. Fait main au Maroc."
+  jsonLd={[breadcrumbLd(crumbs), itemListLd(list)]}
+>
+  <CollectionView
+    title="La boutique"
+    intro="Nos sacs artisanaux, du cuir et tissu berbère de la collection Bladi au velours et dorures de la collection Z’man."
+    products={list}
+    crumbs={crumbs}
+    others={[{ href: "/collection-bladi", label: "Collection Bladi" }, { href: "/collection-zman", label: "Collection Z’man" }]}
+  />
+</Page>

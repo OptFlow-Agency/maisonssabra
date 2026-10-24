@@ -1,0 +1,101 @@
+---
+interface Props { current: "commandes" | "produits" | "codes-promo" }
+const { current } = Astro.props;
+
+const s = { fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", width: 20, height: 20, viewBox: "0 0 24 24" } as const;
+const links = [
+  { id: "commandes", href: "/admin/commandes/", label: "Commandes", icon: "receipt" },
+  { id: "produits", href: "/admin/", label: "Produits", icon: "bag" },
+  { id: "codes-promo", href: "/admin/codes-promo/", label: "Codes promo", icon: "tag" },
+] as const;
+---
+<section class="grid min-h-dvh place-items-center px-(--gutter) py-12" data-login hidden aria-labelledby="login-title">
+  <form class="grid w-full max-w-sm gap-6 border border-gold/55 bg-white p-8" data-login-form>
+    <img class="size-12 object-contain" src="/img/logo-ms.png" alt="" width="48" height="48" />
+    <h1 id="login-title" class="text-step-2">Administration</h1>
+    <div class="grid gap-2">
+      <label class="field-label" for="email">E-mail</label>
+      <input class="field" id="email" name="email" type="email" autocomplete="username" inputmode="email" required />
+    </div>
+    <div class="grid gap-2">
+      <label class="field-label" for="password">Mot de passe</label>
+      <input class="field" id="password" name="password" type="password" autocomplete="current-password" required />
+    </div>
+    <p class="m-0 hidden border border-burgundy-deep p-3 text-sm text-burgundy-deep" role="alert" data-login-error></p>
+    <button class="btn justify-center disabled:cursor-wait disabled:opacity-70" type="submit">Se connecter</button>
+  </form>
+</section>
+
+<div class="min-[60rem]:grid min-[60rem]:grid-cols-[15rem_1fr]" data-app data-shell hidden>
+  <header class="on-dark sticky top-0 z-30 flex h-14 items-center justify-between bg-burgundy-deep px-(--gutter) text-cream min-[60rem]:hidden">
+    <a class="flex items-center gap-3 text-cream no-underline" href="/admin/" aria-label="Maison Sabra, administration">
+      <img class="size-7 object-contain brightness-0 invert" src="/img/logo-ms.png" alt="" width="28" height="28" />
+      <span class="font-display text-lg font-semibold tracking-[0.12em] uppercase">Maison Sabra</span>
+    </a>
+    <button class="icon-btn -mr-2 text-cream hover:bg-cream/10 hover:text-cream" type="button" aria-expanded="false" aria-controls="admin-nav" aria-label="Ouvrir le menu" data-nav-toggle>
+      <svg {...s} width="24" height="24"><path d="M4 8h16M4 16h16"/></svg>
+    </button>
+  </header>
+
+  <div class="fixed inset-0 z-40 bg-burgundy-deep/55 opacity-0 transition-opacity duration-300 pointer-events-none data-[open=true]:pointer-events-auto data-[open=true]:opacity-100 min-[60rem]:hidden" data-nav-scrim aria-hidden="true"></div>
+
+  <aside id="admin-nav" class="on-dark fixed inset-y-0 left-0 z-50 flex w-60 -translate-x-full flex-col bg-burgundy-deep text-cream transition-transform duration-300 ease-(--ease-out) data-[open=true]:translate-x-0 motion-reduce:transition-none min-[60rem]:sticky min-[60rem]:top-0 min-[60rem]:z-auto min-[60rem]:h-dvh min-[60rem]:translate-x-0" data-nav inert>
+    <button class="icon-btn absolute top-4 right-2 text-cream hover:bg-cream/10 hover:text-cream min-[60rem]:hidden" type="button" aria-label="Fermer le menu" data-nav-close>
+      <svg {...s} width="24" height="24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <a class="flex items-center gap-3 px-5 py-6 text-cream no-underline" href="/admin/" aria-label="Maison Sabra, administration">
+      <img class="size-9 object-contain brightness-0 invert" src="/img/logo-ms.png" alt="" width="36" height="36" />
+      <span class="grid leading-tight">
+        <span class="font-display text-base font-semibold tracking-[0.1em] whitespace-nowrap uppercase">Maison Sabra</span>
+        <span class="text-xs tracking-[0.1em] text-cream/70 uppercase">Administration</span>
+      </span>
+    </a>
+
+    <nav class="flex-1 px-3 py-2" aria-label="Administration">
+      <ul class="m-0 grid list-none gap-1 p-0">
+        {links.map((l) => (
+          <li>
+            <a class="flex min-h-11 items-center gap-3 px-3 text-sm font-semibold tracking-[0.06em] text-cream/85 uppercase no-underline transition-colors duration-200 hover:bg-cream/10 hover:text-cream aria-[current=page]:bg-rose aria-[current=page]:text-burgundy-deep" href={l.href} aria-current={l.id === current ? "page" : undefined}>
+              {l.icon === "bag" && <svg {...s}><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>}
+              {l.icon === "tag" && <svg {...s}><path d="M3.5 12.2V4.5h7.7l9.3 9.3a1.5 1.5 0 0 1 0 2.1l-5.6 5.6a1.5 1.5 0 0 1-2.1 0L3.5 12.2z"/><circle cx="8" cy="9" r="1.2"/></svg>}
+              {l.icon === "receipt" && <svg {...s}><path d="M6 3.5h12v17l-3-1.8-3 1.8-3-1.8-3 1.8v-17z"/><path d="M9 8.5h6M9 12h6"/></svg>}
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="grid gap-1 border-t border-gold/40 px-3 py-4 text-sm">
+      <a class="flex min-h-11 items-center px-3 text-cream/85 underline decoration-gold decoration-1 underline-offset-4 hover:text-rose" href="/" target="_blank" rel="noopener">Voir la boutique</a>
+      <p class="m-0 truncate px-3 text-xs text-cream/70" data-user></p>
+      <button class="flex min-h-11 cursor-pointer items-center border-0 bg-transparent px-3 text-left text-sm font-semibold tracking-[0.08em] text-cream uppercase hover:text-rose" type="button" data-logout>Déconnexion</button>
+    </div>
+  </aside>
+
+  <div class="min-w-0">
+    <slot />
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-shell]")!;
+  const nav = root.querySelector<HTMLElement>("[data-nav]")!;
+  const scrim = root.querySelector<HTMLElement>("[data-nav-scrim]")!;
+  const toggle = root.querySelector<HTMLButtonElement>("[data-nav-toggle]")!;
+  const desktop = matchMedia("(min-width: 60rem)");
+
+  const set = (open: boolean) => {
+    nav.dataset.open = scrim.dataset.open = String(open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
+    // The sidebar is always reachable on desktop; on mobile it is inert while closed.
+    nav.toggleAttribute("inert", !open && !desktop.matches);
+  };
+  toggle.addEventListener("click", () => set(toggle.getAttribute("aria-expanded") !== "true"));
+  root.querySelector("[data-nav-close]")!.addEventListener("click", () => { set(false); toggle.focus(); });
+  scrim.addEventListener("click", () => { set(false); toggle.focus(); });
+  root.addEventListener("keydown", (e) => { if (e.key === "Escape" && nav.dataset.open === "true") { set(false); toggle.focus(); } });
+  desktop.addEventListener("change", () => set(false));
+  set(false);
+</script>

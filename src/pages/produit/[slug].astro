@@ -1,0 +1,14 @@
+---
+import Page from "../../layouts/Page.astro";
+import ProductView from "../../components/ProductView.astro";
+import NotFoundView from "../../components/NotFoundView.astro";
+import { getCatalog, cacheShort } from "../../lib/catalog";
+
+export const prerender = false;
+
+const products = await getCatalog();
+const p = products.find((x) => x.slug === Astro.params.slug);
+if (p) cacheShort(Astro.response);
+else Astro.response.status = 404;
+---
+{p ? <ProductView p={p} products={products} /> : <Page title="Page introuvable | Maison Sabra" description="Cette page n’existe pas ou a été déplacée." noindex><NotFoundView /></Page>}

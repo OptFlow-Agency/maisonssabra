@@ -1,7 +1,5 @@
 ---
-import Base from "../layouts/Base.astro";
-import AnnouncementBar from "../components/AnnouncementBar.astro";
-import Header from "../components/Header.astro";
+import Page from "../layouts/Page.astro";
 import Hero from "../components/Hero.astro";
 import Collections from "../components/Collections.astro";
 import Story from "../components/Story.astro";
@@ -9,23 +7,19 @@ import Trust from "../components/Trust.astro";
 import Skirts from "../components/Skirts.astro";
 import Testimonials from "../components/Testimonials.astro";
 import Instagram from "../components/Instagram.astro";
-import Footer from "../components/Footer.astro";
-import CartDrawer from "../components/CartDrawer.astro";
-import FloatingCart from "../components/FloatingCart.astro";
+import { organizationLd, websiteLd } from "../data/seo";
+import { getCatalog, cacheShort } from "../lib/catalog";
+
+export const prerender = false;
+const products = await getCatalog();
+cacheShort(Astro.response);
 ---
-<Base title="Maison Sabra | Sacs artisanaux marocains" description="Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du patrimoine marocain.">
-  <AnnouncementBar />
-  <Header />
-  <main id="contenu">
-    <Hero />
-    <Collections />
-    <Story />
-    <Trust />
-    <Skirts />
-    <Testimonials />
-    <Instagram />
-  </main>
-  <Footer />
-  <FloatingCart />
-  <CartDrawer />
-</Base>
+<Page title="Maison Sabra | Sacs artisanaux marocains en cuir et velours" description="Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du patrimoine marocain. Fait main au Maroc." jsonLd={[organizationLd(), websiteLd()]}>
+  <Hero />
+  <Collections bladi={products.filter((p) => p.collection === "bladi")} zman={products.filter((p) => p.collection === "zman")} />
+  <Story />
+  <Trust />
+  <Skirts />
+  <Testimonials />
+  <Instagram />
+</Page>

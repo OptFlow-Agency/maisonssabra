@@ -1,6 +1,6 @@
 import { lockScroll } from "./smooth";
 
-// Prototype cart: lives in localStorage. On the live WooCommerce store, back these functions with the Store API.
+// Cart lives in localStorage; checkout (/commande) reads it and sends the order to Supabase.
 export type Line = { id: string; name: string; price: number; img: string; qty: number };
 
 const KEY = "ms-cart";
@@ -12,7 +12,9 @@ let lines: Line[] = [];
 try { lines = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { lines = []; }
 
 const count = () => lines.reduce((n, l) => n + l.qty, 0);
-const subtotal = () => lines.reduce((n, l) => n + l.qty * l.price, 0);
+export const getLines = (): readonly Line[] => lines;
+export const clearCart = () => { lines = []; commit(); };
+export const subtotal = () => lines.reduce((n, l) => n + l.qty * l.price, 0);
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(lines)); } catch {} };
 
 function commit() {
@@ -119,6 +121,13 @@ document.addEventListener("click", (e) => {
   if (add) {
     addToCart({ id: add.dataset.add!, name: add.dataset.name!, price: Number(add.dataset.price), img: add.dataset.img! });
     open();
+    return;
+  }
+
+  const buy = t.closest<HTMLElement>("[data-buy]");
+  if (buy) {
+    addToCart({ id: buy.dataset.buy!, name: buy.dataset.name!, price: Number(buy.dataset.price), img: buy.dataset.img! });
+    location.assign("/commande");
     return;
   }
 

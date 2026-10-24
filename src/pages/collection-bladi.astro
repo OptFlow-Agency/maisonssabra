@@ -1,0 +1,25 @@
+---
+import Page from "../layouts/Page.astro";
+import CollectionView from "../components/CollectionView.astro";
+import { getCatalog, cacheShort } from "../lib/catalog";
+import { breadcrumbLd, itemListLd } from "../data/seo";
+export const prerender = false;
+const products = await getCatalog();
+cacheShort(Astro.response);
+const list = products.filter((p) => p.collection === "bladi");
+const crumbs: [string, string][] = [["Accueil", "/"], ["Boutique", "/boutique"], ["Collection Bladi", "/collection-bladi"]];
+---
+<Page
+  title="Collection Bladi : sacs en cuir et tissu berbère | Maison Sabra"
+  description="Sacs artisanaux en cuir raffiné et tissu berbère rayé. Des pièces uniques fabriquées au Maroc."
+  image="/maisonsabra/Azerwal-sac-3-_ms-1000x999.webp"
+  jsonLd={[breadcrumbLd(crumbs), itemListLd(list)]}
+>
+  <CollectionView
+    title="Collection Bladi"
+    intro="Cuir raffiné et tissu berbère artisanal : des sacs uniques qui célèbrent l’élégance marocaine avec une touche moderne."
+    products={list}
+    crumbs={crumbs}
+    others={[{ href: "/collection-zman", label: "Collection Z’man" }, { href: "/boutique", label: "Toute la boutique" }]}
+  />
+</Page>

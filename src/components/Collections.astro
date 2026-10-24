@@ -1,9 +1,13 @@
 ---
 import ProductCard from "./ProductCard.astro";
-import { bladi, zman } from "../data/products";
+import type { Product } from "../data/products";
+interface Props { bladi: Product[]; zman: Product[] }
+const { bladi: bladiAll, zman: zmanAll } = Astro.props;
+const bladi = bladiAll.slice(0, 6);
+const zman = zmanAll.slice(0, 5);
 const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg>`;
 ---
-<section class="bg-cream-soft py-20 min-[48rem]:py-28" aria-labelledby="bladi-title">
+{bladi.length > 0 && <section class="bg-cream-soft py-20 min-[48rem]:py-28" aria-labelledby="bladi-title">
   <div class="mx-auto max-w-(--max) px-(--gutter)">
     <div class="mb-10 grid gap-6 min-[48rem]:mb-14 min-[48rem]:grid-cols-[1fr_auto] min-[48rem]:items-end" data-reveal>
       <div class="grid max-w-[58ch] gap-4">
@@ -20,9 +24,9 @@ const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" strok
       {bladi.map((p, i) => <button class="relative size-2 cursor-pointer rounded-full border-0 bg-burgundy/25 p-0 transition-[background-color,width] duration-300 before:absolute before:-inset-2.5 before:content-[''] aria-current:w-6 aria-current:bg-burgundy" type="button" aria-label={`Aller au sac ${i + 1}`} aria-current={i === 0 ? "true" : undefined}></button>)}
     </div>
   </div>
-</section>
+</section>}
 
-<section class="bg-cream py-20 min-[48rem]:py-28" aria-labelledby="zman-title">
+{zman.length > 0 && <section class="bg-cream py-20 min-[48rem]:py-28" aria-labelledby="zman-title">
   <div class="mx-auto max-w-(--max) px-(--gutter)">
     <div class="grid grid-cols-2 gap-x-4 gap-y-10 min-[60rem]:grid-cols-3 min-[60rem]:gap-x-8 min-[60rem]:gap-y-14">
       <div class="relative isolate col-span-2 grid min-h-80 content-between gap-10 overflow-hidden bg-burgundy-deep p-8 text-cream min-[60rem]:col-span-1 min-[60rem]:p-10" data-reveal>
@@ -37,7 +41,7 @@ const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" strok
       {zman.map((p, i) => <ProductCard product={p} delay={(i % 2) * 0.1} />)}
     </div>
   </div>
-</section>
+</section>}
 
 <script>
   const slider = document.querySelector<HTMLElement>("[data-slider]");

@@ -1,0 +1,22 @@
+---
+import Page from "../../layouts/Page.astro";
+---
+<Page title="Commande enregistrée | Maison Sabra" description="Votre commande Maison Sabra a bien été enregistrée." noindex bare>
+  <section class="bg-cream-soft py-20 min-[48rem]:py-32" aria-labelledby="thanks-title">
+    <div class="mx-auto grid max-w-[40rem] justify-items-start gap-6 px-(--gutter)">
+      <svg class="text-gold" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg>
+      <h1 id="thanks-title" class="text-step-3">Merci pour votre commande</h1>
+      <p class="m-0 text-step-1 text-ink" data-number-line hidden>Votre commande n° <strong class="font-semibold text-burgundy tabular-nums" data-number></strong> est enregistrée.</p>
+      <p class="m-0 max-w-[52ch] text-ink-soft">Conservez ce numéro pour tout échange avec Maison Sabra.</p>
+      <a class="btn mt-2" href="/boutique">Continuer mes achats</a>
+    </div>
+  </section>
+</Page>
+
+<script>
+  const n = new URLSearchParams(location.search).get("n");
+  if (n && /^\d{1,10}$/.test(n)) {
+    document.querySelector<HTMLElement>("[data-number]")!.textContent = `MS-${n}`;
+    document.querySelector<HTMLElement>("[data-number-line]")!.hidden = false;
+  }
+</script>

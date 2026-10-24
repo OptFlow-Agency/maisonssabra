@@ -1,17 +1,18 @@
 ---
-const nav = [
-  { href: "/", label: "Accueil", current: true },
-  { href: "/a-propos", label: "À propos de nous" },
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const items = [
+  { href: "/", label: "Accueil" },
+  { href: "/#histoire", label: "À propos de nous" },
   { href: "/boutique", label: "Boutique" },
   { href: "/collection-bladi", label: "Collection Bladi" },
   { href: "/collection-zman", label: "Collection Z’man" },
-  { href: "/contact", label: "Contactez-Nous" },
 ];
+const nav = items.map((n) => ({ ...n, current: n.href === path }));
 const s = { fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", width: 24, height: 24, viewBox: "0 0 24 24" } as const;
 ---
 <div data-sentinel aria-hidden="true" class="-mb-px h-px"></div>
 <header class="group/h sticky top-0 z-50 border-b border-transparent bg-cream-soft/95 backdrop-blur-md backdrop-saturate-120 transition-[border-color,box-shadow] duration-300 data-[stuck=true]:border-gold/55 data-[stuck=true]:shadow-[0_8px_24px_-16px_rgb(74_15_34/0.35)]" data-header>
-  <div class="mx-auto grid h-(--header-h) max-w-(--max) grid-cols-[3rem_1fr_7rem] items-center px-(--gutter) transition-[height] duration-350 ease-(--ease-out) group-data-[stuck=true]/h:h-(--header-h-stuck) nav:grid-cols-[auto_1fr_auto] nav:gap-8">
+  <div class="mx-auto grid h-(--header-h) max-w-(--max) grid-cols-[3rem_1fr_3rem] items-center px-(--gutter) transition-[height] duration-350 ease-(--ease-out) group-data-[stuck=true]/h:h-(--header-h-stuck) nav:grid-cols-[auto_1fr_auto] nav:gap-8">
     <button class="icon-btn -ml-2 nav:hidden" type="button" aria-expanded="false" aria-controls="menu-mobile" aria-label="Ouvrir le menu">
       <svg {...s}><path d="M4 8h16M4 16h16"/></svg>
     </button>
@@ -32,13 +33,7 @@ const s = { fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke
     </nav>
 
     <div class="-mr-2 flex justify-self-end">
-      <a class="icon-btn hidden nav:grid" href="/mon-compte" aria-label="Mon compte">
-        <svg {...s}><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>
-      </a>
-      <a class="icon-btn" href="/favoris" aria-label="Liste de souhaits, 0 article">
-        <svg {...s}><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>
-      </a>
-      <a class="icon-btn" href="/panier" aria-label="Panier, 0 article" data-cart-link>
+      <a class="icon-btn" href="/commande" aria-label="Panier, 0 article" data-cart-link>
         <svg {...s}><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
         <span class="absolute top-0.5 right-0 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-burgundy px-1 text-[0.6875rem] leading-none font-semibold text-cream" aria-hidden="true" data-cart-count>0</span>
       </a>
@@ -55,7 +50,6 @@ const s = { fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke
         ))}
       </ul>
     </nav>
-    <a class="mt-6 inline-block text-[0.9375rem] leading-none font-semibold tracking-[0.08em] text-burgundy uppercase no-underline hover:text-rose-dusty" href="/mon-compte">Mon compte</a>
   </div>
 </header>
 

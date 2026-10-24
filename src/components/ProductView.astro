@@ -1,0 +1,87 @@
+---
+import Page from "../layouts/Page.astro";
+import Breadcrumbs from "./Breadcrumbs.astro";
+import ProductCard from "./ProductCard.astro";
+import { discount, srcset, variant } from "../data/products";
+import type { Product } from "../data/products";
+import { site, whatsappLink } from "../data/site";
+import { breadcrumbLd, productLd } from "../data/seo";
+
+interface Props { p: Product; products: Product[] }
+const { p, products } = Astro.props;
+const col = p.collection;
+const colName = col === "bladi" ? "Collection Bladi" : "Collection Z’man";
+const colPath = col === "bladi" ? "/collection-bladi" : "/collection-zman";
+const material = col === "bladi" ? "cuir et tissu berbère" : "velours et dorures";
+const description = p.description ? `${p.description.slice(0, 150)}${p.description.length > 150 ? "…" : ""}` : `${p.alt}. Fait main au Maroc, ${colName} Maison Sabra. ${p.price} dhs.`;
+const crumbs: [string, string][] = [["Accueil", "/"], ["Boutique", "/boutique"], [colName, colPath], [p.name, `/produit/${p.slug}`]];
+const related = products.filter((x) => x.collection === col && x.slug !== p.slug).slice(0, 3);
+const wa = whatsappLink(`Bonjour, je souhaite commander : ${p.name} (${p.price} dhs).`);
+const sizes = "(min-width: 60rem) 40vw, 100vw";
+const gallery = [p.img, p.img2].filter(Boolean) as string[];
+---
+<Page
+  title={`${p.name} | Maison Sabra`}
+  description={description}
+  image={p.img}
+  ogType="product"
+  jsonLd={[breadcrumbLd(crumbs), productLd(p, description, colName)]}
+  whatsappText={`Bonjour, je souhaite des informations sur : ${p.name}.`}
+>
+  <article class="bg-cream-soft pt-8 pb-20 min-[48rem]:pt-10 min-[48rem]:pb-28">
+    <div class="mx-auto max-w-(--max) px-(--gutter)">
+      <Breadcrumbs crumbs={crumbs} />
+
+      <div class="mt-8 grid gap-10 min-[60rem]:grid-cols-[1.15fr_1fr] min-[60rem]:items-start min-[60rem]:gap-20">
+        <div class="grid gap-4 min-[30rem]:grid-cols-2 min-[60rem]:grid-cols-1 min-[60rem]:gap-6">
+          {gallery.map((src, i) => (
+            <img
+              class={`w-full bg-white object-cover ${i === 0 ? "min-[30rem]:col-span-2 min-[60rem]:col-span-1" : ""}`}
+              src={i === 0 ? variant(src, 800) : variant(src, 480)}
+              srcset={i === 0 ? srcset(src) : `${variant(src, 480)} 480w, ${src} 800w`}
+              sizes={sizes}
+              alt={i === 0 ? p.alt : `${p.name}, autre vue`}
+              width="1000" height="988"
+              loading={i === 0 ? "eager" : "lazy"}
+              fetchpriority={i === 0 ? "high" : undefined}
+              decoding="async"
+            />
+          ))}
+        </div>
+
+        <div class="grid content-start gap-7 min-[60rem]:sticky min-[60rem]:top-28">
+          <header class="grid gap-4">
+            <p class="m-0 text-sm font-semibold tracking-[0.08em] text-ink-soft uppercase"><a class="text-ink-soft no-underline hover:text-burgundy" href={colPath}>{colName}</a></p>
+            <h1 class="text-step-2">{p.name}</h1>
+            <p class="m-0 flex flex-wrap items-baseline gap-x-3 tabular-nums">
+              <span class="sr-only">Prix actuel :</span><span class="text-step-1 font-semibold text-burgundy">{p.price} dhs</span>
+              {discount(p) > 0 && <><span class="sr-only">Prix initial :</span><s class="text-ink-soft">{p.was} dhs</s></>}
+              {discount(p) > 0 && <span class="bg-burgundy px-2 py-1 text-[0.6875rem] leading-none font-semibold tracking-[0.08em] text-cream uppercase">−{discount(p)} %</span>}
+            </p>
+          </header>
+
+          <p class="m-0 max-w-[52ch] whitespace-pre-line text-ink-soft">{p.description ?? `${p.alt}. Un sac artisanal en ${material}, fait main au Maroc.`}</p>
+
+          <div class="grid gap-3 min-[30rem]:grid-cols-2">
+            <button class="btn justify-center" type="button" data-buy={p.slug} data-name={p.name} data-price={p.price} data-img={variant(p.img, 480)}>Commander maintenant</button>
+            <button class="btn justify-center bg-transparent text-burgundy ring-1 ring-burgundy ring-inset hover:ring-0" type="button" data-add={p.slug} data-name={p.name} data-price={p.price} data-img={variant(p.img, 480)}>Ajouter au panier</button>
+          </div>
+          {wa && <a class="text-sm font-semibold tracking-[0.08em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-8 hover:text-rose-dusty" href={wa} target="_blank" rel="noopener">Commander par WhatsApp</a>}
+
+          <ul class="m-0 grid list-none gap-3 border-t border-gold/55 p-0 pt-6 text-sm text-ink">
+            <li>100 % fait au Maroc</li>
+            <li>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} dhs</li>
+            <li>Emballage cadeau possible</li>
+          </ul>
+        </div>
+      </div>
+
+      <section class="mt-24 min-[48rem]:mt-32" aria-labelledby="related-title">
+        <h2 id="related-title" class="mb-10 text-step-2">Vous aimerez aussi</h2>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-10 min-[60rem]:grid-cols-3 min-[60rem]:gap-x-8">
+          {related.map((r, i) => <div class="max-[59.99rem]:nth-[n+3]:hidden"><ProductCard product={r} delay={i * 0.08} /></div>)}
+        </div>
+      </section>
+    </div>
+  </article>
+</Page>

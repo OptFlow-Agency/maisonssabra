@@ -1,0 +1,12 @@
+---
+import { site, whatsappLink } from "../data/site";
+interface Props { text?: string }
+const { text = `Bonjour ${site.name}, j’aimerais avoir des informations.` } = Astro.props;
+const href = whatsappLink(text);
+---
+{href && (
+  <a class="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-40 flex h-12 items-center gap-2.5 bg-burgundy-deep px-4 text-sm font-semibold tracking-[0.06em] text-cream uppercase no-underline shadow-[0_14px_28px_-10px_rgb(74_15_34/0.6)] ring-1 ring-gold transition-colors duration-300 hover:bg-rose-dusty hover:text-white min-[48rem]:bottom-8 min-[48rem]:left-8" href={href} target="_blank" rel="noopener" aria-label="Commander ou poser une question sur WhatsApp">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.2-4.2A8 8 0 1 1 8.3 18.9L4 20z"/><path d="M9.2 8.8c.2 2.4 2.6 4.8 5 5l1.1-1.2-1.8-.9-.8.6a3.4 3.4 0 0 1-1.7-1.7l.6-.8-.9-1.8-1.5.8z"/></svg>
+    <span class="max-[30rem]:sr-only">WhatsApp</span>
+  </a>
+)}

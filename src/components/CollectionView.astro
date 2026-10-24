@@ -1,0 +1,30 @@
+---
+import ProductCard from "./ProductCard.astro";
+import Breadcrumbs from "./Breadcrumbs.astro";
+import type { Product } from "../data/products";
+interface Props {
+  title: string;
+  intro: string;
+  products: Product[];
+  crumbs: [string, string][];
+  others: { href: string; label: string }[];
+}
+const { title, intro, products, crumbs, others } = Astro.props;
+---
+<section class="bg-cream-soft pt-8 pb-20 min-[48rem]:pt-10 min-[48rem]:pb-28" aria-labelledby="coll-title">
+  <div class="mx-auto max-w-(--max) px-(--gutter)">
+    <Breadcrumbs crumbs={crumbs} />
+    <div class="mt-8 mb-12 grid max-w-[58ch] gap-4 min-[48rem]:mb-16">
+      <h1 id="coll-title" class="text-step-3">{title}</h1>
+      <p class="text-step-0 text-ink-soft">{intro}</p>
+    </div>
+    {products.length === 0 && <p class="m-0 text-ink-soft">Aucun produit dans cette collection pour le moment.</p>}
+    <div class="grid grid-cols-2 gap-x-4 gap-y-10 min-[60rem]:grid-cols-3 min-[60rem]:gap-x-8 min-[60rem]:gap-y-14">
+      {products.map((p, i) => <ProductCard product={p} delay={(i % 3) * 0.08} eager={i < 2} />)}
+    </div>
+    <nav class="mt-20 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-gold/55 pt-8" aria-label="Autres collections">
+      <p class="m-0 font-display text-step-1 text-burgundy">À découvrir aussi</p>
+      {others.map((o) => <a class="text-sm font-semibold tracking-[0.08em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-8 hover:text-rose-dusty" href={o.href}>{o.label}</a>)}
+    </nav>
+  </div>
+</section>
