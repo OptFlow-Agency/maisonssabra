@@ -88,6 +88,7 @@ export function openPromoSheet(promo: PromoRow | null, products: ProductLite[], 
     f("code").value = promo.code; f("code").disabled = true;
     f("percent").value = String(promo.percent);
     f("active").checked = promo.active;
+    f("second_item_only").checked = promo.second_item_only;
     deleteBtn.classList.remove("hidden");
   }
   sheet.showModal();
@@ -136,6 +137,8 @@ form.addEventListener("submit", async (e) => {
     p_slugs: boxes().filter((b) => b.checked).map((b) => b.value),
     p_create: !existing,
   });
+  const flag = error ? null : await supabase.from("promo_codes").update({ second_item_only: f("second_item_only").checked }).eq("code", f("code").value);
+  if (flag?.error) { showError("Le code est enregistré, mais l’option « 2e article » a échoué. Réessayez."); busy(false); existing = { ...(existing ?? ({} as PromoRow)), code: f("code").value }; return; }
   if (error) {
     if (error.code === "23505") { f("code").setAttribute("aria-invalid", "true"); setMsg("code", "Ce code existe déjà. Choisissez-en un autre."); showError("Ce code existe déjà."); f("code").focus(); }
     else showError(error.code === "42501" ? "Votre session a expiré. Reconnectez-vous puis réessayez." : "L’enregistrement a échoué. Vos modifications sont conservées : réessayez.");

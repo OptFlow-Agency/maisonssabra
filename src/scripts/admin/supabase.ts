@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 export const supabase = createClient(
-  import.meta.env.NEXT_PUBLIC_SUPABASE_URL as string,
-  import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string,
+  import.meta.env.PUBLIC_SUPABASE_URL as string,
+  import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY as string,
 );
 
 export type ProductRow = {
@@ -39,6 +39,7 @@ export type PromoRow = {
   code: string;
   percent: number;
   active: boolean;
+  second_item_only: boolean;
   created_at: string;
   promo_code_products: { product_slug: string }[];
 };

@@ -7,6 +7,5 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   site: 'https://maisonsabra.ma',
   adapter: vercel(),
-  // .env uses the NEXT_PUBLIC_ names; expose them alongside Astro's PUBLIC_.
-  vite: { plugins: [tailwindcss()], envPrefix: ['PUBLIC_', 'NEXT_PUBLIC_'] },
+  vite: { plugins: [tailwindcss()] },
 });

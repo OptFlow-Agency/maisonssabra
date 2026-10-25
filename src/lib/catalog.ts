@@ -1,7 +1,7 @@
 import { fallback, type Collection, type Product } from "../data/products";
 
-const URL = import.meta.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
-const KEY = import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+const URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
+const KEY = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
 type Row = {
   slug: string; name: string; price: number; was_price: number | null; image: string; image2: string | null;

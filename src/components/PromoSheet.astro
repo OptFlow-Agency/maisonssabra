@@ -30,6 +30,13 @@ const hint = "m-0 min-h-5 text-sm text-ink-soft";
             </div>
           </div>
           <label class="flex min-h-11 cursor-pointer items-center gap-3"><input class="size-5 accent-burgundy" type="checkbox" name="active" checked /> Code actif</label>
+          <label class="flex cursor-pointer items-start gap-3">
+            <input class="mt-0.5 size-5 shrink-0 accent-burgundy" type="checkbox" name="second_item_only" />
+            <span class="grid gap-1">
+              <span>Uniquement sur le 2<sup>e</sup> article (upsell)</span>
+              <span class="text-sm text-ink-soft">Si coché, la réduction ne s’applique qu’au second article proposé dans la page d’upsell. Sinon, le code est général.</span>
+            </span>
+          </label>
         </fieldset>
 
         <fieldset class="m-0 grid gap-4 border-0 border-t border-gold/55 p-0 pt-8" aria-describedby="products-msg">
