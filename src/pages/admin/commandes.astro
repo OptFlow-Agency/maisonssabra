@@ -336,5 +336,9 @@ const filters = [
   });
   moreBtn.addEventListener("click", () => load(true));
 
+  // Arriving from an email link (?client=…): prefill the search so the list is already filtered.
+  const clientParam = new URLSearchParams(location.search).get("client");
+  if (clientParam) searchIn.value = clientParam.trim();
+
   guard(() => load());
 </script>
