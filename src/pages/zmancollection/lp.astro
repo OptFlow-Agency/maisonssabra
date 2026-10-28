@@ -1,0 +1,58 @@
+---
+import Layout from "../../zman-lp/layouts/Layout.astro";
+import Hero from "../../zman-lp/components/Hero.astro";
+import Finish from "../../zman-lp/components/Finish.astro";
+import Moments from "../../zman-lp/components/Moments.astro";
+import Story from "../../zman-lp/components/Story.astro";
+import Details from "../../zman-lp/components/Details.astro";
+import Colors from "../../zman-lp/components/Colors.astro";
+import Reels from "../../zman-lp/components/Reels.astro";
+import OrderForm from "../../zman-lp/components/OrderForm.astro";
+import Faq from "../../zman-lp/components/Faq.astro";
+import Closing from "../../zman-lp/components/Closing.astro";
+import SiteFooter from "../../zman-lp/components/SiteFooter.astro";
+import StickyCta from "../../zman-lp/components/StickyCta.astro";
+import UpsellView from "../../zman-lp/components/UpsellView.astro";
+import ThanksView from "../../zman-lp/components/ThanksView.astro";
+import { shipLong } from "../../zman-lp/lib/copy.js";
+---
+<Layout>
+  <a class="skip" href="#hero">Aller au contenu</a>
+
+  <div class="demo-ribbon" id="demo-ribbon" hidden role="note">
+    MODE DÉMONSTRATION — aucune commande n’est enregistrée tant que les variables <code>PUBLIC_SUPABASE_*</code> ne sont pas configurées.
+  </div>
+
+  <div class="announce" role="note"><span>{shipLong}</span></div>
+
+  <header class="site-header">
+    <a class="brand" href="https://maisonsabra.ma/" aria-label="Maison Sabra — accueil du site officiel">
+      <img src="/assets/logo-ms.webp" width="36" height="36" alt="" class="brand-mark" />
+      <span class="brand-word">Maison Sabra</span>
+    </a>
+    <span class="collection-label">Collection Z’man</span>
+    <a class="support-link" id="support-link" href="#faq">Aide</a>
+  </header>
+
+  <main id="main">
+    <Hero />
+    <Finish />
+    <Moments />
+    <Story />
+    <Details />
+    <Colors />
+    <Reels />
+    <OrderForm />
+    <Faq />
+    <Closing />
+  </main>
+
+  <SiteFooter />
+  <StickyCta />
+  <UpsellView />
+  <ThanksView />
+
+  <script>
+    import "../../zman-lp/scripts/app.js";
+  </script>
+</Layout>

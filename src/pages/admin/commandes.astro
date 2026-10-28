@@ -14,11 +14,44 @@ const filters = [
         <p class="m-0 text-sm text-ink-soft" data-count aria-live="polite">Chargement…</p>
       </div>
 
-      <div class="-mx-(--gutter) mb-8 flex gap-2 overflow-x-auto px-(--gutter) pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filtrer par statut">
-        {filters.map(([value, label], i) => (
-          <button class="min-h-11 shrink-0 cursor-pointer border-0 bg-transparent px-4 text-sm font-semibold tracking-[0.06em] text-burgundy uppercase ring-1 ring-burgundy/35 transition-colors duration-200 ring-inset hover:bg-rose/15 aria-pressed:bg-burgundy aria-pressed:text-cream aria-pressed:ring-burgundy" type="button" data-filter={value} aria-pressed={i === 0 ? "true" : "false"}>{label}</button>
-        ))}
-      </div>
+      <form class="mb-8 flex flex-wrap items-end gap-3" role="search" aria-label="Filtrer les commandes" data-toolbar onsubmit="return false">
+        <div class="grid min-w-56 flex-1 gap-1.5">
+          <label class="field-label" for="orders-search">Recherche</label>
+          <input class="field min-h-11 py-0" id="orders-search" type="search" placeholder="Nom, téléphone ou n° (MS-…)" autocomplete="off" data-search />
+        </div>
+        <div class="flex flex-wrap items-end gap-3">
+          <div class="grid gap-1.5">
+            <label class="field-label" for="orders-status">Statut</label>
+            <select class="field min-h-11 w-auto min-w-40 py-0" id="orders-status" data-status>
+              {filters.map(([value, label]) => <option value={value}>{label}</option>)}
+            </select>
+          </div>
+          <div class="relative grid gap-1.5" data-range>
+            <span class="field-label" id="orders-range-label">Période</span>
+            <button class="field flex min-h-11 w-auto min-w-64 cursor-pointer items-center gap-3 py-0 text-left" type="button" id="orders-range" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="orders-range-label orders-range" data-range-trigger>
+              <svg class="size-4 shrink-0 text-burgundy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+              <span data-range-text class="mr-auto text-ink-soft">Toutes les dates</span>
+            </button>
+            <div class="fixed z-30 hidden w-[min(20rem,calc(100vw-2*var(--gutter)))] border border-gold/55 bg-white p-4 shadow-lg min-[40rem]:w-[39rem]" role="dialog" aria-label="Choisir une période" data-range-pop>
+              <button class="absolute top-4 left-4 grid size-9 cursor-pointer place-items-center border-0 bg-transparent text-burgundy hover:bg-rose/15" type="button" data-prev aria-label="Mois précédent">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>
+              </button>
+              <button class="absolute top-4 right-4 grid size-9 cursor-pointer place-items-center border-0 bg-transparent text-burgundy hover:bg-rose/15" type="button" data-next aria-label="Mois suivant">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+              </button>
+              <div class="grid gap-8 min-[40rem]:grid-cols-2" data-months aria-live="polite"></div>
+              <div class="mt-4 flex items-center justify-between gap-3 border-t border-gold/55 pt-3 text-sm">
+                <div class="flex gap-4">
+                  <button class="cursor-pointer border-0 bg-transparent p-0 font-semibold text-burgundy underline underline-offset-4" type="button" data-clear>Effacer</button>
+                  <button class="cursor-pointer border-0 bg-transparent p-0 font-semibold text-burgundy underline underline-offset-4" type="button" data-today>Aujourd’hui</button>
+                </div>
+                <button class="btn-ghost min-h-10 disabled:cursor-not-allowed disabled:opacity-50" type="button" data-apply>Appliquer</button>
+              </div>
+            </div>
+          </div>
+          <button class="min-h-11 cursor-pointer border-0 bg-transparent px-4 text-sm font-semibold tracking-[0.06em] text-burgundy uppercase ring-1 ring-burgundy/35 transition-colors duration-200 ring-inset hover:bg-rose/15" type="button" data-sort aria-label="Trier par date : plus récentes d’abord">Date ↓</button>
+        </div>
+      </form>
 
       <p class="m-0 mb-6 hidden border border-burgundy-deep bg-white p-4 text-burgundy-deep" role="alert" data-list-error></p>
 
@@ -55,9 +88,22 @@ const filters = [
   const empty = document.querySelector<HTMLElement>("[data-empty]")!;
   const moreWrap = document.querySelector<HTMLElement>("[data-more-wrap]")!;
   const moreBtn = document.querySelector<HTMLButtonElement>("[data-more]")!;
-  const filterBtns = [...document.querySelectorAll<HTMLButtonElement>("[data-filter]")];
+  const searchIn = document.querySelector<HTMLInputElement>("[data-search]")!;
+  const statusSel = document.querySelector<HTMLSelectElement>("[data-status]")!;
+  const range = document.querySelector<HTMLElement>("[data-range]")!;
+  const rangeBtn = range.querySelector<HTMLButtonElement>("[data-range-trigger]")!;
+  const rangeText = range.querySelector<HTMLElement>("[data-range-text]")!;
+  const pop = range.querySelector<HTMLElement>("[data-range-pop]")!;
+  const months = range.querySelector<HTMLElement>("[data-months]")!;
+  // Selected range as local YYYY-MM-DD strings ("" = open-ended).
+  const sel = { from: "", to: "" };
+  // Pending selection inside the open popover; committed to `sel` by "Appliquer".
+  const draft = { from: "", to: "" };
+  const applyBtn = range.querySelector<HTMLButtonElement>("[data-apply]")!;
+  const sortBtn = document.querySelector<HTMLButtonElement>("[data-sort]")!;
 
   let status = "";
+  let ascending = false;
   let loaded = 0;
   let total = 0;
 
@@ -160,8 +206,18 @@ const filters = [
     err.classList.add("hidden");
     moreBtn.disabled = true;
     if (!more) { loaded = 0; list.replaceChildren(); }
-    let q = supabase.from("orders").select("*, order_items(*)", { count: "exact" }).order("created_at", { ascending: false }).range(loaded, loaded + PAGE - 1);
+    let q = supabase.from("orders").select("*, order_items(*)", { count: "exact" }).order("created_at", { ascending }).range(loaded, loaded + PAGE - 1);
     if (status) q = q.eq("status", status);
+    // Strip characters that would break the PostgREST or() grammar or act as ilike wildcards.
+    const term = searchIn.value.trim().replace(/[,()%*_\\]/g, " ").trim();
+    if (term) {
+      const parts = [`first_name.ilike.%${term}%`, `last_name.ilike.%${term}%`, `phone.ilike.%${term}%`];
+      const num = term.replace(/^ms-?/i, "");
+      if (/^\d+$/.test(num)) parts.push(`order_number.eq.${num}`);
+      q = q.or(parts.join(","));
+    }
+    if (sel.from) q = q.gte("created_at", new Date(`${sel.from}T00:00:00`).toISOString());
+    if (sel.to) { const end = new Date(`${sel.to}T00:00:00`); end.setDate(end.getDate() + 1); q = q.lt("created_at", end.toISOString()); }
     const { data, error, count: n } = await q;
     moreBtn.disabled = false;
     if (error) {
@@ -176,23 +232,108 @@ const filters = [
     list.append(...rows.map(card));
 
     count.textContent = total === 0 ? "" : `${total} commande${total > 1 ? "s" : ""}${status ? ` ${STATUS[status as OrderStatus].label.toLowerCase()}${total > 1 ? "s" : ""}` : ""}`;
+    const filtered = !!(status || term || sel.from || sel.to);
     const none = total === 0;
     empty.classList.toggle("hidden", !none);
     empty.classList.toggle("grid", none);
     if (none) {
-      empty.querySelector("[data-empty-title]")!.textContent = status ? "Aucune commande dans ce statut" : "Aucune commande pour le moment";
-      empty.querySelector("[data-empty-text]")!.textContent = status ? "Choisissez un autre filtre pour voir les autres commandes." : "Les commandes passées sur la boutique apparaîtront ici, avec les coordonnées de la cliente et les produits demandés.";
+      empty.querySelector("[data-empty-title]")!.textContent = filtered ? "Aucune commande trouvée" : "Aucune commande pour le moment";
+      empty.querySelector("[data-empty-text]")!.textContent = filtered ? "Modifiez la recherche ou les filtres pour voir d’autres commandes." : "Les commandes passées sur la boutique apparaîtront ici, avec les coordonnées de la cliente et les produits demandés.";
       count.textContent = "";
     }
     moreWrap.classList.toggle("hidden", loaded >= total);
     moreWrap.classList.toggle("flex", loaded < total);
   }
 
-  filterBtns.forEach((b) => b.addEventListener("click", () => {
-    status = b.dataset.filter ?? "";
-    filterBtns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  let timer: ReturnType<typeof setTimeout>;
+  searchIn.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(() => load(), 300); });
+  statusSel.addEventListener("change", () => { status = statusSel.value; load(); });
+  const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const short = (v: string) => new Date(`${v}T00:00:00`).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  let view = new Date(); view.setDate(1);
+  let picking = false; // true once a start date is chosen and we await the end
+
+  function renderRange() {
+    rangeText.textContent = !sel.from ? "Toutes les dates" : sel.to && sel.to !== sel.from ? `${short(sel.from)} – ${short(sel.to)}` : short(sel.from);
+    rangeText.classList.toggle("text-ink-soft", !sel.from);
+  }
+
+  function renderMonth() {
+    months.replaceChildren();
+    const today = iso(new Date());
+    for (let m = 0; m < 2; m++) {
+      const first = new Date(view.getFullYear(), view.getMonth() + m, 1);
+      const block = el("div", m ? "max-[40rem]:hidden" : "");
+      block.append(el("p", "m-0 mb-3 flex h-9 items-center justify-center font-display text-base text-burgundy capitalize", first.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })));
+      const head = el("div", "grid grid-cols-7 text-center text-xs font-semibold tracking-[0.06em] text-ink-soft uppercase");
+      head.setAttribute("aria-hidden", "true");
+      for (const d of ["L", "M", "M", "J", "V", "S", "D"]) head.append(el("span", "py-1", d));
+      const grid = el("div", "grid grid-cols-7");
+      grid.dataset.days = "";
+      const lead = (first.getDay() + 6) % 7;
+      for (let i = 0; i < lead; i++) grid.append(el("span"));
+      const len = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+      for (let n = 1; n <= len; n++) {
+        const d = new Date(first.getFullYear(), first.getMonth(), n);
+        const v = iso(d);
+        const edge = v === draft.from || v === draft.to;
+        const inside = draft.from && draft.to && v > draft.from && v < draft.to;
+        const b = el("button", `h-10 cursor-pointer border-0 text-sm tabular-nums transition-colors ${edge ? "bg-burgundy font-semibold text-cream" : inside ? "bg-rose/25 text-burgundy-deep" : "bg-transparent text-ink hover:bg-rose/15"} ${v === today && !edge ? "ring-1 ring-gold ring-inset" : ""}`, String(n));
+        b.type = "button"; b.dataset.date = v;
+        b.setAttribute("aria-label", d.toLocaleDateString("fr-FR", { dateStyle: "full" }));
+        if (edge) b.setAttribute("aria-pressed", "true");
+        grid.append(b);
+      }
+      block.append(head, grid);
+      months.append(block);
+    }
+  }
+
+  // Fixed + clamped to the viewport so the two-month panel never overflows the page.
+  function place() {
+    if (pop.classList.contains("hidden")) return;
+    const r = rangeBtn.getBoundingClientRect();
+    const w = pop.offsetWidth;
+    pop.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - w - 8))}px`;
+    pop.style.top = `${r.bottom + 4}px`;
+  }
+
+  function setOpen(open: boolean) {
+    pop.classList.toggle("hidden", !open);
+    rangeBtn.setAttribute("aria-expanded", String(open));
+    if (open) {
+      draft.from = sel.from; draft.to = sel.to;
+      if (sel.from) { view = new Date(`${sel.from}T00:00:00`); view.setDate(1); }
+      picking = false; applyBtn.disabled = !draft.from; renderMonth(); place();
+    }
+  }
+  window.addEventListener("resize", place);
+  window.addEventListener("scroll", place, { passive: true });
+
+  const apply = () => { renderRange(); load(); };
+  rangeBtn.addEventListener("click", () => setOpen(pop.classList.contains("hidden")));
+  // composedPath: a day click re-renders the grid, so the target is detached by the time this runs.
+  document.addEventListener("click", (e) => { if (!e.composedPath().includes(range)) setOpen(false); });
+  range.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); rangeBtn.focus(); } });
+  range.querySelector("[data-prev]")!.addEventListener("click", () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); renderMonth(); });
+  range.querySelector("[data-next]")!.addEventListener("click", () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); renderMonth(); });
+  range.querySelector("[data-clear]")!.addEventListener("click", () => { sel.from = sel.to = ""; apply(); setOpen(false); });
+  range.querySelector("[data-today]")!.addEventListener("click", () => { draft.from = draft.to = iso(new Date()); picking = false; applyBtn.disabled = false; renderMonth(); });
+  applyBtn.addEventListener("click", () => { sel.from = draft.from; sel.to = draft.to; apply(); setOpen(false); });
+  months.addEventListener("click", (e) => {
+    const v = (e.target as HTMLElement).closest<HTMLElement>("[data-date]")?.dataset.date;
+    if (!v) return;
+    if (!picking) { draft.from = draft.to = v; picking = true; }
+    else { if (v < draft.from) { draft.to = draft.from; draft.from = v; } else draft.to = v; picking = false; }
+    applyBtn.disabled = false;
+    renderMonth();
+  });
+  sortBtn.addEventListener("click", () => {
+    ascending = !ascending;
+    sortBtn.textContent = ascending ? "Date ↑" : "Date ↓";
+    sortBtn.setAttribute("aria-label", `Trier par date : ${ascending ? "plus anciennes" : "plus récentes"} d’abord`);
     load();
-  }));
+  });
   moreBtn.addEventListener("click", () => load(true));
 
   guard(() => load());

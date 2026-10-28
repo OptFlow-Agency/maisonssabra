@@ -14,6 +14,11 @@ import PromoSheet from "../../components/PromoSheet.astro";
         <button class="btn" type="button" data-add-promo>Créer un code</button>
       </div>
 
+      <form class="mb-6 grid max-w-md gap-1.5" role="search" onsubmit="return false">
+        <label class="field-label" for="promo-search">Recherche</label>
+        <input class="field min-h-11 py-0" id="promo-search" type="search" placeholder="Code promo" autocomplete="off" data-search />
+      </form>
+
       <p class="m-0 hidden border border-burgundy-deep bg-white p-4 text-burgundy-deep" role="alert" data-list-error></p>
 
       <div class="hidden border border-gold/55 bg-white" data-table>
@@ -21,6 +26,11 @@ import PromoSheet from "../../components/PromoSheet.astro";
           <span>Code</span><span>Remise</span><span>Produits</span><span>Statut</span><span></span>
         </div>
         <ul class="m-0 list-none divide-y divide-burgundy/15 p-0" data-rows></ul>
+      </div>
+
+      <div class="hidden max-w-md gap-2 border border-gold/55 bg-white p-8" data-no-results>
+        <p class="m-0 font-display text-step-1 text-burgundy">Aucun code trouvé</p>
+        <p class="m-0 text-ink-soft">Modifiez la recherche pour voir d’autres codes.</p>
       </div>
 
       <div class="hidden max-w-md gap-4 border border-gold/55 bg-white p-8" data-empty>
@@ -39,6 +49,9 @@ import PromoSheet from "../../components/PromoSheet.astro";
   import { openPromoSheet } from "../../scripts/admin/promo-sheet";
 
   let products: ProductLite[] = [];
+  let req = 0;
+  const searchIn = document.querySelector<HTMLInputElement>("[data-search]")!;
+  const noResults = document.querySelector<HTMLElement>("[data-no-results]")!;
 
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text = "") => {
     const e = document.createElement(tag);
@@ -77,10 +90,16 @@ import PromoSheet from "../../components/PromoSheet.astro";
   }
 
   async function load() {
+    const id = ++req;
+    // Strip characters that would break the PostgREST filter grammar or act as ilike wildcards.
+    const term = searchIn.value.trim().replace(/[,()%*_\\]/g, " ").trim();
+    let q = supabase.from("promo_codes").select("*, promo_code_products(product_slug)").order("created_at", { ascending: false });
+    if (term) q = q.ilike("code", `%${term}%`);
     const [promos, prods] = await Promise.all([
-      supabase.from("promo_codes").select("*, promo_code_products(product_slug)").order("created_at", { ascending: false }),
+      q,
       supabase.from("products").select("slug,name,image,active").order("sort_order").order("created_at", { ascending: false }),
     ]);
+    if (id !== req) return; // a newer search superseded this one
     const count = document.querySelector<HTMLElement>("[data-count]")!;
     const table = document.querySelector<HTMLElement>("[data-table]")!;
     const empty = document.querySelector<HTMLElement>("[data-empty]")!;
@@ -95,8 +114,12 @@ import PromoSheet from "../../components/PromoSheet.astro";
     const live = rows.filter((r) => r.active).length;
     count.textContent = `${rows.length} code${rows.length > 1 ? "s" : ""}, ${live} actif${live > 1 ? "s" : ""}`;
     table.classList.toggle("hidden", rows.length === 0);
-    empty.classList.toggle("hidden", rows.length > 0);
-    empty.classList.toggle("grid", rows.length === 0);
+    const none = rows.length === 0;
+    empty.classList.toggle("hidden", !none || !!term);
+    empty.classList.toggle("grid", none && !term);
+    noResults.classList.toggle("hidden", !none || !term);
+    noResults.classList.toggle("grid", none && !!term);
+    if (none) count.textContent = "";
 
     document.querySelector("[data-rows]")!.replaceChildren(...rows.map((p) => {
       const li = el("li", "grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 px-4 py-4 min-[48rem]:grid-cols-[minmax(0,1fr)_5rem_minmax(0,1.6fr)_7.5rem_5rem]");
@@ -112,6 +135,9 @@ import PromoSheet from "../../components/PromoSheet.astro";
       return li;
     }));
   }
+
+  let timer: ReturnType<typeof setTimeout>;
+  searchIn.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(load, 300); });
 
   document.querySelectorAll("[data-add-promo]").forEach((b) => b.addEventListener("click", () => openPromoSheet(null, products, afterChange)));
   guard(load);

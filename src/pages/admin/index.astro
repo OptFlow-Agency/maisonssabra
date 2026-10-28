@@ -14,6 +14,11 @@ import ProductSheet from "../../components/ProductSheet.astro";
         <button class="btn" type="button" data-add-product>Ajouter un produit</button>
       </div>
 
+      <form class="mb-6 grid max-w-md gap-1.5" role="search" onsubmit="return false">
+        <label class="field-label" for="products-search">Recherche</label>
+        <input class="field min-h-11 py-0" id="products-search" type="search" placeholder="Nom ou adresse du produit" autocomplete="off" data-search />
+      </form>
+
       <p class="m-0 hidden border border-burgundy-deep bg-white p-4 text-burgundy-deep" role="alert" data-list-error></p>
 
       <div class="hidden border border-gold/55 bg-white" data-table>
@@ -21,6 +26,11 @@ import ProductSheet from "../../components/ProductSheet.astro";
           <span></span><span>Produit</span><span>Collection</span><span>Prix</span><span>Statut</span><span></span>
         </div>
         <ul class="m-0 list-none divide-y divide-burgundy/15 p-0" data-rows></ul>
+      </div>
+
+      <div class="hidden max-w-md gap-2 border border-gold/55 bg-white p-8" data-no-results>
+        <p class="m-0 font-display text-step-1 text-burgundy">Aucun produit trouvé</p>
+        <p class="m-0 text-ink-soft">Modifiez la recherche pour voir d’autres produits.</p>
       </div>
 
       <div class="hidden max-w-md gap-4 border border-gold/55 bg-white p-8" data-empty>
@@ -47,8 +57,18 @@ import ProductSheet from "../../components/ProductSheet.astro";
 
   const afterChange = async (what: "saved" | "deleted") => { await load(); toast(what === "deleted" ? "Produit supprimé." : "Produit enregistré."); };
 
+  const searchIn = document.querySelector<HTMLInputElement>("[data-search]")!;
+  const noResults = document.querySelector<HTMLElement>("[data-no-results]")!;
+  let req = 0;
+
   async function load() {
-    const { data, error } = await supabase.from("products").select("*").order("sort_order").order("created_at", { ascending: false });
+    const id = ++req;
+    let q = supabase.from("products").select("*").order("sort_order").order("created_at", { ascending: false });
+    // Strip characters that would break the PostgREST or() grammar or act as ilike wildcards.
+    const term = searchIn.value.trim().replace(/[,()%*_\\]/g, " ").trim();
+    if (term) q = q.or(`name.ilike.%${term}%,slug.ilike.%${term}%`);
+    const { data, error } = await q;
+    if (id !== req) return; // a newer search superseded this one
     const count = document.querySelector<HTMLElement>("[data-count]")!;
     const table = document.querySelector<HTMLElement>("[data-table]")!;
     const empty = document.querySelector<HTMLElement>("[data-empty]")!;
@@ -57,9 +77,14 @@ import ProductSheet from "../../components/ProductSheet.astro";
 
     const rows = (data ?? []) as ProductRow[];
     count.textContent = `${rows.length} produit${rows.length > 1 ? "s" : ""}, ${rows.filter((r) => r.active).length} visible${rows.filter((r) => r.active).length > 1 ? "s" : ""} dans la boutique`;
+    err.classList.add("hidden");
     table.classList.toggle("hidden", rows.length === 0);
-    empty.classList.toggle("hidden", rows.length > 0);
-    empty.classList.toggle("grid", rows.length === 0);
+    const none = rows.length === 0;
+    empty.classList.toggle("hidden", !none || !!term);
+    empty.classList.toggle("grid", none && !term);
+    noResults.classList.toggle("hidden", !none || !term);
+    noResults.classList.toggle("grid", none && !!term);
+    if (none) count.textContent = "";
 
     document.querySelector("[data-rows]")!.replaceChildren(...rows.map((p) => {
       const li = el("li", "grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-4 min-[48rem]:grid-cols-[3.5rem_minmax(0,1fr)_7rem_9rem_6rem_5rem]");
@@ -81,6 +106,9 @@ import ProductSheet from "../../components/ProductSheet.astro";
       return li;
     }));
   }
+
+  let timer: ReturnType<typeof setTimeout>;
+  searchIn.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(load, 300); });
 
   document.querySelectorAll("[data-add-product]").forEach((b) => b.addEventListener("click", () => openSheet(null, afterChange)));
 
