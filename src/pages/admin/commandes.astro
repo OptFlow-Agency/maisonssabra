@@ -210,9 +210,10 @@ const filters = [
     if (status) q = q.eq("status", status);
     // Strip characters that would break the PostgREST or() grammar or act as ilike wildcards.
     const term = searchIn.value.trim().replace(/[,()%*_\\]/g, " ").trim();
-    if (term) {
-      const parts = [`first_name.ilike.%${term}%`, `last_name.ilike.%${term}%`, `phone.ilike.%${term}%`];
-      const num = term.replace(/^ms-?/i, "");
+    // Each word must match one of the fields, so "Oussama Test" finds first_name + last_name.
+    for (const word of term.split(/\s+/).filter(Boolean)) {
+      const parts = [`first_name.ilike.%${word}%`, `last_name.ilike.%${word}%`, `phone.ilike.%${word}%`];
+      const num = word.replace(/^ms-?/i, "");
       if (/^\d+$/.test(num)) parts.push(`order_number.eq.${num}`);
       q = q.or(parts.join(","));
     }
