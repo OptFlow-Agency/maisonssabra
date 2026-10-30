@@ -1,7 +1,7 @@
 @import "@fontsource/cormorant-garamond/latin-500.css";
 @import "@fontsource/cormorant-garamond/latin-600.css";
 @import "@fontsource/cormorant-garamond/latin-500-italic.css";
-@import "@fontsource-variable/jost/index.css";
+@import "@fontsource-variable/montserrat/index.css";
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 @import "./tokens.css";
@@ -14,7 +14,7 @@
   body { @apply bg-cream-soft font-body text-step-0 leading-relaxed text-ink antialiased; }
   img, svg { @apply block h-auto max-w-full; }
   a { text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
-  h1, h2, h3 { @apply font-display font-medium leading-[1.02] text-burgundy text-balance; }
+  h1, h2, h3 { @apply font-display font-medium leading-[1.05] text-burgundy text-balance; }
   p { @apply text-pretty; }
   ::selection { @apply bg-rose text-burgundy-deep; }
   :focus-visible { @apply rounded-xs outline-2 outline-offset-3 outline-burgundy; }
@@ -25,8 +25,12 @@
 }
 
 @layer components {
+  /* Chapter label, "01 — Collection": gold rule + tracked caps, the case study's section marker. */
+  .eyebrow { @apply flex items-center gap-4 font-body text-[0.6875rem] leading-none font-semibold tracking-[0.2em] min-[30rem]:tracking-[0.28em] text-rose-dusty uppercase before:h-px before:w-10 before:bg-gold before:content-['']; }
+  .on-dark .eyebrow { @apply text-rose; }
+  .rule-gold { @apply h-px w-full border-0 bg-linear-to-r from-gold/0 via-gold/70 to-gold/0; }
   .btn {
-    @apply inline-flex min-h-13 cursor-pointer items-center gap-3 whitespace-nowrap rounded-none border-0 bg-rose px-6 font-body text-sm leading-none font-semibold tracking-[0.07em] text-burgundy-deep uppercase no-underline transition-colors duration-300 hover:bg-rose-dusty hover:text-white active:bg-burgundy active:text-white;
+    @apply inline-flex min-h-13 cursor-pointer items-center gap-3 whitespace-nowrap rounded-none border-0 bg-rose px-6 font-body text-xs leading-none font-semibold tracking-[0.18em] text-burgundy-deep uppercase no-underline transition-colors duration-300 hover:bg-rose-dusty hover:text-white active:bg-burgundy active:text-white;
   }
   .btn svg { transition: transform 0.35s var(--ease-out); }
   .btn:hover svg { transform: translateX(4px); }
@@ -34,10 +38,10 @@
     @apply relative grid size-11 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-burgundy transition-colors duration-200 hover:bg-rose/15 hover:text-rose-dusty;
   }
   .btn-ghost {
-    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-none border-0 bg-transparent px-5 font-body text-sm leading-none font-semibold tracking-[0.07em] text-burgundy uppercase no-underline ring-1 ring-burgundy/45 transition-[background-color,box-shadow] duration-200 ring-inset hover:bg-rose/15 hover:ring-burgundy disabled:cursor-wait disabled:opacity-60;
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-none border-0 bg-transparent px-5 font-body text-xs leading-none font-semibold tracking-[0.18em] text-burgundy uppercase no-underline ring-1 ring-burgundy/45 transition-[background-color,box-shadow] duration-200 ring-inset hover:bg-rose/15 hover:ring-burgundy disabled:cursor-wait disabled:opacity-60;
   }
   .btn-danger {
-    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-none border-0 bg-burgundy-deep px-5 font-body text-sm leading-none font-semibold tracking-[0.07em] text-cream uppercase transition-colors duration-200 hover:bg-burgundy disabled:cursor-wait disabled:opacity-60;
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-none border-0 bg-burgundy-deep px-5 font-body text-xs leading-none font-semibold tracking-[0.18em] text-cream uppercase transition-colors duration-200 hover:bg-burgundy disabled:cursor-wait disabled:opacity-60;
   }
   .field-label { @apply text-sm font-semibold tracking-[0.08em] text-burgundy-deep uppercase; }
   .field {

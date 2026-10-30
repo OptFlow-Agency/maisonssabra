@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import jostUrl from "@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url";
+import sansUrl from "@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url";
 import cormorantUrl from "@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url";
 import { site } from "../data/site";
 
@@ -47,7 +47,7 @@ const ogImage = new URL(image, site.url).href;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/img/logo-ms.png" />
     <link rel="preload" href={cormorantUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={jostUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansUrl} as="font" type="font/woff2" crossorigin />
     {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
   </head>
   <body>

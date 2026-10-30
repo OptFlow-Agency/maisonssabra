@@ -1,32 +1,35 @@
 /* Maison Sabra design tokens (Tailwind v4 @theme: each token becomes a utility, e.g. bg-burgundy, text-step-4, font-display) */
 @theme {
   /* Brand */
-  --color-burgundy: #6b1a33;
-  --color-burgundy-deep: #4a0f22; /* text on rose, hero depth; 11:1 on cream */
-  --color-rose: #e8829b; /* primary CTA, announcement bar */
-  --color-rose-dusty: #b5546f; /* hover/active; white text 4.7:1 */
-  --color-cream: #eadfc8;
-  --color-cream-soft: #f6f0e2;
+  --color-burgundy: #78143a; /* primary, per brand case study */
+  --color-burgundy-deep: #4d0206; /* oxblood: depth, text on champagne; 13:1 on ivory */
+  --color-rose: #efc383; /* champagne: CTA on dark, highlights (token name kept for existing utilities) */
+  --color-rose-dusty: #8f5a1c; /* deep bronze: hover on light; white text 5.9:1 */
+  --color-cream: #ece0cc; /* ivory, one step deeper */
+  --color-cream-soft: #f5ecde; /* ivory: page background */
+  --color-sand: #c7a389;
+  --color-bronze: #c3813d;
   --color-white: #ffffff;
 
   /* Text */
-  --color-ink: #141414;
-  --color-ink-soft: #5a5553;
+  --color-ink: #090806;
+  --color-ink-soft: #57504a;
 
   /* Accents: sparing. Gold is decorative only (1.8:1 on cream), never body text. */
   --color-teal: #1f6b6b;
   --color-terracotta: #c9794a;
-  --color-gold: #c9a24b;
+  --color-gold: #b08231; /* antique gold: monograms, rules, small details */
 
   /* Type */
   --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
-  --font-body: "Jost Variable", "Jost", "Poppins", system-ui, sans-serif;
+  --font-body: "Montserrat Variable", "Montserrat", system-ui, sans-serif;
   --text-step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
   --text-step-0: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
   --text-step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
   --text-step-2: clamp(1.75rem, 1.5rem + 1.2vw, 2.5rem);
   --text-step-3: clamp(2.5rem, 1.9rem + 3vw, 4.25rem);
   --text-step-4: clamp(3.25rem, 2.2rem + 5.2vw, 6rem);
+  --text-step-5: clamp(4.5rem, 2rem + 14vw, 15rem);
 
   /* Breakpoints (mobile first: 360 / 768 / 1280 verified) */
   --breakpoint-split: 60rem;

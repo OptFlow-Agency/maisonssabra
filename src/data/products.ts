@@ -43,3 +43,18 @@ export const discount = (p: Product) => (p.was && p.was > p.price ? Math.round((
 /** Responsive variants generated next to each source file: `name-480.webp`, `name-800.webp`. */
 export const variant = (src: string, w: 480 | 800) => src.replace(/\.webp$/, `-${w}.webp`);
 export const srcset = (src: string) => `${variant(src, 480)} 480w, ${variant(src, 800)} 800w, ${src} 1000w`;
+
+/** Muted colour field behind each product photo, echoing its colourway (studio shots are on white, so they multiply onto it). */
+const tones: [RegExp, string][] = [
+  [/azerwal|bleu/, "#a9c1d3"],
+  [/tazult|violet/, "#b9a6c9"],
+  [/awray|jaune|moutarde/, "#e2c262"],
+  [/vert/, "#a8ae7a"],
+  [/rouge/, "#d98d88"],
+  [/beige|blan/, "#ecd7ae"],
+  [/multicolore/, "#e4c7b0"],
+];
+export const tone = (p: Pick<Product, "slug" | "name">) => {
+  const k = `${p.slug} ${p.name}`.toLowerCase();
+  return tones.find(([re]) => re.test(k))?.[1] ?? "#d9c3ac";
+};

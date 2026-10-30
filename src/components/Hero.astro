@@ -1,59 +1,75 @@
 ---
+import { fallback, variant, discount } from "../data/products";
+const feature = fallback.find((p) => p.slug === "zman-beige")!;
+const swatches = fallback.filter((p) => p.collection === "zman").slice(0, 5);
+const facts = [
+  ["Livraison offerte", "dès 1000 dhs d’achat"],
+  ["Faits main", "par des artisanes marocaines"],
+  ["Cartes-cadeaux", "coupons disponibles"],
+];
+const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg>`;
 ---
-<section class="on-dark relative isolate overflow-hidden bg-[radial-gradient(120%_90%_at_78%_40%,#7d2140_0%,var(--color-burgundy)_45%,var(--color-burgundy-deep)_100%)] text-cream" aria-labelledby="hero-title" data-hero>
-  <div class="grain pointer-events-none absolute inset-0 -z-10 opacity-50 mix-blend-soft-light" aria-hidden="true"></div>
+<section class="relative isolate overflow-hidden bg-[linear-gradient(180deg,var(--color-cream-soft)_0,var(--color-cream-soft)_58%,var(--color-burgundy)_58%,var(--color-burgundy-deep)_100%)] split:bg-[linear-gradient(90deg,var(--color-cream-soft)_0,var(--color-cream-soft)_55%,var(--color-burgundy)_55%,var(--color-burgundy-deep)_100%)]" aria-labelledby="hero-title">
+  <div class="grain pointer-events-none absolute inset-0 -z-10 opacity-30 mix-blend-soft-light" aria-hidden="true"></div>
 
-  <div class="mx-auto grid min-h-[min(46rem,calc(100svh-var(--header-h)-2.75rem))] max-w-(--max) gap-8 px-(--gutter) pt-16 split:grid-cols-[1.05fr_1fr] split:items-stretch split:gap-12 split:pt-12">
-    <div class="relative z-2 grid content-center justify-items-start gap-6 will-change-transform [transform:translate3d(0,calc(var(--p,0)*36px),0)]">
-      <h1 id="hero-title" class="text-step-4 leading-[0.95] font-medium tracking-[-0.01em] text-cream">
-        <span class="block overflow-hidden pb-[0.08em]"><span class="block animate-rise motion-reduce:animate-none">Éclats</span></span>
-        <span class="block overflow-hidden pb-[0.08em]"><span class="block animate-[rise_1.1s_0.12s_var(--ease-out)_both] motion-reduce:animate-none">de <em class="text-rose">Tradition</em></span></span>
-      </h1>
-      <p class="max-w-[26ch] animate-[fade_1s_0.45s_var(--ease-out)_both] text-step-1 leading-snug opacity-92 motion-reduce:animate-none split:max-w-[28ch]">
-        Des créations artisanales inspirées du patrimoine marocain
-      </p>
-      <a class="btn animate-[fade_1s_0.6s_var(--ease-out)_both] motion-reduce:animate-none" href="/boutique">
-        Découvrir la collection
-        <svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg>
+  <div class="mx-auto grid min-h-[min(50rem,calc(100svh-var(--header-h)-2.75rem))] max-w-(--max) px-(--gutter) split:grid-cols-[55fr_45fr]">
+    <!-- Ivory half: statement -->
+    <div class="relative z-2 grid content-between gap-14 pt-14 pb-48 split:pt-20 split:pr-[18%] split:pb-12">
+      <div class="grid justify-items-start gap-6">
+        <p class="eyebrow animate-[fade_1s_0.1s_var(--ease-out)_both] motion-reduce:animate-none">Maison Sabra · Fait main au Maroc</p>
+        <h1 id="hero-title" class="text-step-4 leading-[0.95] tracking-[-0.01em]">
+          <span class="block overflow-hidden pb-[0.08em]"><span class="block animate-rise motion-reduce:animate-none">Éclats</span></span>
+          <span class="block overflow-hidden pb-[0.08em]"><span class="block animate-[rise_1.1s_0.12s_var(--ease-out)_both] motion-reduce:animate-none">de <em class="text-gold">Tradition</em></span></span>
+        </h1>
+        <p class="max-w-[30ch] animate-[fade_1s_0.45s_var(--ease-out)_both] text-step-1 leading-snug text-ink-soft motion-reduce:animate-none">
+          Des créations artisanales inspirées du patrimoine marocain
+        </p>
+        <div class="flex animate-[fade_1s_0.6s_var(--ease-out)_both] flex-wrap items-center gap-x-8 gap-y-4 motion-reduce:animate-none">
+          <a class="btn bg-burgundy text-cream hover:bg-burgundy-deep hover:text-rose" href="/boutique">Découvrir la collection <Fragment set:html={arrow} /></a>
+        </div>
+      </div>
+
+      <dl class="m-0 hidden animate-[fade_1s_0.8s_var(--ease-out)_both] grid-cols-3 gap-6 border-t border-gold/60 pt-6 motion-reduce:animate-none min-[48rem]:grid">
+        {facts.map(([t, d]) => (
+          <div><dt class="text-[0.6875rem] font-semibold tracking-[0.2em] text-burgundy uppercase">{t}</dt><dd class="m-0 mt-2 text-sm text-ink-soft">{d}</dd></div>
+        ))}
+      </dl>
+    </div>
+
+    <!-- Burgundy half: swatches + feature card -->
+    <div class="on-dark relative z-1 grid content-between justify-items-end gap-10 pt-[min(70vw,24rem)] pb-10 split:pt-20 split:pb-12">
+      <ul class="m-0 flex list-none gap-3 p-0 split:flex-col" aria-label="Coloris Z’man">
+        {swatches.map((p, i) => (
+          <li class="animate-[fade_1s_var(--ease-out)_both] motion-reduce:animate-none" style={`animation-delay:${0.5 + i * 0.08}s`}>
+            <a class="group/sw relative block size-14 overflow-hidden bg-white ring-1 ring-gold/70 transition-[box-shadow,translate] duration-300 hover:-translate-y-0.5 hover:ring-2 hover:ring-rose min-[48rem]:size-16" href={`/produit/${p.slug}`} aria-label={p.name} title={p.name}>
+              <img class="size-full object-cover" src={variant(p.img, 480)} alt="" width="64" height="64" loading="lazy" decoding="async" />
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <a class="group/card hidden w-full max-w-72 animate-[fade_1s_0.9s_var(--ease-out)_both] grid-cols-[4rem_1fr] items-center gap-4 border border-gold/50 bg-cream-soft p-3 no-underline motion-reduce:animate-none min-[48rem]:grid" href={`/produit/${feature.slug}`}>
+        <img class="size-16 bg-white object-cover" src={variant(feature.img, 480)} alt="" width="64" height="64" loading="lazy" decoding="async" />
+        <span class="grid gap-1">
+          <span class="text-[0.625rem] font-semibold tracking-[0.2em] text-rose-dusty uppercase">Pièce signature</span>
+          <span class="font-display text-lg leading-tight text-burgundy">Velours beige brodé doré</span>
+          <span class="text-sm text-ink tabular-nums">{feature.price} dhs <s class="ml-1 text-ink-soft">{feature.was} dhs</s> <span class="sr-only">−{discount(feature)} %</span></span>
+        </span>
       </a>
     </div>
 
-    <figure class="relative m-0 w-[min(100%,26rem)] self-end justify-self-center will-change-transform [transform:translate3d(0,calc(var(--p,0)*-48px),0)] split:w-[min(100%,34rem,calc((100svh-11rem)/1.3))] split:justify-self-end">
-      <svg class="w-full" viewBox="0 0 400 520" aria-hidden="true" preserveAspectRatio="xMidYMax meet">
-        <defs>
-          <pattern id="star" width="44" height="44" patternUnits="userSpaceOnUse">
-            <g fill="none" stroke="#C9A24B" stroke-width="1" opacity=".16">
-              <rect x="11" y="11" width="22" height="22"/>
-              <rect x="11" y="11" width="22" height="22" transform="rotate(45 22 22)"/>
-            </g>
-          </pattern>
-          <clipPath id="archclip"><path d="M24 520V206a176 176 0 0 1 352 0v314z"/></clipPath>
-        </defs>
-        <path d="M24 520V206a176 176 0 0 1 352 0v314z" fill="#4A0F22"/>
-        <rect width="400" height="520" fill="url(#star)" clip-path="url(#archclip)"/>
-        <path class="animate-[draw_1.8s_0.2s_var(--ease-out)_forwards] [stroke-dasharray:1] [stroke-dashoffset:1] motion-reduce:animate-none motion-reduce:[stroke-dashoffset:0]" pathLength="1" d="M24 520V206a176 176 0 0 1 352 0v314" fill="none" stroke="#C9A24B" stroke-width="1.5"/>
-        <path class="animate-[draw_1.8s_0.45s_var(--ease-out)_forwards] [stroke-dasharray:1] [stroke-dashoffset:1] motion-reduce:animate-none motion-reduce:[stroke-dashoffset:0]" pathLength="1" d="M40 520V206a160 160 0 0 1 320 0v314" fill="none" stroke="#C9A24B" stroke-width="1" opacity=".55"/>
+    <!-- The bag straddles the seam between the two halves -->
+    <figure class="pointer-events-none absolute top-[56%] left-1/2 z-3 m-0 w-[min(82%,26rem)] -translate-x-1/2 split:top-1/2 split:left-[56%] split:w-[min(40%,40rem)] split:-translate-y-[46%]">
+      <svg class="absolute top-[-18%] left-1/2 -z-10 hidden w-[62%] -translate-x-1/2 split:block" viewBox="0 0 400 520" aria-hidden="true">
+        <path class="animate-[draw_1.8s_0.2s_var(--ease-out)_forwards] [stroke-dasharray:1] [stroke-dashoffset:1] motion-reduce:animate-none motion-reduce:[stroke-dashoffset:0]" pathLength="1" d="M24 520V206a176 176 0 0 1 352 0v314" fill="none" stroke="#B08231" stroke-width="1.5"/>
+        <path class="animate-[draw_1.8s_0.45s_var(--ease-out)_forwards] [stroke-dasharray:1] [stroke-dashoffset:1] motion-reduce:animate-none motion-reduce:[stroke-dashoffset:0]" pathLength="1" d="M42 520V206a158 158 0 0 1 316 0v314" fill="none" stroke="#B08231" stroke-width="1" opacity=".5"/>
       </svg>
       <img
-        class="absolute bottom-[18%] left-1/2 h-auto w-[98%] max-w-none -translate-x-1/2 animate-[lift_1.4s_0.35s_var(--ease-out)_both] drop-shadow-[0_28px_22px_rgb(20_4_10/0.5)] motion-reduce:animate-none"
+        class="h-auto w-full animate-[fade_1.4s_0.35s_var(--ease-out)_both] drop-shadow-[0_34px_28px_rgb(60_8_16/0.45)] motion-reduce:animate-none"
         src="/img/hero-zman-beige.webp" width="831" height="613"
         alt="Sac Z’man en velours beige brodé de motifs dorés, avec sa chaîne dorée"
         fetchpriority="high" decoding="async"
       />
-      <figcaption class="absolute inset-x-[6%] bottom-0 bg-linear-to-b from-transparent to-burgundy-deep/85 to-55% px-2 py-4 text-center">
-        <a class="border-b border-gold pb-0.5 text-step--1 font-medium tracking-[0.08em] text-cream uppercase no-underline hover:text-rose" href="/collection-zman">Sac Z’man – Velours Beige Brodé Doré</a>
-      </figcaption>
     </figure>
   </div>
 </section>
-
-<script>
-  import { onScroll } from "../scripts/smooth";
-  const hero = document.querySelector<HTMLElement>("[data-hero]");
-  if (hero && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    let h = hero.offsetHeight;
-    addEventListener("resize", () => (h = hero.offsetHeight), { passive: true });
-    onScroll((y) => hero.style.setProperty("--p", String(Math.min(y / h, 1))));
-  }
-
-</script>
