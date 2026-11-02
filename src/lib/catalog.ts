@@ -3,12 +3,12 @@ import { fallback, type Collection, type Product } from "../data/products";
 const URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
 const KEY = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
-type Row = {
+export type Row = {
   slug: string; name: string; price: number; was_price: number | null; image: string; image2: string | null;
   alt: string; description: string; is_new: boolean; collection: Collection;
 };
 
-const fromRow = (r: Row): Product => ({
+export const fromRow = (r: Row): Product => ({
   slug: r.slug,
   name: r.name,
   price: r.price,

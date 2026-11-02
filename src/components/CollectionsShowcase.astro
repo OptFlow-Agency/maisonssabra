@@ -1,0 +1,51 @@
+---
+import { collections } from "../data/collections";
+const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg>`;
+const frame = "relative block aspect-[4/5] w-full overflow-hidden";
+const top = (slug: string) => (slug === "bladi" ? "" : "rounded-t-[999px]"); // Z’man and Atar open in an arch; Bladi stays square, like a woven panel
+---
+<section id="collections" class="scroll-mt-16 bg-cream-soft pt-14 pb-16 lg:pt-24 lg:pb-28" aria-labelledby="collections-title">
+  <div class="mx-auto max-w-(--max) px-(--gutter)">
+    <div class="mb-8 grid gap-4 lg:mb-14 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-16" data-reveal>
+      <h2 id="collections-title" class="text-step-2 leading-[1.05] lg:text-[2.75rem]">Trois collections, une même histoire.</h2>
+      <p class="m-0 max-w-[44ch] text-ink-soft">Découvrez différentes expressions de notre héritage, entre tradition et modernité.</p>
+    </div>
+
+    <ul class="-mx-(--gutter) m-0 flex snap-x snap-mandatory list-none gap-4 overflow-x-auto overscroll-x-contain scroll-px-(--gutter) px-(--gutter) pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible lg:px-0 lg:pb-0" aria-label="Nos collections">
+      {collections.map((c, i) => {
+        const body = (
+          <>
+            <span class={`${frame} ${top(c.slug)} ${c.slug === "bladi" ? "" : "bg-cream"}`} style={c.tone ? `background:${c.tone}` : undefined}>
+              {c.slug === "zman" && <img class="size-full object-cover transition-transform duration-[900ms] ease-(--ease-out) can-hover:group-hover/c:scale-[1.04]" src="/img/home/zman-480.webp" srcset="/img/home/zman-480.webp 480w, /img/home/zman-720.webp 720w" sizes="(min-width: 64rem) 30vw, 76vw" width="720" height="894" alt="Un sac Z’man en velours violet à motifs, tenu à la main avec sa chaîne dorée" loading="lazy" decoding="async" />}
+              {c.slug === "bladi" && <img class="size-full object-contain mix-blend-multiply transition-transform duration-[900ms] ease-(--ease-out) can-hover:group-hover/c:scale-[1.05]" src="/maisonsabra/Awray-sac-1-_ms-1000x999-800.webp" srcset="/maisonsabra/Awray-sac-1-_ms-1000x999-480.webp 480w, /maisonsabra/Awray-sac-1-_ms-1000x999-800.webp 800w" sizes="(min-width: 64rem) 30vw, 76vw" width="800" height="799" alt="Un sac Bladi en cuir moutarde orné de tissu berbère rayé" loading="lazy" decoding="async" />}
+              {c.slug === "atar" && (
+                <span class="absolute inset-0 grid place-items-center bg-burgundy" aria-hidden="true">
+                  <svg class="size-full" viewBox="0 0 320 400" preserveAspectRatio="xMidYMid slice">
+                    <defs>
+                      <pattern id="atar-lattice" width="40" height="40" patternUnits="userSpaceOnUse"><g fill="none" stroke="#b08231" stroke-width="1" opacity=".38"><rect x="10" y="10" width="20" height="20"/><rect x="10" y="10" width="20" height="20" transform="rotate(45 20 20)"/></g></pattern>
+                    </defs>
+                    <rect width="320" height="400" fill="url(#atar-lattice)"/>
+                    <path d="M92 400V196a68 68 0 0 1 136 0v204z" fill="#4d0206"/>
+                    <path d="M92 400V196a68 68 0 0 1 136 0v204" fill="none" stroke="#efc383" stroke-width="1.5"/>
+                    <path d="M108 400V198a52 52 0 0 1 104 0v202" fill="none" stroke="#b08231" stroke-width="1"/>
+                  </svg>
+                </span>
+              )}
+            </span>
+            <span class="mt-5 grid gap-2">
+              <span class="font-display text-[2.5rem] leading-none font-medium text-burgundy">{c.name}</span>
+              <span class="max-w-[30ch] text-[0.9375rem] leading-snug text-ink-soft">{c.line}</span>
+              {c.href ? (
+                <span class="mt-2 inline-flex min-h-11 items-center gap-3 text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] transition-colors group-hover/c:text-rose-dusty">{c.cta} <Fragment set:html={arrow} /></span>
+              ) : (
+                <span class="mt-2 inline-flex min-h-11 items-center gap-2.5 text-xs font-semibold tracking-[0.14em] text-rose-dusty uppercase"><span class="size-1.5 rotate-45 bg-gold" aria-hidden="true"></span>Bientôt disponible</span>
+              )}
+            </span>
+          </>
+        );
+        const cls = `group/c block w-[76%] shrink-0 snap-start text-burgundy no-underline min-[30rem]:w-[54%] lg:w-auto ${i === 1 ? "lg:mt-14" : ""}`;
+        return <li class="contents">{c.href ? <a class={cls} href={c.href}>{body}</a> : <div class={cls}>{body}</div>}</li>;
+      })}
+    </ul>
+  </div>
+</section>

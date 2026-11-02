@@ -1,0 +1,20 @@
+---
+import { site } from "../data/site";
+const live = "https://maisonsabra.ma";
+const blocks = [
+  { title: "Inspiré du savoir-faire marocain", text: "Des matières, des motifs et des finitions pensés autour de notre patrimoine.", link: null as null | [string, string] },
+  { title: "Livraison offerte dès " + site.freeShippingFrom.toLocaleString("fr-FR") + " MAD", text: "En dessous de ce montant, les frais dépendent de votre ville.", link: ["Conditions de livraison", `${live}/livraison-maison-sabra/`] as [string, string] },
+  { title: "Une question, un retour ?", text: "Notre équipe vous accompagne avant et après votre commande.", link: ["Retours et réclamations", `${live}/retours-reclamations-maison-sabra/`] as [string, string] },
+];
+---
+<section class="border-y border-gold/40 bg-cream-soft py-12 lg:py-16" aria-label="Acheter en confiance">
+  <ul class="m-0 mx-auto grid max-w-(--max) list-none gap-0 divide-y divide-gold/40 p-0 px-(--gutter) lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+    {blocks.map((b) => (
+      <li class="grid content-start gap-2 py-6 first:pt-0 last:pb-0 lg:px-10 lg:py-2 lg:first:pl-0 lg:last:pr-0">
+        <h2 class="m-0 text-[1.5rem] leading-tight">{b.title}</h2>
+        <p class="m-0 max-w-[36ch] text-[0.9375rem] leading-snug text-ink-soft">{b.text}</p>
+        {b.link && <a class="mt-1 inline-flex min-h-11 w-fit items-center text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href={b.link[1]}>{b.link[0]}</a>}
+      </li>
+    ))}
+  </ul>
+</section>

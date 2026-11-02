@@ -1,53 +1,102 @@
 ---
+import { collections } from "../data/collections";
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
-const items = [
-  { href: "/", label: "Accueil" },
-  { href: "/#histoire", label: "À propos de nous" },
-  { href: "/boutique", label: "Boutique" },
-  { href: "/collection-bladi", label: "Collection Bladi" },
-  { href: "/collection-zman", label: "Collection Z’man" },
-];
-const nav = items.map((n) => ({ ...n, current: n.href === path }));
 const s = { fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", width: 24, height: 24, viewBox: "0 0 24 24" } as const;
+const inCollections = path.startsWith("/collection") || path === "/boutique";
+const link = "relative block py-2 text-xs leading-none font-semibold tracking-[0.14em] whitespace-nowrap text-ink uppercase no-underline transition-colors duration-200 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-gold after:transition-transform after:duration-400 after:ease-(--ease-out) hover:after:scale-x-100 aria-[current]:after:scale-x-100 aria-expanded:after:scale-x-100";
 ---
 <div data-sentinel aria-hidden="true" class="-mb-px h-px"></div>
-<header class="group/h sticky top-0 z-50 border-b border-transparent bg-cream-soft/95 backdrop-blur-md backdrop-saturate-120 transition-[border-color,box-shadow] duration-300 data-[stuck=true]:border-gold/55 data-[stuck=true]:shadow-[0_8px_24px_-16px_rgb(74_15_34/0.35)]" data-header>
-  <div class="mx-auto grid h-(--header-h) max-w-(--max) grid-cols-[3rem_1fr_3rem] items-center px-(--gutter) transition-[height] duration-350 ease-(--ease-out) group-data-[stuck=true]/h:h-(--header-h-stuck) nav:grid-cols-[auto_1fr_auto] nav:gap-8">
+<header class="group/h sticky top-0 z-50 border-b border-gold/40 bg-cream-soft transition-shadow duration-300 data-[stuck=true]:shadow-[0_10px_24px_-18px_rgb(74_15_34/0.45)]" data-header>
+  <div class="mx-auto grid h-16 max-w-(--max) grid-cols-[3rem_1fr_3rem] items-center px-(--gutter) nav:h-20 nav:grid-cols-[1fr_auto_1fr] nav:gap-8">
     <button class="icon-btn -ml-2 nav:hidden" type="button" aria-expanded="false" aria-controls="menu-mobile" aria-label="Ouvrir le menu">
       <svg {...s}><path d="M4 8h16M4 16h16"/></svg>
     </button>
 
-    <a class="flex items-center gap-3 justify-self-center text-burgundy no-underline nav:justify-self-start" href="/" aria-label="Maison Sabra, accueil">
-      <img class="size-11 object-contain transition-[width,height] duration-350 ease-(--ease-out) group-data-[stuck=true]/h:size-9" src="/img/logo-ms.png" alt="" width="44" height="44" />
-      <span class="hidden font-display text-xl leading-none font-semibold tracking-[0.12em] uppercase min-[30rem]:block">Maison Sabra</span>
+    <a class="flex items-center gap-2.5 justify-self-center text-burgundy no-underline nav:justify-self-start" href="/" aria-label="Maison Sabra, accueil">
+      <span class="block size-9 bg-burgundy [mask:url(/img/logo-ms.png)_center/contain_no-repeat]" aria-hidden="true"></span>
+      <span class="hidden font-display text-[1.375rem] leading-none font-semibold tracking-[0.14em] uppercase min-[22rem]:block">Maison Sabra</span>
     </a>
 
     <nav class="hidden justify-self-center nav:block" aria-label="Navigation principale">
-      <ul class="m-0 flex list-none gap-[clamp(1rem,1.7vw,2.25rem)] p-0">
-        {nav.map((n) => (
-          <li>
-            <a class="relative block py-2 text-xs leading-none font-semibold tracking-[0.08em] whitespace-nowrap text-ink uppercase no-underline transition-colors duration-200 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-gold after:transition-transform after:duration-400 after:ease-(--ease-out) hover:text-burgundy hover:after:scale-x-100 aria-[current]:text-burgundy aria-[current]:after:scale-x-100" href={n.href} aria-current={n.current ? "page" : undefined}>{n.label}</a>
-          </li>
-        ))}
+      <ul class="m-0 flex list-none items-center gap-12 p-0">
+        <li><a class={link} href="/" aria-current={path === "/" ? "page" : undefined}>Accueil</a></li>
+        <li data-mega-item>
+          <button class={`${link} cursor-pointer border-0 bg-transparent px-0 font-body`} type="button" aria-expanded="false" aria-controls="mega" data-mega-trigger aria-current={inCollections ? "true" : undefined}>
+            Collections
+            <svg class="ml-1.5 inline-block size-3 align-[-1px] transition-transform duration-300" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-chev><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
+          </button>
+        </li>
+        <li><a class={link} href="/#maison">Notre Maison</a></li>
       </ul>
     </nav>
 
     <div class="-mr-2 flex justify-self-end">
       <a class="icon-btn" href="/commande" aria-label="Panier, 0 article" data-cart-link>
         <svg {...s}><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
-        <span class="absolute top-0.5 right-0 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-burgundy px-1 text-[0.6875rem] leading-none font-semibold text-cream" aria-hidden="true" data-cart-count>0</span>
+        <span class="absolute top-0.5 right-0 grid h-[1.1rem] min-w-[1.1rem] place-items-center rounded-full bg-burgundy px-1 text-[0.6875rem] leading-none font-semibold text-cream-soft" aria-hidden="true" data-cart-count>0</span>
       </a>
     </div>
   </div>
 
-  <div id="menu-mobile" inert class="invisible absolute inset-x-0 top-full h-[calc(100dvh-var(--header-h))] overflow-y-auto border-t border-gold/55 bg-cream-soft px-(--gutter) pt-6 pb-8 [clip-path:inset(0_0_100%_0)] transition-[clip-path,visibility] duration-500 ease-(--ease-out) [transition-delay:0s,0.5s] group-data-[open=true]/h:visible group-data-[open=true]/h:[clip-path:inset(0)] group-data-[open=true]/h:[transition-delay:0s] nav:hidden">
+  <!-- Desktop mega-menu: three visual cards -->
+  <div id="mega" class="invisible absolute inset-x-0 top-full hidden border-b border-gold/40 bg-cream-soft opacity-0 shadow-[0_24px_32px_-28px_rgb(74_15_34/0.5)] transition-[opacity,visibility,translate] duration-300 ease-(--ease-out) [translate:0_-0.5rem] data-[open=true]:visible data-[open=true]:opacity-100 data-[open=true]:[translate:0] nav:block" inert data-mega>
+    <ul class="m-0 mx-auto grid max-w-(--max) list-none grid-cols-3 gap-8 px-(--gutter) py-8 p-0">
+      {collections.map((c) => (
+        <li>
+          {c.href ? (
+            <a class="group/m grid grid-cols-[7rem_1fr] items-center gap-5 text-burgundy no-underline" href={c.href}>
+              <span class="relative block aspect-[4/5] overflow-hidden bg-cream" style={c.tone ? `background:${c.tone}` : undefined}><img class={`size-full object-cover transition-transform duration-700 ease-(--ease-out) group-hover/m:scale-105 ${c.tone ? "mix-blend-multiply" : ""}`} src={c.thumb} alt="" width="112" height="140" loading="lazy" decoding="async" /></span>
+              <span class="grid gap-1.5">
+                <span class="font-display text-[1.75rem] leading-none">{c.name}</span>
+                <span class="text-sm leading-snug text-ink-soft">{c.short}</span>
+                <span class="mt-1 text-[0.6875rem] font-semibold tracking-[0.16em] text-rose-dusty uppercase underline decoration-gold decoration-1 underline-offset-[0.45em] group-hover/m:decoration-2">Découvrir</span>
+              </span>
+            </a>
+          ) : (
+            <div class="grid grid-cols-[7rem_1fr] items-center gap-5 text-burgundy">
+              <span class="grid aspect-[4/5] place-items-center bg-burgundy"><span class="font-display text-3xl text-rose italic" aria-hidden="true">A</span></span>
+              <span class="grid gap-1.5">
+                <span class="font-display text-[1.75rem] leading-none">{c.name}</span>
+                <span class="text-sm leading-snug text-ink-soft">{c.short}</span>
+                <span class="mt-1 text-[0.6875rem] font-semibold tracking-[0.16em] text-rose-dusty uppercase">Bientôt disponible</span>
+              </span>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+    <div class="mx-auto flex max-w-(--max) justify-end px-(--gutter) pb-6">
+      <a class="text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href="/boutique">Toute la boutique</a>
+    </div>
+  </div>
+
+  <!-- Mobile drawer -->
+  <div id="menu-mobile" inert class="invisible absolute inset-x-0 top-full h-[calc(100dvh-4rem)] overflow-y-auto border-t border-gold/40 bg-cream-soft px-(--gutter) pt-3 pb-10 opacity-0 transition-[opacity,visibility] duration-300 ease-(--ease-out) group-data-[open=true]/h:visible group-data-[open=true]/h:opacity-100 nav:hidden" data-lenis-prevent>
     <nav aria-label="Menu mobile">
       <ul class="m-0 list-none p-0">
-        {nav.map((n) => (
-          <li class="not-first:border-t not-first:border-burgundy/15">
-            <a class="block py-4 font-display text-step-2 leading-tight text-burgundy no-underline hover:text-rose-dusty aria-[current]:text-rose-dusty" href={n.href} aria-current={n.current ? "page" : undefined}>{n.label}</a>
+        <li><a class="flex min-h-14 items-center border-b border-gold/40 text-xs font-semibold tracking-[0.16em] text-ink uppercase no-underline" href="/" aria-current={path === "/" ? "page" : undefined}>Accueil</a></li>
+      </ul>
+      <p class="m-0 mt-6 mb-2 text-[0.6875rem] font-semibold tracking-[0.2em] text-rose-dusty uppercase">Collections</p>
+      <ul class="m-0 grid list-none gap-1 p-0">
+        {collections.map((c) => (
+          <li>
+            {c.href ? (
+              <a class="grid min-h-24 grid-cols-[4.5rem_1fr] items-center gap-4 py-2 text-burgundy no-underline" href={c.href}>
+                <span class="block aspect-[4/5] w-full overflow-hidden" style={`background:${c.tone ?? "var(--color-cream)"}`}><img class={`size-full object-cover ${c.tone ? "mix-blend-multiply" : ""}`} src={c.thumb} alt="" width="72" height="90" loading="lazy" decoding="async" /></span>
+                <span class="grid gap-1"><span class="font-display text-[1.75rem] leading-none">{c.name}</span><span class="text-sm leading-snug text-ink-soft">{c.short}</span></span>
+              </a>
+            ) : (
+              <div class="grid min-h-24 grid-cols-[4.5rem_1fr] items-center gap-4 py-2 text-burgundy">
+                <span class="grid aspect-[4/5] w-full place-items-center bg-burgundy"><span class="font-display text-2xl text-rose italic" aria-hidden="true">A</span></span>
+                <span class="grid gap-1"><span class="font-display text-[1.75rem] leading-none">{c.name}</span><span class="text-sm leading-snug text-ink-soft">Bientôt disponible</span></span>
+              </div>
+            )}
           </li>
         ))}
+      </ul>
+      <ul class="m-0 mt-4 list-none border-t border-gold/40 p-0">
+        <li><a class="flex min-h-14 items-center border-b border-gold/40 text-xs font-semibold tracking-[0.16em] text-ink uppercase no-underline" href="/boutique">Toute la boutique</a></li>
+        <li><a class="flex min-h-14 items-center border-b border-gold/40 text-xs font-semibold tracking-[0.16em] text-ink uppercase no-underline" href="/#maison">Notre Maison</a></li>
       </ul>
     </nav>
   </div>
@@ -60,7 +109,8 @@ const s = { fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke
   new IntersectionObserver(([e]) => { header.dataset.stuck = String(!e.isIntersecting); })
     .observe(document.querySelector("[data-sentinel]")!);
 
-  const btn = header.querySelector<HTMLButtonElement>("button[aria-controls]")!;
+  /* Mobile drawer */
+  const btn = header.querySelector<HTMLButtonElement>("button[aria-controls='menu-mobile']")!;
   const drawer = header.querySelector<HTMLElement>("#menu-mobile")!;
   const setOpen = (open: boolean) => {
     header.dataset.open = String(open);
@@ -71,7 +121,34 @@ const s = { fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke
     lockScroll(open);
   };
   btn.addEventListener("click", () => setOpen(btn.getAttribute("aria-expanded") !== "true"));
-  header.addEventListener("keydown", (e) => { if (e.key === "Escape" && header.dataset.open === "true") { setOpen(false); btn.focus(); } });
   drawer.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
   matchMedia("(min-width: 78rem)").addEventListener("change", (m) => m.matches && setOpen(false));
+
+  /* Desktop mega-menu: hover (fine pointer), click, keyboard */
+  const trigger = header.querySelector<HTMLButtonElement>("[data-mega-trigger]")!;
+  const mega = header.querySelector<HTMLElement>("[data-mega]")!;
+  const item = trigger.closest<HTMLElement>("[data-mega-item]")!;
+  let timer: number | undefined;
+  const setMega = (open: boolean) => {
+    clearTimeout(timer);
+    mega.dataset.open = String(open);
+    mega.toggleAttribute("inert", !open);
+    trigger.setAttribute("aria-expanded", String(open));
+    trigger.querySelector<SVGElement>("[data-chev]")!.style.rotate = open ? "180deg" : "";
+  };
+  const later = (open: boolean) => { clearTimeout(timer); timer = window.setTimeout(() => setMega(open), open ? 60 : 160); };
+  const fine = matchMedia("(hover: hover) and (pointer: fine)");
+  trigger.addEventListener("click", () => setMega(trigger.getAttribute("aria-expanded") !== "true"));
+  [item, mega].forEach((el) => {
+    el.addEventListener("pointerenter", (e) => { if (fine.matches && (e as PointerEvent).pointerType === "mouse") later(true); });
+    el.addEventListener("pointerleave", (e) => { if (fine.matches && (e as PointerEvent).pointerType === "mouse") later(false); });
+  });
+  header.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (trigger.getAttribute("aria-expanded") === "true") { setMega(false); trigger.focus(); }
+    if (header.dataset.open === "true") { setOpen(false); btn.focus(); }
+  });
+  document.addEventListener("click", (e) => { if (!header.contains(e.target as Node)) setMega(false); });
+  mega.addEventListener("focusout", (e) => { if (!header.contains((e as FocusEvent).relatedTarget as Node)) setMega(false); });
+  mega.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setMega(false)));
 </script>

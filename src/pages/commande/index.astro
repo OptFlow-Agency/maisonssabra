@@ -72,7 +72,7 @@ const fields = [
             <span class="text-sm font-semibold tracking-[0.08em] uppercase">Total</span>
             <span class="text-step-1 font-semibold text-burgundy tabular-nums" data-summary-total></span>
           </p>
-          <p class="m-0 text-sm text-ink-soft" data-summary-ship>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} dhs.</p>
+          <p class="m-0 text-sm text-ink-soft" data-summary-ship>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} MAD.</p>
         </aside>
       </div>
     </div>
@@ -81,10 +81,11 @@ const fields = [
 
 <script>
   import { getLines, subtotal, clearCart } from "../../scripts/cart";
+  import { bundle, countBags, fmtMad, loadBags, offerEnabled, probe, verify } from "../../lib/offer";
 
   const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
   const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined;
-  const fmt = (n: number) => `${n.toLocaleString("fr-FR")} dhs`;
+  const fmt = fmtMad;
 
   const empty = document.querySelector<HTMLElement>("[data-empty]")!;
   const wrap = document.querySelector<HTMLElement>("[data-checkout]")!;
@@ -100,7 +101,7 @@ const fields = [
   const promoMsg = promoForm.querySelector<HTMLElement>("[data-promo-msg]")!;
   const discountRow = document.querySelector<HTMLElement>("[data-discount-row]")!;
 
-  type Promo = { code: string; percent: number; discount: number };
+  type Promo = { code: string; percent: number; discount: number; auto?: boolean };
   let promo: Promo | null = null;
   const payable = () => subtotal() - (promo?.discount ?? 0);
   const items = () => getLines().map((l) => ({ slug: l.id, qty: l.qty }));
@@ -137,11 +138,12 @@ const fields = [
     discountRow.classList.toggle("hidden", !promo);
     discountRow.classList.toggle("flex", !!promo);
     if (promo) {
-      discountRow.querySelector("[data-discount-code]")!.textContent = `${promo.code} (−${promo.percent} %)`;
+      discountRow.querySelector("[data-discount-code]")!.textContent = promo.auto ? `· Offre ${bundle.minBags} sacs (−${promo.percent} %)` : `${promo.code} (−${promo.percent} %)`;
       discountRow.querySelector("[data-discount-amount]")!.textContent = `−${fmt(promo.discount)}`;
     }
     promoInput.disabled = !!promo;
     promoBtn.textContent = promo ? "Retirer" : "Appliquer";
+    promoBtn.hidden = !!promo?.auto; // the two-bag offer is automatic: it follows the cart, it is not removed by hand
   }
 
   /* ---------- Promo code ---------- */
@@ -158,14 +160,14 @@ const fields = [
   }
   promoForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (promo) { promo = null; promoInput.value = ""; say(""); renderSummary(); promoInput.focus(); return; }
+    if (promo && !promo.auto) { promo = null; promoInput.value = ""; say(""); renderSummary(); promoInput.focus(); syncBundle(); return; }
     const code = promoInput.value.trim().toUpperCase();
     if (!code) { say("Saisissez votre code promo.", true); promoInput.focus(); return; }
     if (!SUPABASE_URL || !SUPABASE_KEY) { say("Les codes promo sont momentanément indisponibles.", true); return; }
     promoBtn.disabled = true; promoBtn.textContent = "Vérification…";
     try {
       const r = await checkPromo(code);
-      if (r) { promo = r; say(`Code appliqué : −${fmt(r.discount)}.`); }
+      if (r) { promo = r; bundleSeq++; say(`Code appliqué : −${fmt(r.discount)}.`); }
       else say("Ce code n’est pas valide pour les produits de votre panier.", true);
     } catch { say("Impossible de vérifier le code. Réessayez.", true); }
     promoBtn.disabled = false;
@@ -177,8 +179,26 @@ const fields = [
     try { const r = await checkPromo(promo.code); promo = r; say(r ? `Code appliqué : −${fmt(r.discount)}.` : "Ce code ne s’applique plus à votre panier.", !r); } catch { /* keep the last known discount; the server recomputes at checkout */ }
     renderSummary();
   }
+  // « 2 sacs » offer: same server check as the cart drawer (apply_promo), applied on its own while no other code is in use.
+  let bundleSeq = 0;
+  async function syncBundle() {
+    if (!offerEnabled || (promo && !promo.auto)) return;
+    const my = ++bundleSeq;
+    const lines = getLines();
+    let r = null;
+    if (lines.length) {
+      const bags = await loadBags();
+      const ok = new Set((await Promise.all(bags.map(async (b) => ((await probe(b.slug)) ? b.slug : "")))).filter(Boolean));
+      if (countBags(lines, ok) >= bundle.minBags) r = await verify(items());
+    }
+    if (my !== bundleSeq || (promo && !promo.auto)) return;
+    promo = r ? { code: bundle.code, ...r, auto: true } : null;
+    if (r) say(`Offre ${bundle.minBags} sacs appliquée : −${fmt(r.discount)}.`); else if (promoMsg.textContent?.startsWith("Offre")) say("");
+    renderSummary();
+  }
   renderSummary();
-  document.addEventListener("cart:change", () => { renderSummary(); refreshPromo(); });
+  syncBundle();
+  document.addEventListener("cart:change", () => { renderSummary(); refreshPromo(); syncBundle(); });
 
   /* ---------- Validation ---------- */
   const rules: Record<string, (v: string) => string> = {

@@ -13,10 +13,10 @@ const col = p.collection;
 const colName = col === "bladi" ? "Collection Bladi" : "Collection Z’man";
 const colPath = col === "bladi" ? "/collection-bladi" : "/collection-zman";
 const material = col === "bladi" ? "cuir et tissu berbère" : "velours et dorures";
-const description = p.description ? `${p.description.slice(0, 150)}${p.description.length > 150 ? "…" : ""}` : `${p.alt}. Fait main au Maroc, ${colName} Maison Sabra. ${p.price} dhs.`;
+const description = p.description ? `${p.description.slice(0, 150)}${p.description.length > 150 ? "…" : ""}` : `${p.alt}. Fait main au Maroc, ${colName} Maison Sabra. ${p.price} MAD.`;
 const crumbs: [string, string][] = [["Accueil", "/"], ["Boutique", "/boutique"], [colName, colPath], [p.name, `/produit/${p.slug}`]];
 const related = products.filter((x) => x.collection === col && x.slug !== p.slug).slice(0, 3);
-const wa = whatsappLink(`Bonjour, je souhaite commander : ${p.name} (${p.price} dhs).`);
+const wa = whatsappLink(`Bonjour, je souhaite commander : ${p.name} (${p.price} MAD).`);
 const sizes = "(min-width: 60rem) 40vw, 100vw";
 const gallery = [p.img, p.img2].filter(Boolean) as string[];
 ---
@@ -54,8 +54,8 @@ const gallery = [p.img, p.img2].filter(Boolean) as string[];
             <p class="m-0 text-sm font-semibold tracking-[0.08em] text-ink-soft uppercase"><a class="text-ink-soft no-underline hover:text-burgundy" href={colPath}>{colName}</a></p>
             <h1 class="text-step-2">{p.name}</h1>
             <p class="m-0 flex flex-wrap items-baseline gap-x-3 tabular-nums">
-              <span class="sr-only">Prix actuel :</span><span class="text-step-1 font-semibold text-burgundy">{p.price} dhs</span>
-              {discount(p) > 0 && <><span class="sr-only">Prix initial :</span><s class="text-ink-soft">{p.was} dhs</s></>}
+              <span class="sr-only">Prix actuel :</span><span class="text-step-1 font-semibold text-burgundy">{p.price} MAD</span>
+              {discount(p) > 0 && <><span class="sr-only">Prix initial :</span><s class="text-ink-soft">{p.was} MAD</s></>}
               {discount(p) > 0 && <span class="bg-burgundy px-2 py-1 text-[0.6875rem] leading-none font-semibold tracking-[0.08em] text-cream uppercase">−{discount(p)} %</span>}
             </p>
           </header>
@@ -70,7 +70,7 @@ const gallery = [p.img, p.img2].filter(Boolean) as string[];
 
           <ul class="m-0 grid list-none gap-3 border-t border-gold/55 p-0 pt-6 text-sm text-ink">
             <li>100 % fait au Maroc</li>
-            <li>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} dhs</li>
+            <li>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} MAD</li>
             <li>Emballage cadeau possible</li>
           </ul>
         </div>

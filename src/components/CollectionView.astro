@@ -20,7 +20,7 @@ const { title, intro, products, crumbs, others } = Astro.props;
     </div>
     {products.length === 0 && <p class="m-0 text-ink-soft">Aucun produit dans cette collection pour le moment.</p>}
     <div class="grid grid-cols-2 gap-4 min-[60rem]:grid-cols-3 min-[60rem]:gap-8">
-      {products.map((p, i) => <ProductCard product={p} delay={(i % 3) * 0.08} eager={i < 2} />)}
+      {products.map((p, i) => <ProductCard product={p} eager={i < 2} />)}
     </div>
     <nav class="mt-20 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-gold/55 pt-8" aria-label="Autres collections">
       <p class="m-0 font-display text-step-1 text-burgundy">À découvrir aussi</p>

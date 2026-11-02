@@ -1,0 +1,45 @@
+---
+import Ornament from "./Ornament.astro";
+// Close-ups cropped from approved brand photographs (no new imagery).
+const details = [
+  { src: "/img/home/detail-928.webp", cls: "object-[50%_62%]", w: 928, h: 1152, label: "Broderie dorée, chaîne et fermoir", alt: "Gros plan sur la broderie dorée d’un sac Z’man, sa chaîne et son fermoir" },
+  { src: "/img/home/portee-928.webp", cls: "scale-[1.5] object-[50%_42%]", w: 928, h: 1152, label: "Velours et motifs dorés", alt: "Gros plan sur le velours à motifs dorés d’un sac Z’man" },
+  { src: "/maisonsabra/Azerwal-sac-3-_ms-1000x999-800.webp", cls: "scale-[1.9] object-[50%_80%]", w: 800, h: 799, label: "Tissu berbère rayé", alt: "Gros plan sur le tissu berbère rayé d’un sac Bladi" },
+];
+const [lead, ...side] = details;
+const frame = "relative block overflow-hidden bg-cream-soft";
+---
+<section class="bg-cream py-20 lg:py-32" aria-labelledby="craft-title">
+  <div class="mx-auto max-w-(--max) px-(--gutter)">
+    <div class="mb-10 grid gap-5 lg:mb-16 lg:grid-cols-[1.1fr_1fr] lg:items-end lg:gap-16" data-reveal>
+      <div class="grid gap-6">
+        <Ornament />
+        <h2 id="craft-title" class="text-step-3 leading-[1.02]">Le détail fait toute la différence.</h2>
+      </div>
+      <p class="m-0 max-w-[40ch] text-ink-soft">Des matières expressives. Des détails singuliers. Une élégance inspirée de notre patrimoine.</p>
+    </div>
+
+    <div class="grid gap-3 lg:grid-cols-[1.5fr_1fr] lg:gap-6">
+      <figure class="m-0" data-reveal>
+        <span class={`${frame} aspect-[5/4] lg:aspect-auto lg:h-full lg:min-h-[34rem]`}>
+          <img class={`absolute inset-0 size-full object-cover ${lead.cls}`} src={lead.src} width={lead.w} height={lead.h} alt={lead.alt} loading="lazy" decoding="async" />
+        </span>
+        <figcaption class="mt-3 text-sm text-ink-soft lg:hidden">{lead.label}</figcaption>
+      </figure>
+      <div class="grid grid-cols-2 gap-3 lg:grid-cols-1 lg:gap-6">
+        {side.map((d, i) => (
+          <figure class="m-0" data-reveal style={`--d:${0.08 * (i + 1)}s`}>
+            <span class={`${frame} aspect-square lg:aspect-[4/3]`}>
+              <img class={`absolute inset-0 size-full object-cover ${d.cls}`} src={d.src} width={d.w} height={d.h} alt={d.alt} loading="lazy" decoding="async" />
+            </span>
+            <figcaption class="mt-3 text-sm text-ink-soft lg:hidden">{d.label}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+    <ul class="m-0 mt-6 hidden list-none grid-cols-[1.5fr_1fr] gap-6 p-0 text-sm text-ink-soft lg:grid">
+      <li>{lead.label}</li>
+      <li class="flex gap-10">{side.map((d) => <span>{d.label}</span>)}</li>
+    </ul>
+  </div>
+</section>
