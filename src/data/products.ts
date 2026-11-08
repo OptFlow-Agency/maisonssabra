@@ -1,5 +1,19 @@
 export type Collection = "bladi" | "zman";
 
+/** Pre-sized renditions of a CMS image. Bundled images follow the `name-480.webp` convention instead. */
+export type Sizes = { 480?: string; 800?: string };
+
+/** A CMS variant (colour, size…): own price, photo and stock. */
+export type ProductVariant = {
+  name: string; color?: string; img?: string; price: number; was?: number;
+  /** False: sold out or switched off. Never inferred on the client. */
+  purchasable: boolean;
+  /** Units left, only when the CMS reports it as low (at or under its threshold). */
+  left?: number;
+};
+
+export type Benefit = { icon: string; title: string; text?: string };
+
 export type Product = {
   slug: string;
   name: string;
@@ -12,6 +26,18 @@ export type Product = {
   isNew?: boolean;
   collection: Collection;
   description?: string;
+  /** Units left, only present when the CMS reports stock as low. Absent: nothing is claimed about availability. */
+  stock?: number;
+  /** False when inventory is tracked and exhausted. Absent/true: can be bought. */
+  purchasable?: boolean;
+  /** Additional photos, in CMS order (img/img2 are the first two). */
+  gallery?: string[];
+  /** Active benefits in CMS order. Empty: the section is not shown. */
+  benefits?: Benefit[];
+  variants?: ProductVariant[];
+  /** Name of a live scheduled promotion, when the CMS has one. */
+  promoLabel?: string;
+  shortDescription?: string;
 };
 
 type Seed = Omit<Product, "collection">;
@@ -41,7 +67,10 @@ export const fallback: Product[] = [
 export const discount = (p: Product) => (p.was && p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0);
 
 /** Responsive variants generated next to each source file: `name-480.webp`, `name-800.webp`. */
-export const variant = (src: string, w: 480 | 800) => src.replace(/\.webp$/, `-${w}.webp`);
+const sizeOf = new Map<string, Sizes>();
+/** Remember the renditions the CMS generated for an image (their names do not follow the bundled convention). */
+export const registerSizes = (src: string | undefined | null, sizes: Sizes | undefined) => { if (src && sizes && (sizes[480] || sizes[800])) sizeOf.set(src, sizes); };
+export const variant = (src: string, w: 480 | 800) => sizeOf.get(src)?.[w] ?? (sizeOf.has(src) || /^https?:/.test(src) ? src : src.replace(/\.webp$/, `-${w}.webp`));
 export const srcset = (src: string) => `${variant(src, 480)} 480w, ${variant(src, 800)} 800w, ${src} 1000w`;
 
 /** Neutral ivory field behind each photo: studio shots are on white, so they multiply onto it and the bag keeps its true colours. */

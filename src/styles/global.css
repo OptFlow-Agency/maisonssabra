@@ -99,3 +99,15 @@ html.js [data-reveal]:not(.is-in) { opacity: 0; translate: 0 1.5rem; }
 @media (prefers-reduced-motion: reduce) {
   html.js [data-reveal]:not(.is-in) { opacity: 1; translate: none; }
 }
+
+/* Image curtain: the frame opens from the bottom as it scrolls into view. */
+html.js [data-clip]:not(.is-in) { clip-path: inset(100% 0 0 0); }
+[data-clip] { clip-path: inset(0); transition: clip-path 1.3s var(--ease-out) var(--d, 0s); }
+[data-parallax] { will-change: transform; }
+/* Hero entrance: the photograph settles from a slight zoom. */
+@keyframes settle { from { scale: 1.12; } }
+.hero-img { animation: settle 2.2s var(--ease-out) both; }
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-clip]:not(.is-in) { clip-path: inset(0); }
+  .hero-img { animation: none; }
+}

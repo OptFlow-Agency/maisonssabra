@@ -1,10 +1,5 @@
 ---
-// Real footage already published on the Z'man landing page. Add new films here: poster 540×960 (9:16), mp4 under ~4 MB.
-const films = [
-  { src: "/zmancollection/lp/assets/videos/zman-ugc-1.mp4", poster: "/zmancollection/lp/assets/videos/zman-ugc-1.jpg", title: "Maison Sabra sur 2M", note: "L’élégance marocaine à l’honneur", label: "Maison Sabra sur 2M, l’élégance marocaine à l’honneur" },
-  { src: "/zmancollection/lp/assets/videos/zman-deballage-rouge.mp4", poster: "/zmancollection/lp/assets/videos/zman-deballage-rouge.jpg", title: "Le déballage du coffret", note: "Le sac Z’man rouge, de près", label: "Déballage du sac Z’man rouge, son coffret et ses détails" },
-  { src: "/zmancollection/lp/assets/videos/zman-ugc-3.mp4", poster: "/zmancollection/lp/assets/videos/zman-ugc-3.jpg", title: "Z’man, portée", note: "La collection avec des caftans", label: "La collection Z’man portée avec des caftans" },
-];
+import { films } from "../data/films";
 const i = (d: string) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const icons = {
   play: i('<path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/>'),
@@ -33,7 +28,7 @@ const ctl = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-ful
       <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-(--gutter) px-(--gutter) pb-2 [scrollbar-width:none] focus-visible:outline-offset-4 [&::-webkit-scrollbar]:hidden lg:scroll-px-0 lg:px-0" data-films-track role="region" aria-roledescription="carrousel" aria-label="Films Maison Sabra" tabindex="0">
         {films.map((f, n) => (
           <figure class="group/f m-0 w-[66vw] max-w-[17rem] shrink-0 snap-start min-[30rem]:w-[17rem]" data-film aria-label={`${n + 1} sur ${films.length}`}>
-            <div class="group/frame relative aspect-[9/16] overflow-hidden bg-burgundy-deep" data-state="idle" data-frame>
+            <div class="group/frame relative aspect-[9/16] overflow-hidden rounded-[1.25rem] bg-burgundy-deep" data-state="idle" data-frame>
               <video class="size-full object-cover" src={f.src} poster={f.poster} preload="none" playsinline loop width="540" height="960" aria-label={f.label}></video>
               <button class="absolute inset-0 grid cursor-pointer place-items-center border-0 bg-transparent p-0 text-burgundy" type="button" data-play aria-label={`Lire la vidéo : ${f.title}`}>
                 <span class="grid size-16 place-items-center rounded-full bg-cream-soft/92 pl-0.5 transition-[scale,opacity] duration-300 group-data-[state=playing]/frame:scale-90 group-data-[state=playing]/frame:opacity-0 group-data-[state=loading]/frame:opacity-0 can-hover:group-hover/f:scale-105" aria-hidden="true" set:html={icons.play}></span>

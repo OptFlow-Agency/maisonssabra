@@ -1,5 +1,5 @@
 // Fade-up on scroll. Content is only hidden once JS has marked <html class="js">.
-const items = document.querySelectorAll<HTMLElement>("[data-reveal]");
+const items = document.querySelectorAll<HTMLElement>("[data-reveal],[data-clip]");
 if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) {
   items.forEach((el) => el.classList.add("is-in"));
 } else {

@@ -1,9 +1,12 @@
 ---
-import { site } from "../data/site";
-const from = site.freeShippingFrom.toLocaleString("fr-FR");
+import { freeShippingText, type StoreConfig } from "../lib/store";
+interface Props { config: StoreConfig }
+const { config } = Astro.props;
+// The CMS announcement wins; otherwise the free-delivery policy, worded from the CMS threshold. Nothing to say: no bar.
+const text = config.announcement ?? freeShippingText(config);
 ---
-<div class="on-dark bg-burgundy-deep text-rose" role="region" aria-label="Information livraison">
-  <p class="m-0 mx-auto flex min-h-9 max-w-(--max) items-center justify-center px-(--gutter) text-center text-[0.75rem] leading-snug font-medium tracking-[0.1em] uppercase">
-    Livraison offerte dès {from} MAD d’achat
-  </p>
-</div>
+{text && (
+  <div class="on-dark bg-burgundy-deep text-rose" role="region" aria-label="Information">
+    <p class="m-0 mx-auto flex min-h-9 max-w-(--max) items-center justify-center px-(--gutter) text-center text-[0.75rem] leading-snug font-medium tracking-[0.1em] uppercase">{text}</p>
+  </div>
+)}

@@ -1,61 +1,42 @@
 ---
+import type { Home } from "../lib/home";
+interface Props { hero: Home["hero"] }
+const { hero } = Astro.props;
+const body = hero?.body || "Des créations inspirées de nos traditions, pensées pour accompagner la femme contemporaine.";
+const tagline = hero?.heading || "L’héritage marocain, porté avec élégance.";
+const cta = hero?.cta ?? { label: "Découvrir les collections", href: "#collections" };
+const img = hero?.image;
 const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg>`;
-// Moorish arch, drawn in a 0–1 box so the same shape clips the photo and outlines it at any size.
-const arch = "M0 1V.5C0 .27.2.13.5 0 .8.13 1 .27 1 .5V1Z";
 ---
-<section class="bg-cream-soft" aria-labelledby="hero-title">
-  <div class="grid grid-cols-1 lg:min-h-[min(46rem,calc(100svh-7.5rem))] lg:grid-cols-2 lg:grid-rows-[1fr_auto]">
-    <!-- Burgundy panel: zellige lattice, the photograph set in a Moorish arch. The bag stays whole and uncovered. -->
-    <div class="relative isolate grid place-items-center overflow-hidden bg-burgundy px-4 py-6 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:px-6 lg:py-10">
-      <svg class="absolute inset-0 -z-10 size-full" aria-hidden="true" focusable="false">
-        <defs>
-          <pattern id="zellige" width="64" height="64" patternUnits="userSpaceOnUse">
-            <g fill="none" stroke="#b08231" stroke-width="1" opacity=".55">
-              <rect x="14" y="14" width="36" height="36"/>
-              <rect x="14" y="14" width="36" height="36" transform="rotate(45 32 32)"/>
-              <circle cx="32" cy="32" r="6"/>
-              <path d="M0-8 8 0 0 8-8 0ZM64-8 72 0 64 8 56 0ZM0 56 8 64 0 72-8 64ZM64 56 72 64 64 72 56 64Z"/>
-            </g>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#zellige)"/>
-        <rect width="100%" height="100%" fill="#78143a" opacity=".38"/>
-      </svg>
-
-      <svg class="absolute size-0" aria-hidden="true" focusable="false"><clipPath id="hero-arch" clipPathUnits="objectBoundingBox"><path d={arch}/></clipPath></svg>
-
-      <figure class="relative m-0 aspect-[4/5] w-[min(88%,21rem)] lg:w-[min(94%,36rem)]">
-        <svg class="absolute inset-0 size-full overflow-visible" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
-          <path d={arch} fill="none" stroke="#b08231" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
-        </svg>
-        <img
-          class="absolute inset-[2.5%] size-[95%] bg-cream object-cover object-[42%_28%] [clip-path:url(#hero-arch)]"
-          src="/img/home/hero-895.webp"
-          srcset="/img/home/hero-640.webp 640w, /img/home/hero-895.webp 895w"
-          sizes="(min-width: 64rem) 36rem, 88vw"
-          width="895" height="1200"
-          alt="Une femme tient un sac Z’man en velours multicolore rehaussé de dorures, dans un riad aux zelliges, devant un olivier"
-          fetchpriority="high" decoding="async"
-        />
-      </figure>
+<!-- Full-bleed, full-height campaign scene: the brand set large on oxblood, the photograph filling the other side and feathered into it. -->
+<section class="on-dark relative grid min-h-[calc(100svh-6.5rem)] grid-rows-[minmax(0,48svh)_auto] bg-burgundy-deep text-cream-soft lg:min-h-[max(34rem,calc(100svh-7.5rem))] lg:grid-cols-[5fr_7fr] lg:grid-rows-1" aria-labelledby="hero-title">
+  <figure class="relative m-0 overflow-hidden lg:order-2">
+    <div class="hero-img absolute inset-0">
+    <picture>
+      {hero?.imageMobile && <source media="(max-width: 63.99rem)" srcset={hero.imageMobile.srcset ?? hero.imageMobile.src} sizes="100vw" />}
+      <img
+        class="absolute inset-0 size-full object-cover object-[42%_40%] [mask-image:linear-gradient(to_bottom,#000_72%,transparent)] lg:[mask-image:linear-gradient(to_right,transparent,#000_16%)]"
+        src={img?.src ?? "/img/home/hero-895.webp"}
+        srcset={img ? img.srcset : "/img/home/hero-640.webp 640w, /img/home/hero-895.webp 895w"}
+        sizes="(min-width: 64rem) 58vw, 100vw"
+        width={img?.w ?? 895} height={img?.h ?? 1200}
+        alt={img?.alt || "Une femme tient un sac Z’man en velours multicolore rehaussé de dorures, dans un riad aux zelliges, devant un olivier"}
+        fetchpriority="high" decoding="async"
+      />
+    </picture>
     </div>
+  </figure>
 
-    <div class="px-(--gutter) pt-8 lg:col-start-1 lg:row-start-1 lg:flex lg:items-end lg:pt-12 lg:pr-12 lg:pl-[max(var(--gutter),calc((100vw-var(--max))/2+var(--gutter)))]">
-      <div class="grid gap-4 lg:gap-6">
-        <p class="m-0 flex items-center gap-3 text-[0.6875rem] leading-none font-semibold tracking-[0.2em] text-rose-dusty uppercase min-[30rem]:text-xs min-[30rem]:tracking-[0.24em]">
-          <svg class="shrink-0 text-gold" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="5" width="14" height="14"/><rect x="5" y="5" width="14" height="14" transform="rotate(45 12 12)"/></svg>
-          Maison Sabra — Héritage marocain
-        </p>
-        <h1 id="hero-title" class="text-step-4 leading-[0.98] tracking-[-0.015em]">L’héritage marocain, porté avec <em class="font-medium text-rose-dusty">élégance</em>.</h1>
-      </div>
+  <div class="relative z-10 flex flex-col justify-center gap-5 px-(--gutter) pt-1 pb-8 lg:order-1 lg:gap-9 lg:py-16 lg:pr-0 lg:pl-[max(var(--gutter),calc((100vw-var(--max))/2+var(--gutter)))]">
+    <h1 id="hero-title" class="m-0 grid gap-4 lg:gap-6">
+      <span class="font-display text-[3.25rem] leading-[0.9] font-medium tracking-[-0.01em] text-cream-soft min-[48rem]:text-[5.5rem] xl:text-[7rem]"><span class="block overflow-hidden pb-[0.08em]"><span class="block animate-rise">Maison</span></span><span class="block overflow-hidden pb-[0.08em]"><span class="block animate-rise italic text-rose [animation-delay:.12s]">Sabra</span></span></span>
+      <span class="animate-fade [animation-delay:.5s] max-w-[24ch] text-balance font-body text-[0.8125rem] leading-snug font-medium tracking-[0.14em] text-rose uppercase lg:text-sm">{tagline}</span>
+    </h1>
+    <p class="animate-fade [animation-delay:.7s] m-0 max-w-[36ch] text-cream-soft/80 lg:text-[1.0625rem]">{body}</p>
+    <div class="animate-fade [animation-delay:.9s] flex flex-wrap items-center gap-x-7 gap-y-3">
+      <a class="inline-flex min-h-12 items-center gap-3 rounded-full bg-rose px-7 text-xs font-semibold tracking-[0.12em] text-burgundy-deep uppercase no-underline transition-colors duration-300 hover:bg-cream-soft" href={cta.href}>{cta.label} <Fragment set:html={arrow} /></a>
+      <a class="inline-flex min-h-11 items-center text-sm font-medium text-cream-soft underline decoration-rose decoration-1 underline-offset-[0.45em] hover:text-rose" href="/boutique">Toute la boutique</a>
     </div>
-
-    <div class="grid justify-items-start gap-6 px-(--gutter) pt-4 pb-12 lg:col-start-1 lg:row-start-2 lg:gap-8 lg:pt-8 lg:pr-12 lg:pb-40 lg:pl-[max(var(--gutter),calc((100vw-var(--max))/2+var(--gutter)))]">
-      <p class="m-0 max-w-[34ch] text-step-0 leading-relaxed text-ink-soft lg:max-w-[38ch] lg:text-[1.0625rem]">Des créations inspirées de nos traditions, pensées pour accompagner la femme contemporaine.</p>
-      <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
-        <a class="btn" href="#collections">Explorer les collections <Fragment set:html={arrow} /></a>
-        <a class="inline-flex min-h-11 items-center text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href="#notre-histoire">Découvrir notre histoire</a>
-      </div>
-    </div>
+    <p class="m-0 mt-6 hidden text-[0.6875rem] tracking-[0.16em] text-cream-soft/60 uppercase lg:block">[ Défiler pour découvrir ]</p>
   </div>
 </section>

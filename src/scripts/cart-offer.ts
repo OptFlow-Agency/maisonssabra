@@ -10,6 +10,9 @@ export type OfferView = {
   count: number; // eligible bags in the cart, by quantity
   min: number;
   verdict: Verdict | null; // server-confirmed discount for the current cart (count >= min)
+  example: Verdict | null; // server-confirmed discount for `min` units of the first qualifying line
+  title: string; // CMS offer title
+  badge: string | null; // CMS offer badge, e.g. « Recommandé »
   showAll: boolean;
 };
 
@@ -32,16 +35,16 @@ function segments(filled: number, total: number) {
 
 export function buildOffer(v: OfferView): HTMLElement | null {
   if (!v.lines.length) return null;
-  const pct = v.verdict?.percent ?? [...v.eligible.values()].find(Boolean)?.percent;
+  const pct = v.verdict?.percent ?? [...v.eligible.values()].find(Boolean)?.percent; // the CMS offer's percentage, never a constant
   if (!pct) return null; // the server has not confirmed an offer for this cart: show nothing rather than promise it
 
   if (v.count >= v.min && v.verdict) {
     const s = el("section", "grid gap-3 border border-gold/50 bg-cream p-4");
-    s.setAttribute("aria-label", "Offre deux sacs");
+    s.setAttribute("aria-label", v.title);
     const head = el("div", "flex items-start gap-3 text-burgundy");
     const ic = el("span", "mt-0.5 shrink-0"); ic.innerHTML = check;
     const txt = el("div", "grid gap-1");
-    txt.append(el("h3", "m-0 font-display text-[1.375rem] leading-tight font-medium", "Votre avantage Maison Sabra est activé."), el("p", "m-0 text-sm text-ink-soft", `${v.verdict.percent} % de réduction appliqués à votre sélection.`));
+    txt.append(el("h3", "m-0 font-display text-[1.375rem] leading-tight font-medium", "Votre avantage Maison Sabra est activé."), el("p", "m-0 text-sm text-ink-soft", `${v.title} : ${v.verdict.percent} % de réduction appliqués à votre sélection.`));
     head.append(ic, txt);
     s.append(head, segments(v.min, v.min));
     return s;
@@ -49,19 +52,21 @@ export function buildOffer(v: OfferView): HTMLElement | null {
   if (v.count >= v.min) return null; // two bags but the server did not confirm (yet): no promise
 
   const cart = v.lines.find((l) => v.eligible.get(l.id));
-  const ex = cart ? v.eligible.get(cart.id) : null;
+  const ex = v.example;
+  const missing = v.min - v.count;
+  const unit = (n: number) => (n > 1 ? "sacs" : "sac");
   const s = el("section", "grid gap-3 border border-gold/50 bg-cream p-4");
   s.setAttribute("aria-labelledby", "offer-title");
   s.append(
-    el("p", "m-0 text-[0.6875rem] leading-none font-semibold tracking-[0.2em] text-rose-dusty uppercase", "Une attention pour vous"),
-    Object.assign(el("h3", "m-0 font-display text-[1.5rem] leading-[1.1] font-medium text-burgundy", `Un deuxième sac, et −${pct} % sur les deux.`), { id: "offer-title" }),
-    el("p", "m-0 text-sm text-ink-soft", `Ajoutez un deuxième sac et profitez de ${pct} % de réduction sur les deux pièces.`),
+    el("p", "m-0 text-[0.6875rem] leading-none font-semibold tracking-[0.2em] text-rose-dusty uppercase", v.badge || "Une attention pour vous"),
+    Object.assign(el("h3", "m-0 font-display text-[1.5rem] leading-[1.1] font-medium text-burgundy", `${v.title} : −${pct} % dès ${v.min} ${unit(v.min)}.`), { id: "offer-title" }),
+    el("p", "m-0 text-sm text-ink-soft", `Ajoutez ${missing} ${unit(missing)} de plus et profitez de ${pct} % de réduction sur votre sélection.`),
   );
-  if (cart && ex && ex.discount > 0) s.append(el("p", "m-0 text-sm text-burgundy", `Exemple : deux sacs à ${fmtMad(cart.price)}, vous économisez ${fmtMad(ex.discount)}.`));
+  if (cart && ex && ex.discount > 0) s.append(el("p", "m-0 text-sm text-burgundy", `Exemple : ${v.min} sacs à ${fmtMad(cart.price)}, vous économisez ${fmtMad(ex.discount)}.`));
   const prog = el("div", "grid gap-2");
-  prog.append(segments(v.count, v.min), el("p", "m-0 text-[0.8125rem] text-ink", `${v.count} sac sur ${v.min} · Il ne vous manque qu’un sac pour profiter de −${pct} %.`));
+  prog.append(segments(v.count, v.min), el("p", "m-0 text-[0.8125rem] text-ink", `${v.count} ${unit(v.count)} sur ${v.min} · Il vous manque ${missing} ${unit(missing)} pour profiter de −${pct} %.`));
   s.append(prog);
-  const cta = el("button", "btn-ghost w-full", "+ Choisir mon deuxième sac");
+  const cta = el("button", "btn-ghost w-full", "+ Choisir un autre sac");
   cta.type = "button"; cta.setAttribute("data-offer-choose", "true");
   s.append(cta);
   return s;
@@ -72,7 +77,7 @@ export function buildRecs(v: OfferView): HTMLElement | null {
   const inCart = new Set(v.lines.map((l) => l.id));
   const mine = new Set(v.lines.map((l) => v.bags.find((b) => b.slug === l.id)?.collection));
   const cands = v.bags
-    .filter((b) => !inCart.has(b.slug) && v.eligible.get(b.slug))
+    .filter((b) => !inCart.has(b.slug) && v.eligible.get(b.slug) && b.purchasable !== false && !b.variants?.length) // sold out, or needs a choice of variant: not a one-tap add
     .sort((a, b) => Number(mine.has(b.collection)) - Number(mine.has(a.collection))); // same collection (other colour or model) first
   if (!cands.length) return null;
   const shown = v.showAll ? cands : cands.slice(0, 2);

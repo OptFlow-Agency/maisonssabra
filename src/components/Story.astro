@@ -1,23 +1,33 @@
 ---
-import Ornament from "./Ornament.astro";
-const arch = "M0 1V.5C0 .27.2.13.5 0 .8.13 1 .27 1 .5V1Z";
+import type { Home } from "../lib/home";
+interface Props { mission: Home["mission"] }
+const { mission } = Astro.props;
+const arrowSvg = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg>`;
+const cta = mission ? mission.cta : { label: "Découvrir notre histoire", href: "#notre-histoire" };
+const img = mission?.image;
 ---
 <section id="maison" class="scroll-mt-16 overflow-hidden bg-cream-soft py-20 lg:py-36" aria-labelledby="story-title">
-  <svg class="absolute size-0" aria-hidden="true" focusable="false"><clipPath id="mission-arch" clipPathUnits="objectBoundingBox"><path d={arch}/></clipPath></svg>
-  <div class="mx-auto grid max-w-(--max) gap-12 px-(--gutter) lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-24">
+    <div class="mx-auto grid max-w-(--max) gap-12 px-(--gutter) lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-24">
     <div class="grid max-w-[36rem] gap-7 lg:gap-9" data-reveal>
-      <Ornament />
-      <h2 id="story-title" class="text-step-3 leading-[1.02]">Une histoire de transmission et d’élégance.</h2>
-      <blockquote class="m-0 border-0 p-0 font-display text-[1.5rem] leading-[1.3] font-medium text-rose-dusty italic lg:text-[1.875rem]">
-        <p class="m-0">« Faire vivre l’héritage artisanal marocain à travers des créations qui accompagnent la femme d’aujourd’hui. »</p>
-      </blockquote>
-      <p class="m-0 text-ink-soft">À travers chaque création, Maison Sabra explore la rencontre entre la richesse artisanale marocaine et l’expression contemporaine. Une création inspirée du savoir-faire marocain.</p>
-      <a class="inline-flex min-h-11 w-fit items-center gap-3 text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href="#notre-histoire">Découvrir notre histoire <svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg></a>
+      <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>La maison</p>
+      <h2 id="story-title" class="text-step-3 leading-[1.02]">{mission?.heading || "Un héritage qui se porte."}</h2>
+      {mission ? mission.paragraphs.map((t, i) => (
+        i === 0 && mission.paragraphs.length > 1
+          ? <p class="m-0 font-display text-[1.5rem] leading-[1.3] font-medium text-rose-dusty italic lg:text-[1.875rem]">{t}</p>
+          : <p class="m-0 max-w-[52ch] text-ink-soft">{t}</p>
+      )) : (
+        <>
+          <blockquote class="m-0 border-0 p-0 font-display text-[1.5rem] leading-[1.3] font-medium text-rose-dusty italic lg:text-[1.875rem]">
+            <p class="m-0">« Faire vivre l’héritage artisanal marocain à travers des créations qui accompagnent la femme d’aujourd’hui. »</p>
+          </blockquote>
+          <p class="m-0 text-ink-soft">Du velours brodé au tissu berbère, chaque création rapproche notre patrimoine de la vie d’aujourd’hui.</p>
+        </>
+      )}
+      {cta && <a class="inline-flex min-h-11 w-fit items-center gap-3 text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href={cta.href}>{cta.label} <Fragment set:html={arrowSvg} /></a>}
     </div>
 
-    <figure class="relative m-0 mx-auto aspect-[4/5] w-[min(88%,24rem)] lg:mr-0 lg:w-full lg:max-w-[28rem]" data-reveal style="--d:.1s">
-      <svg class="absolute inset-0 size-full overflow-visible" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true"><path d={arch} fill="none" stroke="#b08231" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
-      <img class="absolute inset-[3%] size-[94%] bg-cream object-cover object-[60%_60%] [clip-path:url(#mission-arch)]" src="/img/home/detail-640.webp" srcset="/img/home/detail-640.webp 640w, /img/home/detail-928.webp 928w" sizes="(min-width: 64rem) 28rem, 88vw" width="928" height="1152" alt="Une main posée sur un sac Z’man en tissu brodé de motifs dorés, avec sa chaîne dorée" loading="lazy" decoding="async" />
+    <figure class="relative m-0 mx-auto aspect-[4/5] w-[min(88%,24rem)] overflow-hidden rounded-[1.5rem] lg:mr-0 lg:w-full lg:max-w-[28rem]" data-clip style="--d:.1s">
+      <img data-parallax="0.08" class="absolute inset-0 size-full bg-cream object-cover object-[60%_60%]" src={img?.src ?? "/img/home/detail-640.webp"} srcset={img ? img.srcset : "/img/home/detail-640.webp 640w, /img/home/detail-928.webp 928w"} sizes="(min-width: 64rem) 28rem, 88vw" width={img?.w ?? 928} height={img?.h ?? 1152} alt={img?.alt ?? "Une main posée sur un sac Z’man en tissu brodé de motifs dorés, avec sa chaîne dorée"} loading="lazy" decoding="async" />
     </figure>
   </div>
 </section>

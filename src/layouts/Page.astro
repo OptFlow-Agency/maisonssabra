@@ -7,6 +7,7 @@ import CartDrawer from "../components/CartDrawer.astro";
 import FloatingCart from "../components/FloatingCart.astro";
 import Toast from "../components/Toast.astro";
 import WhatsAppButton from "../components/WhatsAppButton.astro";
+import { loadStoreConfig } from "../lib/store";
 
 interface Props {
   title: string;
@@ -20,9 +21,10 @@ interface Props {
   whatsappText?: string;
 }
 const { bare = false, whatsappText, ...seo } = Astro.props;
+const config = await loadStoreConfig();
 ---
 <Base {...seo}>
-  <AnnouncementBar />
+  <AnnouncementBar config={config} />
   <Header />
   <main id="contenu">
     <slot />
@@ -31,5 +33,6 @@ const { bare = false, whatsappText, ...seo } = Astro.props;
   {!bare && <FloatingCart />}
   <CartDrawer />
   <Toast />
-  <WhatsAppButton text={whatsappText} />
+  <WhatsAppButton text={whatsappText} number={config.whatsapp} />
+  <script type="application/json" id="store-config" set:html={JSON.stringify(config).replace(/</g, "\\u003c")} />
 </Base>

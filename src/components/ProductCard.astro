@@ -11,10 +11,10 @@ const saving = p.was && p.was > p.price ? p.was - p.price : 0;
 const mad = (n: number) => `${n.toLocaleString("fr-FR")} MAD`;
 ---
 <article class="group/card flex h-full flex-col">
-  <div class="relative aspect-[4/5] overflow-hidden" style={`background:${tone(p)}`}>
+  <div class="relative aspect-[1000/988] overflow-hidden rounded-[1.25rem]" style={`background:${tone(p)}`}>
     <a class="block size-full" href={href} tabindex="-1" aria-hidden="true">
-      <img class={`absolute inset-0 size-full object-cover mix-blend-multiply brightness-[1.06] transition-[opacity,scale] duration-700 ease-(--ease-out) ${p.img2 ? "can-hover:group-hover/card:opacity-0" : "can-hover:group-hover/card:scale-105"}`} src={variant(p.img, 800)} srcset={srcset(p.img)} sizes={sizes} alt={p.alt} width="1000" height="988" loading={eager ? "eager" : "lazy"} decoding="async" />
-      {p.img2 && <img class="absolute inset-0 size-full object-cover opacity-0 mix-blend-multiply brightness-[1.06] transition-opacity duration-700 ease-(--ease-out) can-hover:group-hover/card:opacity-100" src={variant(p.img2, 480)} srcset={`${variant(p.img2, 480)} 480w, ${p.img2} 800w`} sizes={sizes} alt="" width="800" height="790" loading="lazy" decoding="async" />}
+      <img class={`absolute inset-0 size-full object-contain mix-blend-multiply brightness-[1.06] transition-[opacity,scale] duration-700 ease-(--ease-out) ${p.img2 ? "can-hover:group-hover/card:opacity-0" : "can-hover:group-hover/card:scale-105"}`} src={variant(p.img, 800)} srcset={srcset(p.img)} sizes={sizes} alt={p.alt} width="1000" height="988" loading={eager ? "eager" : "lazy"} decoding="async" />
+      {p.img2 && <img class="absolute inset-0 size-full object-contain opacity-0 mix-blend-multiply brightness-[1.06] transition-opacity duration-700 ease-(--ease-out) can-hover:group-hover/card:opacity-100" src={variant(p.img2, 480)} srcset={`${variant(p.img2, 480)} 480w, ${p.img2} 800w`} sizes={sizes} alt="" width="800" height="790" loading="lazy" decoding="async" />}
     </a>
   </div>
 
@@ -30,7 +30,7 @@ const mad = (n: number) => `${n.toLocaleString("fr-FR")} MAD`;
     {saving > 0 && <p class="m-0 text-[0.8125rem] leading-snug font-medium text-rose-dusty">Économisez {mad(saving)}</p>}
 
     <div class="mt-auto pt-3">
-    <button class="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-none border border-burgundy bg-transparent px-3 text-[0.75rem] leading-none font-semibold tracking-[0.12em] text-burgundy uppercase transition-colors duration-300 hover:bg-burgundy hover:text-cream-soft data-[added=true]:bg-burgundy data-[added=true]:text-cream-soft" type="button" data-quick-add={p.slug} data-name={p.name} data-price={p.price} data-img={variant(p.img, 480)} aria-label={`Ajouter au panier : ${p.name}`}>
+    <button class="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-burgundy bg-transparent px-3 text-[0.75rem] leading-none font-semibold tracking-[0.12em] text-burgundy uppercase transition-colors duration-300 hover:bg-burgundy hover:text-cream-soft data-[added=true]:bg-burgundy data-[added=true]:text-cream-soft" type="button" data-quick-add={p.slug} data-name={p.name} data-price={p.price} data-img={variant(p.img, 480)} aria-label={`Ajouter au panier : ${p.name}`}>
       <span data-add-label>+ Ajouter</span>
     </button>
     </div>
