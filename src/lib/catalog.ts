@@ -1,36 +1,39 @@
-import { fallback, type Collection, type Product } from "../data/products";
+import { fallback, registerSizes, type Collection, type Product } from "../data/products";
+import { crmReady, crmUrl } from "./crm";
 
-const URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
-const KEY = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined;
-
+type Sizes = Partial<Record<"480" | "800", string>>;
 type Row = {
-  slug: string; name: string; price: number; was_price: number | null; image: string; image2: string | null;
-  alt: string; description: string; is_new: boolean; collection: Collection;
+  slug: string; name: string; price: number; was_price: number | null;
+  image: string | null; image2: string | null; image_sizes: Sizes; image2_sizes: Sizes;
+  alt: string; description: string; is_new: boolean; collection: Collection | null;
 };
 
-const fromRow = (r: Row): Product => ({
-  slug: r.slug,
-  name: r.name,
-  price: r.price,
-  was: r.was_price ?? undefined,
-  img: r.image,
-  img2: r.image2 ?? undefined,
-  alt: r.alt || r.name,
-  isNew: r.is_new,
-  collection: r.collection,
-  description: r.description || undefined,
-});
+const fromRow = (r: Row): Product => {
+  // The CRM resizes uploads to its own file names; remember them so `variant()` can find the 480 / 800 versions.
+  registerSizes(r.image!, r.image_sizes);
+  if (r.image2) registerSizes(r.image2, r.image2_sizes);
+  return {
+    slug: r.slug,
+    name: r.name,
+    price: r.price,
+    was: r.was_price ?? undefined,
+    img: r.image!,
+    img2: r.image2 ?? undefined,
+    alt: r.alt || r.name,
+    isNew: r.is_new,
+    collection: r.collection as Collection,
+    description: r.description || undefined,
+  };
+};
 
-/** Active products, newest first. Falls back to the bundled catalogue when Supabase is missing or errors. */
+/** Active products in CRM order. Falls back to the bundled catalogue when the CRM is missing or errors. */
 export async function getCatalog(): Promise<Product[]> {
-  if (!URL || !KEY) return fallback;
+  if (!crmReady) return fallback;
   try {
-    const res = await fetch(`${URL}/rest/v1/products?select=*&active=eq.true&order=sort_order.asc,created_at.desc`, {
-      headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
-      signal: AbortSignal.timeout(4000),
-    });
+    const res = await fetch(crmUrl("/products"), { signal: AbortSignal.timeout(4000) });
     if (!res.ok) throw new Error(String(res.status));
-    return ((await res.json()) as Row[]).map(fromRow);
+    // A product needs a photo and one of this store's two collections to be shown.
+    return ((await res.json()) as Row[]).filter((r) => r.image && (r.collection === "bladi" || r.collection === "zman")).map(fromRow);
   } catch (e) {
     console.error("catalog: falling back to bundled products", e);
     return fallback;

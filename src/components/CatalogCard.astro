@@ -1,0 +1,29 @@
+---
+import { discount, type Product } from "../data/products";
+interface Props { product: Product }
+const { product: p } = Astro.props;
+---
+<article data-product-collection={p.collection} class="flex min-w-0 flex-col overflow-hidden border border-gold/25 bg-white">
+        <div class="relative aspect-[4/5] overflow-hidden bg-card-beige">
+          <a href={`/produit/${p.slug}`} class="block size-full focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-burgundy">
+            <img src={p.img} alt={p.alt} width="1000" height="988" loading="lazy" decoding="async" class="size-full object-contain mix-blend-multiply" />
+          </a>
+          {p.isNew && <span class="absolute top-3 left-3 bg-burgundy px-2 py-1 text-[.5625rem] uppercase tracking-wider text-white">Nouveau</span>}
+          <button type="button" data-wish={p.name} aria-label={`Ajouter aux favoris : ${p.name}`} aria-pressed="false" class="absolute top-1 right-1 grid size-11 cursor-pointer place-items-center rounded-full border-0 bg-white/90 text-burgundy focus-visible:outline-2 focus-visible:outline-burgundy [&[aria-pressed=true]_svg]:fill-current">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 20S3 14 3 8a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 12-9 12z" /></svg>
+          </button>
+        </div>
+        <div class="flex flex-1 flex-col p-4">
+          <p class="m-0 text-[.5625rem] font-medium uppercase tracking-[.12em] text-rose-dusty">Collection {p.collection === 'zman' ? 'Z’man' : 'Bladi'}</p>
+          <h3 class="mt-2 mb-3 font-display text-lg leading-snug"><a class="text-burgundy no-underline hover:underline focus-visible:outline-2 focus-visible:outline-burgundy" href={`/produit/${p.slug}`}>{p.name}</a></h3>
+          <p class="mb-4 text-xs leading-relaxed text-ink-soft">{p.alt}</p>
+          <div class="mt-auto flex items-baseline justify-between gap-2 border-t border-gold/25 pt-3">
+            <span class="font-display text-lg font-semibold text-burgundy">{p.price} MAD</span>
+            {discount(p) > 0 && <s class="text-[.625rem] text-ink-soft">{p.was} MAD</s>}
+          </div>
+          <button type="button" data-add={p.slug} data-name={p.name} data-price={p.price} data-img={p.img} class="mt-3 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 border-0 bg-burgundy px-3 py-3 text-[.625rem] font-semibold uppercase tracking-[.08em] text-white transition-colors hover:bg-burgundy-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 5h13v12H2z M15 10h4l3 4v3h-7"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+            Commander en 1 clic
+          </button>
+        </div>
+      </article>

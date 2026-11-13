@@ -1,0 +1,18 @@
+---
+import { whatsappLink } from '../data/site';
+const whatsapp = whatsappLink('Bonjour Maison Sabra, j’aimerais une vidéo personnalisée ou un conseil pour choisir mon sac.');
+---
+<section class="bg-white px-(--gutter) py-12 md:pb-24" aria-labelledby="contact-cta-title">
+  <div class="relative isolate mx-auto grid max-w-(--max) items-center gap-8 overflow-hidden rounded-2xl bg-linear-to-br from-burgundy to-burgundy-deep p-7 text-white md:p-12 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
+    <div class="pointer-events-none absolute -right-16 -bottom-24 -z-10 size-80 rounded-full border border-gold/25" aria-hidden="true"></div>
+    <div>
+      <p class="mb-5 inline-flex rounded-full bg-white/10 px-3 py-2 text-[.625rem] font-semibold uppercase tracking-[.12em] text-rose">Un conseil personnalisé</p>
+      <h2 id="contact-cta-title" class="max-w-[28ch] text-step-2 text-white">Besoin d’une vidéo personnalisée ou d’un conseil en direct ?</h2>
+      <p class="mt-5 max-w-[60ch] text-sm leading-7 text-white/90">Découvrez nos sacs sous tous les angles et trouvez la pièce qui accompagnera votre tenue. Notre équipe vous accompagne dans votre choix.</p>
+    </div>
+    <div class="flex flex-col gap-3">
+      {whatsapp ? <a href={whatsapp} target="_blank" rel="noopener" class="flex min-h-12 items-center justify-center gap-2 bg-rose px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-burgundy-deep no-underline hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Écrire sur WhatsApp <span aria-hidden="true">↗</span></a> : <span class="flex min-h-12 items-center justify-center border border-white/30 px-5 py-4 text-center text-xs text-white/80">Contact WhatsApp bientôt disponible</span>}
+      <a href="/boutique" class="flex min-h-12 items-center justify-center bg-white px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-burgundy no-underline hover:bg-rose focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Commander en ligne</a>
+    </div>
+  </div>
+</section>

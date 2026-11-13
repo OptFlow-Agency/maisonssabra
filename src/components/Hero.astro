@@ -1,75 +1,131 @@
 ---
-import { fallback, variant, discount } from "../data/products";
-const feature = fallback.find((p) => p.slug === "zman-beige")!;
-const swatches = fallback.filter((p) => p.collection === "zman").slice(0, 5);
-const facts = [
-  ["Livraison offerte", "dès 1000 dhs d’achat"],
-  ["Faits main", "par des artisanes marocaines"],
-  ["Cartes-cadeaux", "coupons disponibles"],
-];
-const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg>`;
+import { fallback, tone } from "../data/products";
+const names: Record<string, string> = { "zman-multicolore": "Multicolore", "zman-vert": "Vert", "zman-beige": "Beige", "zman-rouge": "Rouge", "zman-violet": "Violet" };
+const files: Record<string, string> = { "zman-multicolore": "multicolore", "zman-vert": "vert", "zman-beige": "beige", "zman-rouge": "rouge", "zman-violet": "violet" };
+const options = fallback
+  .filter((p) => p.collection === "zman")
+  .map((p) => ({
+    slug: p.slug,
+    color: names[p.slug] ?? p.slug,
+    desc: p.name.replace(/^Sac Z’man\s*[–-]\s*/, ""),
+    price: p.price,
+    alt: p.alt,
+    src: `/img/hero/${files[p.slug]}.webp`,
+    tint: tone(p),
+  }));
+const start = options.find((o) => o.slug === "zman-rouge") ?? options[0];
+const letters = ["S", "A", "B", "R", "A"];
 ---
-<section class="relative isolate overflow-hidden bg-[linear-gradient(180deg,var(--color-cream-soft)_0,var(--color-cream-soft)_58%,var(--color-burgundy)_58%,var(--color-burgundy-deep)_100%)] split:bg-[linear-gradient(90deg,var(--color-cream-soft)_0,var(--color-cream-soft)_55%,var(--color-burgundy)_55%,var(--color-burgundy-deep)_100%)]" aria-labelledby="hero-title">
-  <div class="grain pointer-events-none absolute inset-0 -z-10 opacity-30 mix-blend-soft-light" aria-hidden="true"></div>
+<section class="hero relative isolate overflow-hidden grid grid-cols-2 items-end h-[clamp(640px,calc(100svh-var(--header-h)),960px)] px-(--gutter) pb-10 bg-white border-b border-gold/35 [--f:clamp(8rem,22vw,24rem)] max-[1025px]:[--f:24vw] max-[1025px]:h-auto max-[1025px]:min-h-160 max-[1025px]:items-start max-[1025px]:pb-9 max-[769px]:flex max-[769px]:flex-col max-[769px]:items-stretch max-[769px]:pb-7" aria-labelledby="hero-title" data-hero style={`--glow: ${start.tint}`}>
+  <div class="hero-stage absolute z-0 inset-x-0 top-0 flex flex-col items-center pt-[clamp(70px,12vh,140px)] pointer-events-none max-[1025px]:relative max-[1025px]:inset-auto max-[1025px]:col-span-full max-[1025px]:row-start-1 max-[1025px]:-mx-(--gutter) max-[1025px]:pb-7 max-[769px]:pt-7 max-[769px]:pb-0">
+    <p class="hero-wordmark relative z-0 m-0 flex font-display font-medium text-[length:var(--f)] leading-[.8] tracking-[.06em] pl-[.06em] text-burgundy select-none transition-transform duration-600 ease-(--ease-out) motion-reduce:transition-none [&_span]:block" aria-hidden="true">{letters.map((l, i) => <span style={`--i:${i}`}>{l}</span>)}</p>
 
-  <div class="mx-auto grid min-h-[min(50rem,calc(100svh-var(--header-h)-2.75rem))] max-w-(--max) px-(--gutter) split:grid-cols-[55fr_45fr]">
-    <!-- Ivory half: statement -->
-    <div class="relative z-2 grid content-between gap-14 pt-14 pb-48 split:pt-20 split:pr-[18%] split:pb-12">
-      <div class="grid justify-items-start gap-6">
-        <p class="eyebrow animate-[fade_1s_0.1s_var(--ease-out)_both] motion-reduce:animate-none">Maison Sabra · Fait main au Maroc</p>
-        <h1 id="hero-title" class="text-step-4 leading-[0.95] tracking-[-0.01em]">
-          <span class="block overflow-hidden pb-[0.08em]"><span class="block animate-rise motion-reduce:animate-none">Éclats</span></span>
-          <span class="block overflow-hidden pb-[0.08em]"><span class="block animate-[rise_1.1s_0.12s_var(--ease-out)_both] motion-reduce:animate-none">de <em class="text-gold">Tradition</em></span></span>
-        </h1>
-        <p class="max-w-[30ch] animate-[fade_1s_0.45s_var(--ease-out)_both] text-step-1 leading-snug text-ink-soft motion-reduce:animate-none">
-          Des créations artisanales inspirées du patrimoine marocain
-        </p>
-        <div class="flex animate-[fade_1s_0.6s_var(--ease-out)_both] flex-wrap items-center gap-x-8 gap-y-4 motion-reduce:animate-none">
-          <a class="btn bg-burgundy text-cream hover:bg-burgundy-deep hover:text-rose" href="/boutique">Découvrir la collection <Fragment set:html={arrow} /></a>
-        </div>
-      </div>
-
-      <dl class="m-0 hidden animate-[fade_1s_0.8s_var(--ease-out)_both] grid-cols-3 gap-6 border-t border-gold/60 pt-6 motion-reduce:animate-none min-[48rem]:grid">
-        {facts.map(([t, d]) => (
-          <div><dt class="text-[0.6875rem] font-semibold tracking-[0.2em] text-burgundy uppercase">{t}</dt><dd class="m-0 mt-2 text-sm text-ink-soft">{d}</dd></div>
+    <a class="hero-bag relative z-1 block w-[min(42vw,700px)] mt-[calc(var(--f)*-.3)] pointer-events-auto transition-transform duration-600 ease-(--ease-out) motion-reduce:transition-none max-[1025px]:w-[60vw] max-[769px]:w-[80vw] max-[769px]:mt-[calc(var(--f)*-.2)] focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" href={`/produit/${start.slug}`} data-bag-link aria-label={`Découvrir le sac Z’man ${start.color.toLowerCase()}`}>
+      <span class="hero-glow absolute -z-1 left-1/2 top-[46%] w-[125%] aspect-square -translate-1/2 bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--glow)_42%,transparent),transparent_72%)] opacity-55 transition-[background] duration-600" aria-hidden="true"></span>
+      <span class="hero-floor absolute -z-1 left-1/2 -bottom-[2%] w-[78%] h-[9%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--color-burgundy-deep)_26%,transparent),transparent)] blur-[7px]" aria-hidden="true"></span>
+      <span class="hero-bag-float relative block aspect-1000/740">
+        {options.map((o) => (
+          <img
+            class:list={["hero-bag-img absolute inset-0 size-full object-contain opacity-0 [&.is-active]:opacity-100 transition-opacity duration-400 ease-in-out motion-reduce:duration-200", { "is-active": o.slug === start.slug }]}
+            data-slug={o.slug}
+            src={o.slug === start.slug ? o.src : undefined}
+            data-src={o.src}
+            width="1000" height="740"
+            alt={o.slug === start.slug ? o.alt : ""}
+            data-alt={o.alt}
+            fetchpriority={o.slug === start.slug ? "high" : undefined}
+            loading={o.slug === start.slug ? "eager" : undefined}
+            sizes="(max-width: 768px) 80vw, (max-width: 1024px) 60vw, min(42vw, 700px)"
+            srcset={o.slug === start.slug ? `${o.src.replace(".webp", "-480.webp")} 480w, ${o.src.replace(".webp", "-800.webp")} 800w, ${o.src} 1000w` : undefined}
+            decoding="async"
+          />
         ))}
-      </dl>
-    </div>
+      </span>
+    </a>
+  </div>
 
-    <!-- Burgundy half: swatches + feature card -->
-    <div class="on-dark relative z-1 grid content-between justify-items-end gap-10 pt-[min(70vw,24rem)] pb-10 split:pt-20 split:pb-12">
-      <ul class="m-0 flex list-none gap-3 p-0 split:flex-col" aria-label="Coloris Z’man">
-        {swatches.map((p, i) => (
-          <li class="animate-[fade_1s_var(--ease-out)_both] motion-reduce:animate-none" style={`animation-delay:${0.5 + i * 0.08}s`}>
-            <a class="group/sw relative block size-14 overflow-hidden bg-white ring-1 ring-gold/70 transition-[box-shadow,translate] duration-300 hover:-translate-y-0.5 hover:ring-2 hover:ring-rose min-[48rem]:size-16" href={`/produit/${p.slug}`} aria-label={p.name} title={p.name}>
-              <img class="size-full object-cover" src={variant(p.img, 480)} alt="" width="64" height="64" loading="lazy" decoding="async" />
-            </a>
-          </li>
-        ))}
-      </ul>
+  <div class="hero-copy relative z-2 col-start-1 max-w-100 max-[1025px]:row-start-2 max-[1025px]:col-span-full max-[769px]:order-1 max-[769px]:max-w-none max-[769px]:mt-5">
+    <p class="hero-eyebrow m-0 mb-3.5 text-burgundy text-[.6875rem] font-semibold tracking-[.16em] uppercase">Collection Z’man</p>
+    <h1 id="hero-title" class="m-0 text-burgundy text-[clamp(2rem,3.6vw,3.5rem)] leading-[1.02] tracking-[-.02em] text-balance [&_em]:font-medium">Éclats de <em>Tradition.</em></h1>
+    <p class="hero-lead max-w-[32ch] mt-4 mb-[22px] text-ink-soft text-sm leading-7">Des créations artisanales inspirées du patrimoine marocain.</p>
+    <a class="hero-cta inline-flex items-center gap-3.5 min-h-11 text-burgundy text-[.8125rem] font-semibold underline decoration-1 underline-offset-8 decoration-gold transition-[text-decoration-color,gap] duration-300 ease-(--ease-out) hover:gap-5 hover:decoration-burgundy motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" href="/boutique">Découvrir la collection <span aria-hidden="true">→</span></a>
+  </div>
 
-      <a class="group/card hidden w-full max-w-72 animate-[fade_1s_0.9s_var(--ease-out)_both] grid-cols-[4rem_1fr] items-center gap-4 border border-gold/50 bg-cream-soft p-3 no-underline motion-reduce:animate-none min-[48rem]:grid" href={`/produit/${feature.slug}`}>
-        <img class="size-16 bg-white object-cover" src={variant(feature.img, 480)} alt="" width="64" height="64" loading="lazy" decoding="async" />
-        <span class="grid gap-1">
-          <span class="text-[0.625rem] font-semibold tracking-[0.2em] text-rose-dusty uppercase">Pièce signature</span>
-          <span class="font-display text-lg leading-tight text-burgundy">Velours beige brodé doré</span>
-          <span class="text-sm text-ink tabular-nums">{feature.price} dhs <s class="ml-1 text-ink-soft">{feature.was} dhs</s> <span class="sr-only">−{discount(feature)} %</span></span>
-        </span>
-      </a>
-    </div>
-
-    <!-- The bag straddles the seam between the two halves -->
-    <figure class="pointer-events-none absolute top-[56%] left-1/2 z-3 m-0 w-[min(82%,26rem)] -translate-x-1/2 split:top-1/2 split:left-[56%] split:w-[min(40%,40rem)] split:-translate-y-[46%]">
-      <svg class="absolute top-[-18%] left-1/2 -z-10 hidden w-[62%] -translate-x-1/2 split:block" viewBox="0 0 400 520" aria-hidden="true">
-        <path class="animate-[draw_1.8s_0.2s_var(--ease-out)_forwards] [stroke-dasharray:1] [stroke-dashoffset:1] motion-reduce:animate-none motion-reduce:[stroke-dashoffset:0]" pathLength="1" d="M24 520V206a176 176 0 0 1 352 0v314" fill="none" stroke="#B08231" stroke-width="1.5"/>
-        <path class="animate-[draw_1.8s_0.45s_var(--ease-out)_forwards] [stroke-dasharray:1] [stroke-dashoffset:1] motion-reduce:animate-none motion-reduce:[stroke-dashoffset:0]" pathLength="1" d="M42 520V206a158 158 0 0 1 316 0v314" fill="none" stroke="#B08231" stroke-width="1" opacity=".5"/>
-      </svg>
-      <img
-        class="h-auto w-full animate-[fade_1.4s_0.35s_var(--ease-out)_both] drop-shadow-[0_34px_28px_rgb(60_8_16/0.45)] motion-reduce:animate-none"
-        src="/img/hero-zman-beige.webp" width="831" height="613"
-        alt="Sac Z’man en velours beige brodé de motifs dorés, avec sa chaîne dorée"
-        fetchpriority="high" decoding="async"
-      />
-    </figure>
+  <div class="hero-pick relative z-2 col-start-2 justify-self-end w-[min(100%,20rem)] text-right flex flex-col items-end max-[1025px]:row-start-3 max-[1025px]:col-span-full max-[1025px]:justify-self-start max-[1025px]:items-start max-[1025px]:text-left max-[1025px]:mt-6 max-[769px]:order-2 max-[769px]:w-full max-[769px]:mt-[26px] max-[769px]:pt-5 max-[769px]:border-t max-[769px]:border-gold/35" aria-label="La pièce à l’honneur">
+    <p class="hero-pick-name m-0 max-w-[24ch] text-ink-soft text-[.8125rem] leading-[1.6]" data-name>{start.desc}</p>
+    <a class="hero-pick-price inline-flex items-center gap-3 min-h-11 mt-1 mb-3.5 text-burgundy text-xl no-underline [&_b]:font-medium [&_span]:inline-flex [&_span]:gap-1.5 [&_span]:items-baseline [&_svg]:transition-transform [&_svg]:duration-300 hover:[&_svg]:translate-x-[3px] hover:[&_svg]:-translate-y-[3px] motion-reduce:[&_svg]:transition-none focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" href={`/produit/${start.slug}`} data-price-link aria-label={`Voir le sac Z’man ${start.color.toLowerCase()}`}>
+      <span><b data-price>{start.price}</b> dhs</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 19L19 5M5 5h14v14" /></svg>
+    </a>
+    <p class="hero-pick-label m-0 mb-2.5 text-ink-soft text-[.6875rem]" id="hero-swatch-label">À chaque allure, son coloris.</p>
+    <ul class="hero-swatches flex gap-2 list-none m-0 p-0 max-[769px]:w-[calc(100%+var(--gutter))] max-[769px]:-mr-(--gutter) max-[769px]:pr-(--gutter) max-[769px]:overflow-x-auto max-[769px]:[scrollbar-width:none] max-[769px]:snap-x [&::-webkit-scrollbar]:hidden [&_li]:shrink-0" role="group" aria-labelledby="hero-swatch-label">
+      {options.map((o) => (
+        <li>
+          <button type="button" class="hero-swatch relative grid place-items-center size-11 p-0 border-0 rounded-full bg-cream/70 cursor-pointer transition-[transform,box-shadow] duration-250 ease-(--ease-out) hover:-translate-y-0.5 aria-pressed:ring-1 aria-pressed:ring-gold aria-pressed:ring-offset-1 aria-pressed:ring-offset-white [&_img]:size-[78%] [&_img]:object-contain motion-reduce:transition-none snap-start focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" data-slug={o.slug} aria-label={o.color} aria-pressed={o.slug === start.slug ? "true" : "false"} title={o.color}>
+            <img src={o.src} width="1000" height="740" alt="" loading="lazy" decoding="async" />
+          </button>
+        </li>
+      ))}
+    </ul>
   </div>
 </section>
+
+<script define:vars={{ options }}>
+  const root = document.querySelector("[data-hero]");
+  if (root) {
+    const imgs = [...root.querySelectorAll(".hero-bag-img")];
+    const btns = [...root.querySelectorAll(".hero-swatch")];
+    const name = root.querySelector("[data-name]");
+    const price = root.querySelector("[data-price]");
+    const link = root.querySelector("[data-price-link]");
+    const bagLink = root.querySelector("[data-bag-link]");
+    const byslug = Object.fromEntries(options.map((o) => [o.slug, o]));
+    const load = (img) => { if (img && !img.src && img.dataset.src) img.src = img.dataset.src; };
+
+    const select = (slug) => {
+      const o = byslug[slug];
+      if (!o) return;
+      imgs.forEach((img) => {
+        const on = img.dataset.slug === slug;
+        if (on) { load(img); img.alt = img.dataset.alt; } else { img.alt = ""; }
+        img.classList.toggle("is-active", on);
+      });
+      btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.slug === slug)));
+      name.textContent = o.desc;
+      price.textContent = o.price;
+      link.href = bagLink.href = `/produit/${slug}`;
+      link.setAttribute("aria-label", `Voir le sac Z’man ${o.color.toLowerCase()}`);
+      bagLink.setAttribute("aria-label", `Découvrir le sac Z’man ${o.color.toLowerCase()}`);
+      root.style.setProperty("--glow", o.tint);
+    };
+
+    btns.forEach((b) => {
+      const warm = () => load(imgs.find((i) => i.dataset.slug === b.dataset.slug));
+      b.addEventListener("pointerenter", () => { warm(); if (matchMedia("(hover: hover) and (pointer: fine)").matches) select(b.dataset.slug); });
+      b.addEventListener("focus", warm);
+      b.addEventListener("click", () => select(b.dataset.slug));
+    });
+
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1200));
+    idle(() => imgs.forEach(load));
+
+
+  }
+</script>
+
+<style>
+  /* Motion */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-wordmark span { animation: hero-letter .6s var(--ease-out) both; animation-delay: calc(var(--i) * 60ms); }
+    .hero-bag-float { animation: hero-bag-in .65s var(--ease-out) .25s both; }
+    .hero-copy, .hero-pick { animation: hero-up .4s var(--ease-out) .75s both; }
+    .hero-pick { animation-delay: .8s; }
+    @keyframes hero-letter { from { opacity: 0; transform: translateY(28%); clip-path: inset(0 0 100% 0); } to { opacity: 1; transform: none; clip-path: inset(-10% 0 -10% 0); } }
+    @keyframes hero-bag-in { from { opacity: 0; scale: .96; } }
+    @keyframes hero-up { from { opacity: 0; transform: translateY(12px); } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-bag-float, .hero-copy, .hero-pick { animation: hero-fade .6s ease both; }
+    @keyframes hero-fade { from { opacity: 0; } }
+  }
+</style>

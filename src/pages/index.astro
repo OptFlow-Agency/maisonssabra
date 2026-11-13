@@ -1,10 +1,13 @@
 ---
 import Page from "../layouts/Page.astro";
+import HeroReassurance from "../components/HeroReassurance.astro";
 import Hero from "../components/Hero.astro";
 import Collections from "../components/Collections.astro";
+import FeaturedProducts from "../components/FeaturedProducts.astro";
 import Story from "../components/Story.astro";
 import Trust from "../components/Trust.astro";
 import Skirts from "../components/Skirts.astro";
+import ContactCta from "../components/ContactCta.astro";
 import Testimonials from "../components/Testimonials.astro";
 import Instagram from "../components/Instagram.astro";
 import { organizationLd, websiteLd } from "../data/seo";
@@ -16,10 +19,13 @@ cacheShort(Astro.response);
 ---
 <Page title="Maison Sabra | Sacs artisanaux marocains en cuir et velours" description="Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du patrimoine marocain. Fait main au Maroc." jsonLd={[organizationLd(), websiteLd()]}>
   <Hero />
+  <HeroReassurance />
   <Collections bladi={products.filter((p) => p.collection === "bladi")} zman={products.filter((p) => p.collection === "zman")} />
   <Story />
+  <FeaturedProducts products={products} />
   <Trust />
   <Skirts />
   <Testimonials />
+  <ContactCta />
   <Instagram />
 </Page>

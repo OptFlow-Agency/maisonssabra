@@ -1,6 +1,6 @@
 import { lockScroll } from "./smooth";
 
-// Cart lives in localStorage; checkout (/commande) reads it and sends the order to Supabase.
+// Cart lives in localStorage; checkout (/commande) reads it and sends the order to the CRM.
 export type Line = { id: string; name: string; price: number; img: string; qty: number };
 
 const KEY = "ms-cart";

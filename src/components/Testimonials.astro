@@ -1,32 +1,39 @@
 ---
+const videos = [
+  { file: 'zman-ugc-1', title: 'Émission spéciale · 2M TV', caption: 'Maison Sabra : l’artisanat marocain à l’honneur.' },
+  { file: 'zman-deballage-rouge', title: 'Le coffret d’exception', caption: 'Le déballage du sac Z’man rouge, son coffret et ses détails.' },
+  { file: 'zman-ugc-3', title: 'Styling & soirées', caption: 'La collection Z’man portée avec des caftans.' },
+];
+const reviews = [
+  { name: 'Salma R.', quote: 'Maison Sabra, c’est bien plus qu’un sac… c’est une œuvre d’art. Dès que je le porte, on me demande d’où il vient. La finition est impeccable, et on sent le travail fait main derrière chaque détail.' },
+  { name: 'Karima', quote: 'J’ai été touchée par l’authenticité des produits. Mon sac Maison Sabra m’accompagne partout, il allie tradition et élégance avec une touche marocaine que j’adore. Je recommande à 100 %.' },
+  { name: '@eddahabitouria', quote: 'أحييك مدام بهيجة على ابتكاراتك الرائعة التقيت بك يوم الأحد الماضى كل عروضك كانت تعبر عن اللمسة المغربية مزيد من التألق وبالطبع كنت محضوضة باقتناء قطعتين أفتخر بهما', arabic: true },
+];
 ---
-<section class="on-dark relative isolate overflow-hidden bg-burgundy py-28 text-cream min-[48rem]:py-40" aria-labelledby="temoignages-title">
-  <div class="grain pointer-events-none absolute inset-0 -z-10 opacity-30 mix-blend-soft-light" aria-hidden="true"></div>
+<section class="bg-white py-16 md:py-24" aria-labelledby="temoignages-title">
   <div class="mx-auto max-w-(--max) px-(--gutter)">
-    <div class="mb-14 grid gap-4" data-reveal>
-      <p class="eyebrow">05 — Témoignages</p>
-      <h2 id="temoignages-title" class="text-step-3 text-cream">Témoignages de nos clientes</h2>
-      <p class="text-step-1 text-cream/90">Ce qu’elles pensent de l’expérience Zaman</p>
+    <div class="mx-auto mb-12 max-w-3xl text-center">
+      <p class="mb-4 text-[.625rem] font-semibold uppercase tracking-[.22em] text-rose-dusty">Maison Sabra en mouvement</p>
+      <h2 class="text-step-2">L’élégance marocaine à l’honneur</h2>
+      <p class="mt-4 text-sm text-ink-soft">Des créations artisanales, des histoires à partager.</p>
     </div>
-
-    <div class="grid gap-14 min-[60rem]:grid-cols-[1.15fr_1fr] min-[60rem]:gap-24">
-      <figure class="m-0" data-reveal>
-        <blockquote class="m-0 font-display text-step-2 leading-[1.2] text-cream">
-          <span class="text-gold" aria-hidden="true">“</span>Maison Sabra, c’est bien plus qu’un sac… c’est une œuvre d’art. Dès que je le porte, on me demande d’où il vient. La finition est impeccable, et on sent le travail fait main derrière chaque détail.”
-        </blockquote>
-        <figcaption class="mt-6 text-sm font-semibold tracking-[0.1em] uppercase">Salma R.</figcaption>
-      </figure>
-
-      <div class="grid content-start gap-10">
-        <figure class="m-0 border-t border-gold/50 pt-8" data-reveal style="--d:.1s">
-          <blockquote class="m-0 text-step-1 leading-relaxed text-cream/95">J’ai été touchée par l’authenticité des produits. Mon sac Maison Sabra m’accompagne partout, il allie tradition et élégance avec une touche marocaine que j’adore. Je recommande à 100 %.</blockquote>
-          <figcaption class="mt-5 text-sm font-semibold tracking-[0.1em] uppercase">Karima</figcaption>
-        </figure>
-        <figure class="m-0 border-t border-gold/50 pt-8" data-reveal style="--d:.2s">
-          <blockquote class="m-0 text-step-1 leading-loose text-cream/95" lang="ar" dir="rtl">أحييك مدام بهيجة على ابتكاراتك الرائعة التقيت بك يوم الأحد الماضى كل عروضك كانت تعبر عن اللمسة المغربية مزيد من التألق وبالطبع كنت محضوضة باقتناء قطعتين أفتخر بهما</blockquote>
-          <figcaption class="mt-5 text-sm font-semibold tracking-[0.1em]" dir="ltr">@eddahabitouria</figcaption>
-        </figure>
-      </div>
+    <div class="mx-auto mb-14 grid max-w-5xl gap-8 sm:grid-cols-3">
+      {videos.map((video) => <figure class="m-0 min-w-0">
+        <figcaption class="mb-5 flex min-h-6 items-center justify-between gap-3 text-[.625rem] font-bold uppercase tracking-[.1em] text-burgundy">{video.title}<svg class="size-5 shrink-0 text-rose-dusty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z" /></svg></figcaption>
+        <video class="aspect-[9/16] w-full rounded-lg bg-white object-contain" controls playsinline preload="none" poster={`/zmancollection/lp/assets/videos/${video.file}.jpg`} width="540" height="960" aria-label={video.title}>
+          <source src={`/zmancollection/lp/assets/videos/${video.file}.mp4`} type="video/mp4" />
+          <a href={`/zmancollection/lp/assets/videos/${video.file}.mp4`}>Voir la vidéo : {video.title}</a>
+        </video>
+        <p class="mt-4 text-sm font-medium leading-relaxed text-ink">{video.caption}</p>
+      </figure>)}
+    </div>
+    <h3 id="temoignages-title" class="mb-6 text-step-1">Témoignages de nos clientes</h3>
+    <div class="grid gap-5 md:grid-cols-3">
+      {reviews.map((review) => <figure class="m-0 flex flex-col rounded-lg border border-gold/20 bg-white p-6">
+        <span class="mb-4 font-display text-4xl leading-none text-rose-dusty" aria-hidden="true">“</span>
+        <blockquote class="m-0 flex-1 text-sm leading-7 text-ink-soft italic" lang={review.arabic ? 'ar' : 'fr'} dir={review.arabic ? 'rtl' : undefined}>{review.quote}</blockquote>
+        <figcaption class="mt-6 text-xs font-bold tracking-[.12em] text-burgundy">{review.name}</figcaption>
+      </figure>)}
     </div>
   </div>
 </section>

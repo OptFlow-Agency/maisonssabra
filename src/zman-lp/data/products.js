@@ -5,6 +5,8 @@
  *
  * `null` = information non publiée par la marque → la ligne n'est pas affichée.
  */
+import { crmReady, crmUrl } from "../../lib/crm";
+
   var UP = "https://maisonsabra.ma/wp-content/uploads/";
   var COMMON = {
     brand: "Maison Sabra",
@@ -21,7 +23,7 @@
     var r = {};
     for (var k in COMMON) r[k] = COMMON[k];
     for (var j in o) r[j] = o[j];
-    r.slug = "zman-" + r.id; // slug de la table `products` (Supabase)
+    r.slug = "zman-" + r.id; // slug du catalogue (CRM)
     return r;
   }
 
@@ -164,16 +166,14 @@
   ];
 
   /**
-   * Lit la table `products` (collection « zman », actifs, triés par `sort_order`) et superpose
+   * Lit le catalogue du CRM (collection « zman », produits actifs, triés par ordre) et superpose
    * nom, prix, prix barré et pastille « nouveau » aux données éditoriales ci-dessus (galerie, textes, ids).
    * Si la base est injoignable ou vide, on garde les données statiques.
    */
   async function fromDb() {
-    var url = import.meta.env.PUBLIC_SUPABASE_URL, key = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-    if (!url || !key) return null;
+    if (!crmReady) return null;
     try {
-      var res = await fetch(url + "/rest/v1/products?select=slug,name,price,was_price,is_new,sort_order&collection=eq.zman&active=eq.true&order=sort_order", {
-        headers: { apikey: key, Authorization: "Bearer " + key },
+      var res = await fetch(crmUrl("/products?collection=zman"), {
         credentials: "omit",
         signal: AbortSignal.timeout(5000),
       });

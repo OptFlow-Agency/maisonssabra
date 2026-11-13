@@ -5,8 +5,9 @@
   --color-burgundy-deep: #4d0206; /* oxblood: depth, text on champagne; 13:1 on ivory */
   --color-rose: #efc383; /* champagne: CTA on dark, highlights (token name kept for existing utilities) */
   --color-rose-dusty: #8f5a1c; /* deep bronze: hover on light; white text 5.9:1 */
-  --color-cream: #ece0cc; /* ivory, one step deeper */
-  --color-cream-soft: #f5ecde; /* ivory: page background */
+  --color-cream: #ffffff; /* white surface */
+  --color-cream-soft: #ffffff; /* white page background */
+  --color-card-beige: #f5ecde; /* collection card surface */
   --color-sand: #c7a389;
   --color-bronze: #c3813d;
   --color-white: #ffffff;

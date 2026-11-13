@@ -32,7 +32,7 @@ const zmanSeed: Seed[] = [
   { slug: "zman-violet", name: "Sac Z’man – Violet royal & doré en velours relief", price: 549, was: 890, img: `${m}/083A5538-_ms-1000x988.webp`, img2: `${m}/alt/violet.webp`, alt: "Sac Z’man violet royal en velours relief doré, chaîne dorée", isNew: true },
 ];
 
-/** Bundled catalogue: used only when Supabase is unreachable (see lib/catalog.ts). */
+/** Bundled catalogue: used only when the CRM is unreachable (see lib/catalog.ts). */
 export const fallback: Product[] = [
   ...bladiSeed.map((p): Product => ({ ...p, collection: "bladi" })),
   ...zmanSeed.map((p): Product => ({ ...p, collection: "zman" })),
@@ -40,8 +40,15 @@ export const fallback: Product[] = [
 
 export const discount = (p: Product) => (p.was && p.was > p.price ? Math.round((1 - p.price / p.was) * 100) : 0);
 
-/** Responsive variants generated next to each source file: `name-480.webp`, `name-800.webp`. */
-export const variant = (src: string, w: 480 | 800) => src.replace(/\.webp$/, `-${w}.webp`);
+/**
+ * Resized copies of an image. The bundled photos follow a `name-480.webp` convention; images served by the
+ * CRM have their own generated names, which `getCatalog()` registers here.
+ */
+const sized = new Map<string, Partial<Record<"480" | "800", string>>>();
+export const registerSizes = (src: string, sizes: Partial<Record<"480" | "800", string>> | undefined) => {
+  if (sizes) sized.set(src, sizes);
+};
+export const variant = (src: string, w: 480 | 800) => sized.get(src)?.[w] ?? src.replace(/\.webp$/, `-${w}.webp`);
 export const srcset = (src: string) => `${variant(src, 480)} 480w, ${variant(src, 800)} 800w, ${src} 1000w`;
 
 /** Muted colour field behind each product photo, echoing its colourway (studio shots are on white, so they multiply onto it). */

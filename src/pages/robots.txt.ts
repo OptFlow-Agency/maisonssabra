@@ -6,7 +6,6 @@ export const GET: APIRoute = ({ site }) =>
       "User-agent: *",
       "Allow: /",
       "Disallow: /commande",
-      "Disallow: /admin",
       "",
       `Sitemap: ${new URL("sitemap.xml", site).href}`,
       "",
