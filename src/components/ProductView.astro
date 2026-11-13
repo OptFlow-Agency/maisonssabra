@@ -1,14 +1,12 @@
 ---
 import Page from "../layouts/Page.astro";
 import Breadcrumbs from "./Breadcrumbs.astro";
-import ProductCard from "./ProductCard.astro";
-import { discount, srcset, variant, tone } from "../data/products";
+import CatalogCard from "./CatalogCard.astro";
+import ProductSupport from "./ProductSupport.astro";
+import { discount, srcset, variant } from "../data/products";
 import type { Product } from "../data/products";
-import { benefitIcon } from "../data/icons";
-import { whatsappLink } from "../data/site";
+import { site, whatsappLink } from "../data/site";
 import { breadcrumbLd, productLd } from "../data/seo";
-import { loadStoreConfig, freeShippingText } from "../lib/store";
-import { cmsEnabled, fetchReviews, type CmsReviews } from "../lib/cms";
 
 interface Props { p: Product; products: Product[] }
 const { p, products } = Astro.props;
@@ -16,241 +14,106 @@ const col = p.collection;
 const colName = col === "bladi" ? "Collection Bladi" : "Collection Z’man";
 const colPath = col === "bladi" ? "/collection-bladi" : "/collection-zman";
 const material = col === "bladi" ? "cuir et tissu berbère" : "velours et dorures";
-const copy = (x: Product) => x.description ?? `${x.alt}. Un sac en ${material}, inspiré du savoir-faire marocain.`;
-const description = p.description ? `${p.description.slice(0, 150)}${p.description.length > 150 ? "…" : ""}` : `${p.alt}. Inspiré du savoir-faire marocain, ${colName} Maison Sabra. ${p.price} MAD.`;
+const description = p.description ? `${p.description.slice(0, 150)}${p.description.length > 150 ? "…" : ""}` : `${p.alt}. Fait main au Maroc, ${colName} Maison Sabra. ${p.price} dhs.`;
 const crumbs: [string, string][] = [["Accueil", "/"], ["Boutique", "/boutique"], [colName, colPath], [p.name, `/produit/${p.slug}`]];
 const related = products.filter((x) => x.collection === col && x.slug !== p.slug).slice(0, 3);
-const config = await loadStoreConfig();
-const wa = whatsappLink(`Bonjour, je souhaite commander : ${p.name} (${p.price} MAD).`, config.whatsapp);
-// Approved reviews only (the CMS filters them). None, or CMS unreachable: nothing about reviews is shown.
-const reviews: CmsReviews | null = cmsEnabled ? await fetchReviews(p.slug).catch(() => null) : null;
-const saving = (x: Product) => (x.was && x.was > x.price ? x.was - x.price : 0);
-
-// Every sibling in the collection is a colourway of the same family: one JSON payload lets the page switch without a reload.
-const family = products.filter((x) => x.collection === col);
-const shortName = (x: Product) => { const s = x.slug.replace(/^(zman|bladi)-/, ""); return s.charAt(0).toUpperCase() + s.slice(1); };
-const pic = (src: string) => ({ src, w480: variant(src, 480), w800: variant(src, 800) });
-const data = family.map((x) => ({
-  slug: x.slug, name: x.name, short: shortName(x), price: x.price, was: x.was ?? null, save: saving(x), pct: discount(x),
-  alt: x.alt, copy: copy(x), imgs: (x.gallery?.length ? x.gallery : [x.img, x.img2].filter(Boolean) as string[]).map(pic),
-  thumb: variant(x.img, 480),
-  // Straight from the CMS: active benefits in their configured order, units left (only when low), availability, variants.
-  perks: (x.benefits ?? []).map((b) => ({ title: b.title, text: b.text ?? null, icon: benefitIcon(b.icon) })),
-  left: x.stock ?? null, buyable: x.purchasable !== false, promo: x.promoLabel ?? null,
-  variants: (x.variants ?? []).map((v) => ({ name: v.name, color: v.color ?? null, price: v.price, was: v.was ?? null, img: v.img ? pic(v.img) : null, buyable: v.purchasable, left: v.left ?? null })),
-}));
-const cur = data.find((d) => d.slug === p.slug)!;
-const slides = cur.imgs.map((i) => i.src);
-// The first variant that can be bought is preselected, as on the client.
-const v0 = cur.variants.find((v) => v.buyable) ?? cur.variants[0];
-const left0 = (v0 ? v0.left : cur.left) ?? 0;
-const buyable0 = v0 ? v0.buyable : cur.buyable;
-const reviewLd = reviews && reviews.average != null && reviews.count > 0 ? { average: reviews.average, count: reviews.count } : null;
-const tick = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+const wa = whatsappLink(`Bonjour, je souhaite commander : ${p.name} (${p.price} dhs).`);
+const sizes = "(min-width: 60rem) 40vw, 100vw";
+const colorNames: Record<string, string> = { "zman-multicolore": "Multicolore", "zman-rouge": "Rouge", "zman-vert": "Vert", "zman-beige": "Beige doré", "zman-violet": "Violet" };
+const gallery = [p.img, p.img2].filter(Boolean) as string[];
 ---
 <Page
   title={`${p.name} | Maison Sabra`}
   description={description}
   image={p.img}
   ogType="product"
-  jsonLd={[breadcrumbLd(crumbs), productLd(p, description, colName, reviewLd)]}
+  jsonLd={[breadcrumbLd(crumbs), productLd(p, description, colName)]}
   whatsappText={`Bonjour, je souhaite des informations sur : ${p.name}.`}
 >
-  <article class="bg-cream-soft pt-6 pb-24 min-[60rem]:pt-10 min-[60rem]:pb-28" data-pdp data-slug={p.slug} data-collection={col}>
+  <article class="bg-cream-soft pt-8 pb-20 min-[48rem]:pt-10 min-[48rem]:pb-28">
     <div class="mx-auto max-w-(--max) px-(--gutter)">
       <Breadcrumbs crumbs={crumbs} />
 
-      <div class="mt-6 grid gap-8 min-[60rem]:mt-8 min-[60rem]:grid-cols-[1.15fr_1fr] min-[60rem]:items-start min-[60rem]:gap-16">
-
-        <!-- Gallery: one snap track for swipe and thumbnails alike. -->
-        <div class="-mx-(--gutter) min-[60rem]:mx-0 min-[60rem]:grid min-[60rem]:grid-cols-[4.5rem_1fr] min-[60rem]:gap-4" data-gallery>
-          <ul class="m-0 hidden list-none content-start gap-3 p-0 min-[60rem]:grid" data-thumbs aria-label="Vues du produit">
-            {slides.length > 1 && slides.map((src, i) => (
-              <li>
-                <button type="button" class="block w-full cursor-pointer overflow-hidden border-0 p-0 ring-1 ring-burgundy/20 transition-shadow duration-300 aria-[current=true]:ring-2 aria-[current=true]:ring-burgundy hover:ring-burgundy/60" style={`background:${tone()}`} data-thumb={i} aria-current={i === 0} aria-label={`Vue ${i + 1}`}>
-                  <img class="aspect-square w-full object-cover mix-blend-multiply" src={variant(src, 480)} alt="" width="72" height="72" loading="lazy" decoding="async" />
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          <div class="relative min-w-0">
-            <div class="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto" style={`background:${tone()}`} data-track tabindex="0" role="group" aria-roledescription="carrousel" aria-label="Photos du produit" data-lenis-prevent-touch>
-              {slides.map((src, i) => (
-                <div class="group/slide relative w-full shrink-0 snap-center overflow-hidden min-[60rem]:cursor-zoom-in" data-slide aria-roledescription="diapositive" aria-label={`${i + 1} sur ${slides.length}`}>
-                  <img
-                    class="aspect-[1000/988] w-full object-cover mix-blend-multiply transition-transform duration-500 ease-(--ease-out)"
-                    src={i === 0 ? variant(src, 800) : variant(src, 480)}
-                    srcset={i === 0 ? srcset(src) : `${variant(src, 480)} 480w, ${src} 800w`}
-                    sizes="(min-width: 60rem) 48vw, 100vw"
-                    alt={i === 0 ? p.alt : `${p.name}, autre vue`}
-                    width="1000" height="988"
-                    loading={i === 0 ? "eager" : "lazy"}
-                    fetchpriority={i === 0 ? "high" : undefined}
-                    decoding="async"
-                  />
-                </div>
-              ))}
-            </div>
-            <p class:list={["absolute right-3 bottom-3 m-0 bg-cream-soft/90 px-2.5 py-1 text-xs font-semibold tabular-nums tracking-[0.1em] text-burgundy", slides.length < 2 && "hidden"]} data-counter aria-hidden="true">1 / {slides.length}</p>
-            <div class:list={["absolute inset-x-0 bottom-3 flex justify-center gap-2 min-[60rem]:hidden", slides.length < 2 && "hidden"]} data-dots aria-hidden="true">
-              {slides.map((_, i) => <span class="size-1.5 rounded-full bg-burgundy/30 transition-[background-color,width] duration-300 data-[on=true]:w-5 data-[on=true]:bg-burgundy" data-dot data-on={i === 0}></span>)}
-            </div>
+      <div class="mt-8 grid gap-10 min-[60rem]:grid-cols-[1fr_1.15fr] min-[60rem]:items-start min-[60rem]:gap-10">
+        <div class="grid gap-4 lg:sticky lg:top-24">
+          <img data-gallery-main class="aspect-[3/2] w-full rounded-lg bg-white object-contain" src={p.img} alt={p.alt} width="1000" height="988" loading="eager" fetchpriority="high" />
+          <div class="grid grid-cols-4 gap-3" role="group" aria-label="Vues du produit">
+            {gallery.map((src, i) => <button type="button" data-gallery-src={src} aria-label={`Voir la photo ${i + 1} : ${p.name}`} aria-pressed={i === 0 ? 'true' : 'false'} class="aspect-square w-full cursor-pointer overflow-hidden rounded border border-gold/25 bg-white p-1 aria-pressed:border-burgundy focus-visible:outline-2 focus-visible:outline-burgundy"><img class="size-full object-contain" src={src} alt="" width="100" height="100" loading="lazy" /></button>)}
           </div>
+          <p class="rounded bg-white p-4 text-xs font-medium text-burgundy">Façonné à la main au Maroc · Savoir-faire artisanal</p>
         </div>
 
-        <!-- Buying column -->
-        <div class="grid content-start gap-6 min-[60rem]:sticky min-[60rem]:top-28">
-          <header class="grid gap-3">
-            <p class="m-0 text-xs font-semibold tracking-[0.14em] text-ink-soft uppercase"><a class="text-ink-soft no-underline hover:text-burgundy" href={colPath}>{colName}</a>{p.isNew && <span class="text-rose-dusty"> · Nouveau</span>}</p>
-            <h1 class="text-step-2 leading-[1.05]" data-title>{p.name}</h1>
-            <!-- Rating summary: filled from approved CMS reviews only; hidden when there are none. -->
-            <p class="m-0 hidden items-center gap-2 text-sm text-ink-soft" data-rating></p>
-            <div class="grid gap-1.5">
-              <p class="m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1 tabular-nums">
-                <span class="sr-only">Prix actuel :</span><span class="text-step-1 font-semibold text-burgundy" data-price>{p.price} MAD</span>
-                <s class:list={["text-ink-soft", !discount(p) && "hidden"]} data-was><span class="sr-only">Prix initial :</span>{p.was} MAD</s>
-                <span class:list={["bg-burgundy px-2 py-1 text-[0.6875rem] leading-none font-semibold tracking-[0.08em] text-cream-soft uppercase", !discount(p) && "hidden"]} data-pct>−{discount(p)} %</span>
-              </p>
-              <p class:list={["m-0 text-sm font-semibold text-rose-dusty tabular-nums", !saving(p) && "hidden"]} data-save>Vous économisez {saving(p)} MAD</p>
-            </div>
+        <div class="grid content-start gap-6">
+          <header class="grid gap-4">
+            <p class="m-0 text-[.625rem] font-semibold tracking-[0.1em] text-rose-dusty uppercase"><a class="text-ink-soft no-underline hover:text-burgundy" href={colPath}>{colName}</a></p>
+            <h1 class="text-step-2">{p.name}</h1>
           </header>
-
-          <p class="m-0 max-w-[52ch] whitespace-pre-line text-ink-soft" data-copy>{copy(p)}</p>
-
-          <!-- Benefits: the product's own active CMS benefits, in order. No benefits: no section. -->
-          <div class:list={["grid gap-3", !cur.perks.length && "hidden"]} data-perks-wrap>
-            <h2 class="m-0 font-display text-step-1 leading-tight">Pourquoi vous allez l’aimer</h2>
-            <ul class="m-0 grid list-none gap-3 p-0 text-[0.9375rem] leading-snug text-ink" data-perks>
-              {cur.perks.map((b) => (
-                <li class="flex items-start gap-3"><span class="mt-px grid size-5 shrink-0 place-items-center rounded-full bg-burgundy text-cream-soft"><Fragment set:html={b.icon} /></span><span><span class="font-semibold">{b.title}</span>{b.text && <span class="text-ink-soft"> : {b.text}</span>}</span></li>
-              ))}
-            </ul>
-          </div>
-
-          {family.length > 1 && (
-            <fieldset class="m-0 grid min-w-0 gap-3 border-0 p-0">
-              <legend class="mb-3 flex w-full items-baseline justify-between gap-3 p-0 text-sm text-ink-soft">
-                <span class="font-semibold tracking-[0.08em] text-burgundy-deep uppercase">{col === "bladi" ? "Modèle" : "Coloris"}</span>
-                <span class="text-ink" data-variant-name>{shortName(p)}</span>
-              </legend>
-              <div class="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-variants>
-                {family.map((x) => (
-                  <label class="group/v relative block w-[4.5rem] shrink-0 cursor-pointer min-[60rem]:w-20">
-                    <input class="peer sr-only" type="radio" name="variant" value={x.slug} checked={x.slug === p.slug} />
-                    <span class="block overflow-hidden ring-1 ring-burgundy/20 transition-shadow duration-300 group-hover/v:ring-burgundy/60 peer-checked:ring-2 peer-checked:ring-burgundy peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy" style={`background:${tone()}`}>
-                      <img class="aspect-square w-full object-cover mix-blend-multiply" src={variant(x.img, 480)} alt="" width="80" height="80" loading="lazy" decoding="async" />
-                    </span>
-                    <span class="mt-1.5 block truncate text-center text-xs text-ink-soft peer-checked:font-semibold peer-checked:text-burgundy">{shortName(x)}</span>
-                    <span class="absolute top-1 right-1 grid size-5 scale-50 place-items-center rounded-full bg-burgundy text-cream-soft opacity-0 transition-[opacity,scale] duration-300 ease-(--ease-out) peer-checked:scale-100 peer-checked:opacity-100"><Fragment set:html={tick} /></span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          )}
-
-          <!-- CMS variants (colour, size…) of this product: own photo, price and stock. Built by the page script. -->
-          <fieldset class="m-0 hidden min-w-0 gap-3 border-0 p-0" data-cms-variants>
-            <legend class="mb-3 flex w-full items-baseline justify-between gap-3 p-0 text-sm text-ink-soft">
-              <span class="font-semibold tracking-[0.08em] text-burgundy-deep uppercase">Coloris</span>
-              <span class="text-ink" data-cms-variant-name></span>
-            </legend>
-            <div class="flex flex-wrap gap-3" data-cms-variant-list></div>
-          </fieldset>
-
-          <!-- Availability: from the selected variant's real CMS stock. Low stock only at or under the CMS threshold. -->
-          <p class:list={["m-0 flex items-center gap-2.5 text-sm font-semibold text-rose-dusty", !(buyable0 && left0 > 0) && "hidden"]} data-stock role="status">
-            <span class="size-2 shrink-0 rounded-full bg-gold"></span><span data-stock-text>{buyable0 && left0 > 0 ? `Plus que ${left0} ${left0 > 1 ? "pièces disponibles" : "pièce disponible"}` : ""}</span>
-          </p>
-          <p class:list={["m-0 flex items-center gap-2.5 text-sm font-semibold text-burgundy-deep", buyable0 && "hidden"]} data-soldout role="status">
-            <span class="size-2 shrink-0 rounded-full bg-burgundy-deep"></span>Momentanément indisponible
-          </p>
-
-          <!-- Two-bag offer: revealed only once the server confirms the code covers this bag. -->
-          <fieldset class="m-0 hidden min-w-0 gap-3 border-0 p-0" data-offer>
-            <legend class="mb-3 p-0 text-sm font-semibold tracking-[0.08em] text-burgundy-deep uppercase" data-offer-legend>Votre sélection</legend>
-            <p class="m-0 hidden text-sm text-ink" data-offer-note></p>
-            <div class="grid grid-cols-2 gap-3" data-offer-choices>
-              <label class="block cursor-pointer">
-                <input class="peer sr-only" type="radio" name="qty" value="1" checked />
-                <span class="grid h-full content-start gap-1 bg-white/60 p-3.5 ring-1 ring-burgundy/25 transition-[box-shadow,background-color] duration-300 peer-checked:bg-white peer-checked:ring-2 peer-checked:ring-burgundy peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy">
-                  <span class="text-sm font-semibold text-burgundy-deep">Un sac</span>
-                  <span class="text-sm text-ink tabular-nums" data-one-total>{p.price} MAD</span>
-                  <span class="text-xs leading-snug text-ink-soft" data-one-hint></span>
-                </span>
-              </label>
-              <label class="block cursor-pointer">
-                <input class="peer sr-only" type="radio" name="qty" value="2" />
-                <span class="grid h-full content-start gap-1 bg-white/60 p-3.5 ring-1 ring-burgundy/25 transition-[box-shadow,background-color] duration-300 peer-checked:bg-white peer-checked:ring-2 peer-checked:ring-burgundy peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy">
-                  <span class="text-sm font-semibold text-burgundy-deep">Deux sacs <span class="text-rose-dusty" data-two-pct></span></span>
-                  <span class="text-sm text-ink tabular-nums" data-two-total></span>
-                  <span class="text-xs leading-snug font-semibold text-rose-dusty tabular-nums" data-two-save></span>
-                </span>
-              </label>
+          <p class="m-0 max-w-[52ch] whitespace-pre-line text-sm leading-relaxed text-ink-soft">{p.description ?? `${p.alt}. Un sac artisanal en ${material}, fait main au Maroc.`}</p>
+          <div class="grid gap-4 rounded-lg bg-white p-5">
+            <div class="flex flex-wrap items-baseline gap-x-5 gap-y-3 tabular-nums">
+              <p class="m-0 m-0 inline-flex items-baseline gap-2 whitespace-nowrap font-display text-4xl font-semibold leading-none text-burgundy">{p.price}<span class="text-xl">MAD</span></p>
+              {discount(p) > 0 && <><s class="whitespace-nowrap text-sm text-ink-soft">{p.was} MAD</s><span class="ml-auto self-center rounded-lg bg-burgundy px-3 py-2 text-[.625rem] font-bold uppercase tracking-wider text-white">Économisez {p.was! - p.price} MAD (−{discount(p)} %)</span></>}
             </div>
-
-            <div class="hidden gap-3 pt-2" data-second>
-              <p class="m-0 flex items-baseline justify-between gap-3 text-sm text-ink-soft"><span class="font-semibold text-burgundy-deep">Votre deuxième sac</span><span class="text-ink" data-second-name></span></p>
-              <div class="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-second-list role="radiogroup" aria-label="Deuxième sac"></div>
-            </div>
-          </fieldset>
-
-          <div class="grid gap-3" data-buy-area>
-            <p class="m-0 flex items-baseline justify-between gap-3 tabular-nums" aria-live="polite">
-              <span class="text-sm text-ink-soft" data-total-label>Total</span>
-              <span class="text-step-1 font-semibold text-burgundy" data-total>{p.price} MAD</span>
-            </p>
-            <button class="btn min-h-14 w-full" type="button" data-pdp-buy data-primary-cta>Commander maintenant</button>
-            <button class="btn-ghost min-h-12 w-full" type="button" data-pdp-add>Ajouter au panier</button>
-            {wa && <a class="text-center text-sm font-semibold tracking-[0.08em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-8 hover:text-rose-dusty" href={wa} target="_blank" rel="noopener">Commander par WhatsApp</a>}
+            <p class="m-0 border-t border-gold/20 pt-3 text-[.6875rem] leading-relaxed text-ink-soft">Livraison au Maroc · Offerte dès {site.freeShippingFrom} dhs</p>
           </div>
+          <div>
+            <p class="mb-3 text-[.625rem] font-semibold uppercase tracking-wider text-ink-soft">Modèle sélectionné : <span class="font-display text-sm normal-case text-burgundy">{colorNames[p.slug] ?? p.name}</span></p>
+            <div class="grid grid-cols-5 gap-2">
+              {products.filter((item) => item.collection === col).map((item) => <a href={`/produit/${item.slug}`} aria-current={item.slug === p.slug ? 'page' : undefined} class="flex min-h-20 flex-col items-center justify-center overflow-hidden rounded border border-gold/25 bg-white p-1 no-underline aria-[current=page]:border-burgundy focus-visible:outline-2 focus-visible:outline-burgundy"><img class="size-9 object-contain" src={item.img} alt="" width="64" height="64" loading="lazy" /><span class="mt-1 text-center text-[.5625rem] leading-snug text-ink">{colorNames[item.slug] ?? item.name}</span></a>)}
+            </div>
+          </div>
+          <form data-express-order data-slug={p.slug} class="grid gap-4 rounded-lg bg-card-beige p-5 md:p-6">
+            <h2 class="font-body text-xs font-bold uppercase tracking-wider">Commande express</h2>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {[['firstName', 'Prénom', 'given-name'], ['lastName', 'Nom', 'family-name'], ['phone', 'Téléphone', 'tel'], ['city', 'Ville de livraison', 'address-level2'], ['address', 'Adresse et quartier', 'street-address']].map(([name, label, autocomplete]) => <label class:list={["grid gap-2 text-[.625rem] font-semibold uppercase tracking-wider text-ink-soft", name === 'address' && 'sm:col-span-2']}>{label}<input class="min-h-11 min-w-0 border border-gold/25 bg-white px-3 text-sm font-normal normal-case tracking-normal text-ink focus-visible:outline-2 focus-visible:outline-burgundy" name={name} autocomplete={autocomplete} type={name === 'phone' ? 'tel' : 'text'} required minlength={name === 'phone' ? 10 : 2} maxlength="300" /></label>)}
+            </div>
+            <p class="rounded bg-white p-3 text-xs font-semibold tracking-wide text-burgundy">Paiement cash à la livraison</p>
+            <button type="submit" class="min-h-12 cursor-pointer border-0 bg-burgundy px-4 py-3 text-xs font-semibold uppercase tracking-wider text-white hover:bg-burgundy-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:opacity-60">Commander maintenant · {p.price} MAD</button>
+            <p data-express-status role="status" class="text-xs leading-relaxed text-burgundy"></p>
+          </form>
+          <button class="min-h-11 cursor-pointer border-0 bg-transparent text-xs font-semibold text-burgundy underline decoration-gold underline-offset-4 focus-visible:outline-2 focus-visible:outline-burgundy" type="button" data-add={p.slug} data-name={p.name} data-price={p.price} data-img={variant(p.img, 480)}>Ajouter au panier</button>
+          {wa && <a class="text-sm font-semibold tracking-[0.08em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-8 hover:text-rose-dusty" href={wa} target="_blank" rel="noopener">Commander par WhatsApp</a>}
 
-          {(config.payments.length > 0 || freeShippingText(config) || config.deliveryDelay || config.returnsPolicyUrl) && (
-            <ul class="m-0 grid list-none gap-2.5 border-t border-gold/55 p-0 pt-5 text-sm text-ink">
-              {config.payments.map((m) => <li class="flex items-start gap-3"><span class="mt-0.5 text-gold"><Fragment set:html={benefitIcon("tick")} /></span>{m}</li>)}
-              {config.freeFrom != null && <li class="flex items-start gap-3"><span class="mt-0.5 text-gold"><Fragment set:html={benefitIcon("tick")} /></span>Livraison gratuite dès {config.freeFrom.toLocaleString("fr-FR")} MAD</li>}
-              {config.deliveryDelay && <li class="flex items-start gap-3"><span class="mt-0.5 text-gold"><Fragment set:html={benefitIcon("tick")} /></span>Livraison : {config.deliveryDelay}</li>}
-              {config.returnsPolicyUrl && <li class="flex items-start gap-3"><span class="mt-0.5 text-gold"><Fragment set:html={benefitIcon("tick")} /></span><span>Une question, un retour ? <a class="text-burgundy underline decoration-gold underline-offset-4 hover:text-rose-dusty" href={config.returnsPolicyUrl} target="_blank" rel="noopener">Nos conditions</a></span></li>}
-            </ul>
-          )}
+          <ul class="m-0 grid grid-cols-3 list-none gap-3 p-0 text-center text-[.625rem] font-medium leading-relaxed text-burgundy [&_li]:rounded [&_li]:bg-white [&_li]:p-3">
+            <li>100 % fait au Maroc</li>
+            <li>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} dhs</li>
+            <li>Emballage cadeau possible</li>
+          </ul>
         </div>
       </div>
 
-      <!-- Customer reviews: approved CMS reviews only; the section stays hidden until there is at least one. -->
-      <section class="mt-20 hidden min-[48rem]:mt-28" aria-labelledby="reviews-title" data-reviews>
-        <h2 id="reviews-title" class="mb-3 text-step-2">Avis de nos clientes</h2>
-        <p class="mb-8 text-ink-soft" data-reviews-summary></p>
-        <ul class="m-0 grid list-none gap-6 p-0 min-[48rem]:grid-cols-2 min-[60rem]:grid-cols-3" data-reviews-list></ul>
-      </section>
-
-      <section class="mt-20 min-[48rem]:mt-28" aria-labelledby="related-title">
+      <section class="mt-24 min-[48rem]:mt-32" aria-labelledby="related-title">
         <h2 id="related-title" class="mb-10 text-step-2">Vous aimerez aussi</h2>
-        <div class="grid grid-cols-2 gap-x-4 gap-y-10 min-[60rem]:grid-cols-3 min-[60rem]:gap-x-8">
-          {related.map((r) => <div class="max-[59.99rem]:nth-[n+3]:hidden"><ProductCard product={r} /></div>)}
+        <div class="grid grid-cols-1 gap-5 min-[480px]:grid-cols-2 lg:grid-cols-3">
+          {related.map((r, i) => <div class="min-w-0"><CatalogCard product={r} /></div>)}
         </div>
       </section>
     </div>
-
-    <!-- Sticky purchase bar: mobile only, appears once the main button has scrolled away. -->
-    <div class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-gold/50 bg-cream-soft/97 px-(--gutter) pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-10px_24px_-12px_rgb(74_15_34/0.3)] transition-transform duration-500 ease-(--ease-out) data-[show=true]:translate-y-0 min-[60rem]:hidden" data-sticky data-show="false" inert>
-      <div class="flex items-center gap-4">
-        <p class="m-0 grid min-w-0 leading-tight tabular-nums"><span class="truncate text-xs text-ink-soft" data-sticky-name>{p.name}</span><span class="text-lg font-semibold text-burgundy" data-total-mirror>{p.price} MAD</span></p>
-        <button class="btn ml-auto min-h-12 shrink-0 px-5" type="button" data-pdp-buy>Commander</button>
-      </div>
-    </div>
-
-    <script type="application/json" id="pdp-data" set:html={JSON.stringify({ family: data, reviews: { [p.slug]: reviews } }).replace(/</g, "\\u003c")} />
   </article>
+  <ProductSupport />
 </Page>
 
-<style is:global>
-  /* The sticky bar owns the bottom edge on phones: park the floating shortcuts while it is up. */
-  @media (max-width: 59.99rem) {
-    body:has([data-sticky][data-show="true"]) [data-floating-cart],
-    body:has([data-sticky][data-show="true"]) a[href^="https://wa.me"] { opacity: 0; pointer-events: none; }
-  }
-</style>
-
 <script>
-  import "../scripts/pdp";
+  import { crmReady, crmPost } from '../lib/crm';
+  document.querySelectorAll<HTMLButtonElement>('[data-gallery-src]').forEach((button) => button.addEventListener('click', () => {
+    const image = document.querySelector<HTMLImageElement>('[data-gallery-main]');
+    if (image && button.dataset.gallerySrc) image.src = button.dataset.gallerySrc;
+    document.querySelectorAll('[data-gallery-src]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+  }));
+  const form = document.querySelector<HTMLFormElement>('[data-express-order]');
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const status = form.querySelector<HTMLElement>('[data-express-status]')!;
+    const button = form.querySelector<HTMLButtonElement>('[type=submit]')!;
+    if (!crmReady) { status.textContent = 'La commande en ligne est momentanément indisponible. Veuillez réessayer plus tard.'; return; }
+    button.disabled = true;
+    status.textContent = 'Envoi en cours…';
+    try {
+      const fields = Object.fromEntries(new FormData(form).entries());
+      const response = await crmPost('/orders', { ...fields, items: [{ slug: form.dataset.slug, qty: 1 }], source: 'store', attribution: { landingPage: location.pathname } });
+      if (!response.ok) throw new Error('order');
+      const result = await response.json();
+      location.assign(`/commande/merci?n=${encodeURIComponent(result.order_number)}`);
+    } catch { status.textContent = 'Votre commande n’a pas pu être envoyée. Vérifiez votre connexion puis réessayez.'; button.disabled = false; }
+  });
 </script>

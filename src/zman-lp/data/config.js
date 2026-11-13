@@ -1,10 +1,10 @@
 export const config = {
   /* ------------------------------------------------------------------ *
-   * 1. COMMANDES — SANS LES VARIABLES SUPABASE, AUCUNE COMMANDE N'EST ENREGISTRÉE
+   * 1. COMMANDES — SANS LES VARIABLES PUBLIC_CRM_*, AUCUNE COMMANDE N'EST ENREGISTRÉE
    * ------------------------------------------------------------------ */
   order: {
-    // Les commandes partent vers Supabase (fonction `place_order`, voir src/lib/supabase.js) avec
-    // PUBLIC_SUPABASE_URL et PUBLIC_SUPABASE_PUBLISHABLE_KEY (.env). Sans ces variables : MODE DÉMONSTRATION,
+    // Les commandes partent vers le CRM (`POST /api/store/<tenant>/orders`, voir src/zman-lp/lib/crm.js) avec
+    // PUBLIC_CRM_URL et PUBLIC_CRM_TENANT (.env). Sans ces variables : MODE DÉMONSTRATION,
     // le formulaire valide les champs mais n'enregistre rien.
     timeoutMs: 15000,
   },
@@ -13,7 +13,7 @@ export const config = {
    * 1 bis. OFFRES (augmentation du panier moyen)
    *   qty            : nombre de sacs (un sélecteur de couleur par sac)
    *   discountPercent: réduction automatique appliquée sur le sous-total
-   *   code           : code promo envoyé à `place_order` — il DOIT exister dans la table des codes promo
+   *   code           : code promo envoyé à `POST /orders` — il DOIT exister dans les codes promo du CRM
    *                    (admin → Codes promo, % identique, valable sur les produits zman-*) sinon la commande est refusée.
    *                    Le montant affiché côté navigateur n'est qu'un affichage : le serveur recalcule.
    *   Les prix viennent de js/products.js ; la livraison de `shipping` ci-dessous.
@@ -41,8 +41,8 @@ export const config = {
    * 1 quater. UPSELL après commande (2e sac à prix réduit, durée limitée)
    *   Déclenché UNIQUEMENT si la cliente a choisi l'offre `triggerOfferId` et validé le formulaire.
    *   Le compte à rebours est réel : l'échéance est mémorisée (un rechargement ne le remet pas à zéro)
-   *   `code` : code promo Supabase qui donne la réduction de l'upsell. Le code doit avoir `second_item_only = true`
-   *   (voir apply_promo) pour ne réduire que le 2e sac.
+   *   `code` : code promo du CRM qui donne la réduction de l'upsell. Le code doit être « 2e article seulement »
+   *   (voir le code promo dans le CRM) pour ne réduire que le 2e sac.
    * ------------------------------------------------------------------ */
   upsell: {
     enabled: true,
@@ -50,7 +50,7 @@ export const config = {
     discountPercent: 25, // 2e sac : 549 − 25 % = 411,75 → 411 MAD (arrondi inférieur) ; 1er + 2e sac = 960 MAD
     durationSeconds: 300, // 5 minutes
     orderPercent: 20, // estimation affichée si la base ne confirme pas (encore) le code ci-dessous
-    code: "GIFT64", // code promo Supabase « second_item_only » : ne réduit que le 2e sac (dernier article envoyé) ; % et montant lus en base
+    code: "GIFT64", // code promo du CRM « 2e article seulement » : ne réduit que le 2e sac (dernier article envoyé) ; % et montant lus en base
   },
 
   /* ------------------------------------------------------------------ *

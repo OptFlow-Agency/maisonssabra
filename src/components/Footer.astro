@@ -1,51 +1,65 @@
 ---
-import { site } from "../data/site";
 const live = "https://maisonsabra.ma";
 const cols = [
-  { title: "Collections", links: [["Z’man", "/collection-zman"], ["Bladi", "/collection-bladi"], ["Atar · bientôt disponible", ""], ["Toute la boutique", "/boutique"]] },
-  { title: "Assistance", links: [["Commandes", `${live}/commandes-maison-sabra/`], ["Livraison", `${live}/livraison-maison-sabra/`], ["Retours et échanges", `${live}/retours-reclamations-maison-sabra/`], ["Annulation de commande", `${live}/annulation-de-commande-maison-sabra/`], ["Cartes-cadeaux", `${live}/cartes-cadeaux-maison-sabra/`], ["Aide (FAQ)", `${live}/aide-faq-maison-sabra/`]] },
-  { title: "Informations", links: [["Notre Maison", "/#maison"], ["Nos politiques", `${live}/nos-politiques-maison-sabra/`], ["Politique de confidentialité", `${live}/privacy-policy/`]] },
+  { title: "Service client", links: [["Commandes", `${live}/commandes-maison-sabra/`], ["Retours", `${live}/retours-reclamations-maison-sabra/`], ["Cartes-cadeaux", `${live}/cartes-cadeaux-maison-sabra/`], ["Livraison", `${live}/livraison-maison-sabra/`], ["Annulation de commande", `${live}/annulation-de-commande-maison-sabra/`]] },
+  { title: "Visitez-nous", links: [["Boutique", "/boutique"], ["Collection Bladi", "/collection-bladi"], ["Collection Z’man", "/collection-zman"], ["À propos de nous", "/#histoire"]] },
+  { title: "Informations", links: [["Aide (FAQ)", `${live}/aide-faq-maison-sabra/`], ["Nos politiques", `${live}/nos-politiques-maison-sabra/`], ["Politique de confidentialité", `${live}/privacy-policy/`]] },
 ];
-const link = "inline-flex min-h-9 items-center text-cream-soft/85 no-underline transition-colors hover:text-rose focus-visible:text-rose";
+const social = [["Instagram", "https://www.instagram.com/maison_sabra"], ["Facebook", "https://www.facebook.com/"], ["Pinterest", "https://www.pinterest.com/"]];
 ---
-<footer class="on-dark bg-burgundy-deep text-cream-soft">
-  <div class="mx-auto grid max-w-(--max) gap-12 px-(--gutter) pt-14 pb-10 lg:grid-cols-[1.1fr_2fr] lg:gap-24 lg:pt-20">
-    <div class="grid content-start gap-5">
-      <a class="flex w-fit items-center gap-3 text-cream-soft no-underline" href="/" aria-label="Maison Sabra, accueil">
-        <span class="block size-10 bg-cream-soft [mask:url(/img/logo-ms.png)_center/contain_no-repeat]" aria-hidden="true"></span>
-        <span class="font-display text-2xl font-semibold tracking-[0.14em] uppercase">Maison Sabra</span>
-      </a>
-      <p class="m-0 max-w-[36ch] text-cream-soft/85">Sacs artisanaux marocains en velours, cuir et tissu berbère, inspirés du savoir-faire marocain.</p>
-      <a class="inline-flex min-h-11 w-fit items-center text-xs font-semibold tracking-[0.14em] text-rose uppercase underline decoration-1 underline-offset-[0.5em] hover:text-cream-soft" href={site.instagram} rel="noopener" target="_blank">Instagram · @maison_sabra</a>
-    </div>
+<div class="on-dark border-b border-gold/40 bg-burgundy px-(--gutter) py-3 text-center text-xs font-medium tracking-[0.18em] text-rose uppercase">
+  Achetez maintenant et obtenez 10 % de réduction sur tous les produits.
+</div>
 
-    <nav class="grid gap-0 lg:grid-cols-3 lg:gap-8" aria-label="Pied de page" data-footer-nav>
-      {cols.map((c, i) => (
-        <details class="group/d border-t border-cream-soft/15 last:border-b lg:border-0 lg:last:border-b-0" open={i === 0 ? true : undefined}>
-          <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between text-xs font-semibold tracking-[0.16em] uppercase marker:hidden [&::-webkit-details-marker]:hidden lg:min-h-0 lg:cursor-default lg:pb-3">
-            {c.title}
-            <svg class="size-4 transition-transform duration-300 group-open/d:rotate-180 lg:hidden" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6 8 10.5 12.5 6"/></svg>
-          </summary>
-          <ul class="m-0 grid list-none gap-0 p-0 pb-4 text-[0.9375rem] lg:pb-0">
-            {c.links.map(([t, h]) => <li>{h ? <a class={link} href={h}>{t}</a> : <span class="inline-flex min-h-9 items-center text-cream-soft/60">{t}</span>}</li>)}
+<footer class="on-dark relative isolate overflow-hidden bg-burgundy-deep text-white [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-4 [&_a]:focus-visible:outline-rose">
+  <p class="pointer-events-none absolute inset-x-0 bottom-0 -z-10 m-0 select-none whitespace-nowrap text-center font-display text-[clamp(4rem,20vw,28rem)] leading-[.8] tracking-[-.045em] text-white/[.07]" aria-hidden="true">Maison Sabra</p>
+  <div class="mx-auto grid max-w-(--max) gap-12 px-(--gutter) pt-14 pb-12 md:pt-20 md:pb-16 min-[60rem]:grid-cols-[1fr_1.5fr] min-[60rem]:gap-20">
+    <section aria-labelledby="news-title" class="grid content-start gap-4">
+      <h2 id="news-title" class="text-step-2 text-white">Les nouvelles de la maison</h2>
+      <p class="max-w-[40ch] text-sm leading-7 text-white/75">Recevez nos nouveautés et découvrez les prochaines créations Maison Sabra.</p>
+      <form class="grid gap-3" novalidate data-newsletter>
+        <label class="text-[.625rem] font-semibold tracking-[.16em] uppercase" for="nl-email">Adresse e-mail</label>
+        <div class="flex flex-col gap-3 min-[30rem]:flex-row">
+          <input class="min-h-13 min-w-0 flex-1 border border-cream/50 bg-transparent px-4 text-cream placeholder:text-cream/60 focus-visible:border-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream" id="nl-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="vous@exemple.com" aria-describedby="nl-msg" />
+          <button class="min-h-13 cursor-pointer border-0 bg-rose px-5 text-[.625rem] font-semibold uppercase tracking-[.12em] text-burgundy-deep transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-rose" type="submit">S’abonner</button>
+        </div>
+        <p id="nl-msg" class="min-h-6 text-sm text-cream/90" role="status"></p>
+      </form>
+    </section>
+
+    <nav class="grid grid-cols-2 gap-x-6 gap-y-10 min-[48rem]:grid-cols-3" aria-label="Pied de page">
+      {cols.map((c) => (
+        <div>
+          <h2 class="mb-5 font-body text-[.625rem] font-semibold tracking-[.16em] text-white uppercase">{c.title}</h2>
+          <ul class="m-0 grid list-none gap-3 p-0">
+            {c.links.map(([t, h]) => <li><a class="inline-flex min-h-6 text-xs leading-relaxed text-white/75 underline decoration-transparent decoration-1 underline-offset-4 transition-colors hover:text-rose hover:decoration-gold" href={h}>{t}</a></li>)}
           </ul>
-        </details>
+        </div>
       ))}
     </nav>
   </div>
 
-  <div class="mx-auto flex max-w-(--max) flex-wrap items-center justify-between gap-x-8 gap-y-2 border-t border-cream-soft/15 px-(--gutter) py-6 text-sm text-cream-soft/70">
-    <p class="m-0">© 2026 Maison Sabra</p>
-    <p class="m-0">Powered by Bayoussef Media</p>
+  <div class="mx-auto flex max-w-(--max) flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-white/15 px-(--gutter) pt-6 pb-16 text-xs md:pb-24">
+    <a class="flex items-center gap-3 text-cream no-underline" href="/" aria-label="Maison Sabra, accueil">
+      <img class="size-9 object-contain brightness-0 invert" src="/img/logo-ms.png" alt="" width="36" height="36" loading="lazy" />
+      <span class="font-display text-base font-semibold tracking-[0.12em] uppercase">Maison Sabra</span>
+    </a>
+    <ul class="m-0 flex list-none gap-6 p-0">
+      {social.map(([t, h]) => <li><a class="text-white/75 underline decoration-transparent hover:decoration-gold decoration-1 underline-offset-4 hover:text-rose" href={h} rel="noopener">{t}</a></li>)}
+    </ul>
+    <p class="text-white/60">© 2026 Maison Sabra. · Powered by Bayoussef Media</p>
   </div>
 </footer>
 
 <script>
-  // Accordions on mobile; always open and static from the desktop breakpoint.
-  const mq = matchMedia("(min-width: 64rem)");
-  const groups = document.querySelectorAll<HTMLDetailsElement>("[data-footer-nav] details");
-  const sync = () => groups.forEach((d, i) => { if (mq.matches) d.open = true; else if (!d.dataset.touched) d.open = i === 0; });
-  groups.forEach((d) => d.querySelector("summary")!.addEventListener("click", (e) => { if (mq.matches) e.preventDefault(); else d.dataset.touched = "1"; }));
-  mq.addEventListener("change", sync);
-  sync();
+  const form = document.querySelector<HTMLFormElement>("[data-newsletter]");
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = form.querySelector<HTMLInputElement>("input")!;
+    const msg = form.querySelector<HTMLElement>("#nl-msg")!;
+    if (!input.validity.valid) { msg.textContent = "Saisissez une adresse e-mail valide, par exemple nom@exemple.com."; input.setAttribute("aria-invalid", "true"); input.focus(); return; }
+    input.removeAttribute("aria-invalid");
+    msg.textContent = "Merci ! Vous recevrez nos prochaines nouveautés.";
+    form.reset();
+  });
 </script>

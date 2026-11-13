@@ -1,10 +1,7 @@
 ---
 import Page from "../../layouts/Page.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
-import { loadStoreConfig } from "../../lib/store";
-
-export const prerender = false; // the shipping policy shown here comes from the CMS
-const config = await loadStoreConfig();
+import { site } from "../../data/site";
 
 const fields = [
   { id: "first_name", label: "Prénom", autocomplete: "given-name", half: true },
@@ -75,7 +72,7 @@ const fields = [
             <span class="text-sm font-semibold tracking-[0.08em] uppercase">Total</span>
             <span class="text-step-1 font-semibold text-burgundy tabular-nums" data-summary-total></span>
           </p>
-          {config.freeFrom != null && <p class="m-0 text-sm text-ink-soft" data-summary-ship>Livraison gratuite dès {config.freeFrom.toLocaleString("fr-FR")} MAD.{config.deliveryDelay ? ` ${config.deliveryDelay}.` : ""}</p>}
+          <p class="m-0 text-sm text-ink-soft" data-summary-ship>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} dhs.</p>
         </aside>
       </div>
     </div>
@@ -83,10 +80,10 @@ const fields = [
 </Page>
 
 <script>
-  import { getBuyableLines as getLines, subtotal, clearCart, resyncCart } from "../../scripts/cart";
-  import { countBags, fmtMad, loadOffer, verify } from "../../lib/offer";
-  import { checkPromo as cmsCheckPromo, placeOrder, cmsEnabled, CmsError } from "../../lib/cms";
-  const fmt = fmtMad;
+  import { getLines, subtotal, clearCart } from "../../scripts/cart";
+  import { crmReady, crmPost, crmErrorCode } from "../../lib/crm";
+
+  const fmt = (n: number) => `${n.toLocaleString("fr-FR")} dhs`;
 
   const empty = document.querySelector<HTMLElement>("[data-empty]")!;
   const wrap = document.querySelector<HTMLElement>("[data-checkout]")!;
@@ -102,10 +99,10 @@ const fields = [
   const promoMsg = promoForm.querySelector<HTMLElement>("[data-promo-msg]")!;
   const discountRow = document.querySelector<HTMLElement>("[data-discount-row]")!;
 
-  type Promo = { code: string; percent: number; discount: number; auto?: boolean; label?: string };
+  type Promo = { code: string; percent: number; discount: number };
   let promo: Promo | null = null;
   const payable = () => subtotal() - (promo?.discount ?? 0);
-  const items = () => getLines().map((l) => ({ slug: l.id, qty: l.qty, ...(l.variant ? { variant: l.variant } : {}) }));
+  const items = () => getLines().map((l) => ({ slug: l.id, qty: l.qty }));
 
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text = "") => {
     const e = document.createElement(tag);
@@ -125,7 +122,7 @@ const fields = [
       const img = el("img", "size-18 bg-cream-soft object-cover");
       img.src = l.img; img.alt = l.name; img.width = 72; img.height = 72;
       const body = el("div", "grid gap-1");
-      body.append(el("p", "m-0 font-display text-lg leading-tight text-burgundy", l.name), el("p", "m-0 text-sm text-ink-soft tabular-nums", `${l.variant ? `${l.variant} · ` : ""}Quantité : ${l.qty}`));
+      body.append(el("p", "m-0 font-display text-lg leading-tight text-burgundy", l.name), el("p", "m-0 text-sm text-ink-soft tabular-nums", `Quantité : ${l.qty}`));
       li.append(img, body, el("p", "m-0 font-semibold tabular-nums", fmt(l.price * l.qty)));
       return li;
     }));
@@ -134,12 +131,11 @@ const fields = [
     discountRow.classList.toggle("hidden", !promo);
     discountRow.classList.toggle("flex", !!promo);
     if (promo) {
-      discountRow.querySelector("[data-discount-code]")!.textContent = promo.auto ? `· ${promo.label ?? "Offre"} (−${promo.percent} %)` : `${promo.code} (−${promo.percent} %)`;
+      discountRow.querySelector("[data-discount-code]")!.textContent = `${promo.code} (−${promo.percent} %)`;
       discountRow.querySelector("[data-discount-amount]")!.textContent = `−${fmt(promo.discount)}`;
     }
     promoInput.disabled = !!promo;
     promoBtn.textContent = promo ? "Retirer" : "Appliquer";
-    promoBtn.hidden = !!promo?.auto; // the two-bag offer is automatic: it follows the cart, it is not removed by hand
   }
 
   /* ---------- Promo code ---------- */
@@ -149,20 +145,21 @@ const fields = [
     promoInput.toggleAttribute("aria-invalid", bad);
   };
   async function checkPromo(code: string): Promise<Promo | null> {
-    // Throws when the CMS can't be reached; null when the code isn't valid for this cart.
-    const r = await cmsCheckPromo(code, items());
+    const res = await crmPost("/promo", { code, items: items() });
+    if (!res.ok) throw new Error(String(res.status));
+    const r = (await res.json()) as { percent: number; discount: number } | null;
     return r ? { code, ...r } : null;
   }
   promoForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (promo && !promo.auto) { promo = null; promoInput.value = ""; say(""); renderSummary(); promoInput.focus(); syncBundle(); return; }
+    if (promo) { promo = null; promoInput.value = ""; say(""); renderSummary(); promoInput.focus(); return; }
     const code = promoInput.value.trim().toUpperCase();
     if (!code) { say("Saisissez votre code promo.", true); promoInput.focus(); return; }
-    if (!cmsEnabled) { say("Les codes promo sont momentanément indisponibles.", true); return; }
+    if (!crmReady) { say("Les codes promo sont momentanément indisponibles.", true); return; }
     promoBtn.disabled = true; promoBtn.textContent = "Vérification…";
     try {
       const r = await checkPromo(code);
-      if (r) { promo = r; bundleSeq++; say(`Code appliqué : −${fmt(r.discount)}.`); }
+      if (r) { promo = r; say(`Code appliqué : −${fmt(r.discount)}.`); }
       else say("Ce code n’est pas valide pour les produits de votre panier.", true);
     } catch { say("Impossible de vérifier le code. Réessayez.", true); }
     promoBtn.disabled = false;
@@ -174,25 +171,8 @@ const fields = [
     try { const r = await checkPromo(promo.code); promo = r; say(r ? `Code appliqué : −${fmt(r.discount)}.` : "Ce code ne s’applique plus à votre panier.", !r); } catch { /* keep the last known discount; the server recomputes at checkout */ }
     renderSummary();
   }
-  // Quantity offer defined in the CMS: same server check as the cart drawer (POST /promo), applied on its own while no other code is in use.
-  let bundleSeq = 0;
-  async function syncBundle() {
-    if (promo && !promo.auto) return;
-    const my = ++bundleSeq;
-    const lines = getLines();
-    const cfg = await loadOffer();
-    let r = null;
-    if (cfg && lines.length && countBags(lines, cfg) >= cfg.quantity) r = await verify(cfg, items());
-    if (my !== bundleSeq || (promo && !promo.auto)) return;
-    const hadAuto = promoMsg.dataset.auto === "1";
-    promo = cfg && r ? { code: cfg.code, ...r, auto: true, label: cfg.title } : null;
-    if (promo && cfg) say(`${cfg.title} appliquée : −${fmt(promo.discount)}.`); else if (hadAuto) say("");
-    promoMsg.dataset.auto = promo ? "1" : "";
-    renderSummary();
-  }
   renderSummary();
-  syncBundle();
-  document.addEventListener("cart:change", () => { renderSummary(); refreshPromo(); syncBundle(); });
+  document.addEventListener("cart:change", () => { renderSummary(); refreshPromo(); });
 
   /* ---------- Validation ---------- */
   const rules: Record<string, (v: string) => string> = {
@@ -226,14 +206,13 @@ const fields = [
     if (bad.length) { showError(`Veuillez corriger ${bad.length > 1 ? "les champs signalés" : "le champ signalé"} avant de confirmer.`); input(bad[0]).focus(); return; }
     if ((form.elements.namedItem("website") as HTMLInputElement).value) { location.assign("/commande/merci"); return; } // honeypot
 
-    if (!cmsEnabled) { showError("La commande en ligne est momentanément indisponible. Merci de réessayer plus tard."); return; }
-    if (!getLines().length) { showError("Aucun article de votre panier n’est encore disponible."); return; }
+    if (!crmReady) { showError("La commande en ligne est momentanément indisponible. Merci de réessayer plus tard."); return; }
 
     submit.disabled = true;
     submitLabel.textContent = "Envoi en cours…";
     try {
-      // The CMS re-prices everything (catalogue prices, stock, promo, shipping): the totals shown here are only a preview.
-      const { order_number } = await placeOrder({
+      const q = new URLSearchParams(location.search);
+      const res = await crmPost("/orders", {
         firstName: input("first_name").value.trim(),
         lastName: input("last_name").value.trim(),
         phone: input("phone").value.trim(),
@@ -241,27 +220,38 @@ const fields = [
         city: input("city").value.trim(),
         items: items(),
         source: "store",
+        attribution: {
+          landingPage: location.pathname,
+          referrer: document.referrer || undefined,
+          utmSource: q.get("utm_source") || undefined,
+          utmMedium: q.get("utm_medium") || undefined,
+          utmCampaign: q.get("utm_campaign") || undefined,
+          fbclid: q.get("fbclid") || undefined,
+        },
         ...(promo ? { promo: promo.code } : {}),
       });
+      if (!res.ok) {
+        const code = await crmErrorCode(res);
+        if (code === "invalid_items") {
+          showError("Un article de votre panier n’est plus disponible. Rafraîchissez la page puis vérifiez votre panier.");
+          submit.disabled = false;
+          renderSummary();
+          return;
+        }
+        if (code === "invalid_promo") {
+          promo = null; promoInput.value = "";
+          say("Ce code n’est plus valide. Il a été retiré de votre commande.", true);
+          renderSummary();
+          showError("Le code promo n’est plus valide : le total a été mis à jour. Vérifiez-le puis confirmez à nouveau.");
+          submit.disabled = false;
+          return;
+        }
+        throw new Error(String(res.status));
+      }
+      const { order_number } = (await res.json()) as { order_number: number };
       clearCart();
       location.assign(`/commande/merci?n=${encodeURIComponent(order_number)}`);
-    } catch (e) {
-      const code = e instanceof CmsError ? e.code : "";
-      if (code === "invalid_promo") {
-        promo = null; promoInput.value = "";
-        say("Ce code n’est plus valide. Il a été retiré de votre commande.", true);
-        renderSummary();
-        showError("Le code promo n’est plus valide : le total a été mis à jour. Vérifiez-le puis confirmez à nouveau.");
-        submit.disabled = false;
-        return;
-      }
-      if (code === "out_of_stock" || code === "insufficient_stock" || code === "invalid_items") {
-        showError(code === "insufficient_stock" ? "La quantité demandée n’est plus disponible pour un des articles. Ajustez votre panier puis confirmez à nouveau." : "Un article de votre panier n’est plus disponible. Votre panier a été mis à jour : vérifiez-le puis confirmez à nouveau.");
-        resyncCart(); // re-reads the catalogue and flags what can no longer be bought
-        submit.disabled = false;
-        return;
-      }
-      if (code === "invalid_phone") { showError("Saisissez un numéro marocain valide, par exemple 06 12 34 56 78."); submit.disabled = false; return; }
+    } catch {
       showError("Votre commande n’a pas pu être envoyée. Votre panier est conservé : vérifiez votre connexion puis réessayez.");
       submit.disabled = false;
       renderSummary();

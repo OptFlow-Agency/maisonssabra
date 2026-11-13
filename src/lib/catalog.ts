@@ -1,53 +1,45 @@
 import { fallback, registerSizes, type Collection, type Product } from "../data/products";
-import { cmsEnabled, fetchProducts, type CmsProduct } from "./cms";
+import { crmReady, crmUrl } from "./crm";
 
-/** Shared by the server (pages) and the browser (cart recommendations): CMS payload → storefront product. */
-export function fromCms(r: CmsProduct): Product | null {
-  const imgs = r.images.filter((i) => i.url);
-  const first = imgs[0]?.url ?? r.image;
-  if (!first) return null; // a product without a photo can't be shown
-  registerSizes(first, imgs[0]?.sizes ?? r.image_sizes);
-  imgs.forEach((i) => registerSizes(i.url, i.sizes));
-  const second = imgs[1]?.url ?? r.image2 ?? undefined;
-  registerSizes(second, imgs[1]?.sizes ?? r.image2_sizes);
+type Sizes = Partial<Record<"480" | "800", string>>;
+type Row = {
+  slug: string; name: string; price: number; was_price: number | null;
+  image: string | null; image2: string | null; image_sizes: Sizes; image2_sizes: Sizes;
+  alt: string; description: string; is_new: boolean; collection: Collection | null;
+};
 
-  const variants = r.variants.map((v) => {
-    registerSizes(v.image?.url, v.image?.sizes);
-    return { name: v.name, color: v.color ?? undefined, img: v.image?.url, price: v.price, was: v.was_price ?? undefined, purchasable: v.purchasable, left: v.stock_left ?? undefined };
-  });
-
+const fromRow = (r: Row): Product => {
+  // The CRM resizes uploads to its own file names; remember them so `variant()` can find the 480 / 800 versions.
+  registerSizes(r.image!, r.image_sizes);
+  if (r.image2) registerSizes(r.image2, r.image2_sizes);
   return {
     slug: r.slug,
     name: r.name,
     price: r.price,
     was: r.was_price ?? undefined,
-    img: first,
-    img2: second,
-    gallery: imgs.map((i) => i.url),
+    img: r.image!,
+    img2: r.image2 ?? undefined,
     alt: r.alt || r.name,
     isNew: r.is_new,
-    collection: (r.collection ?? "bladi") as Collection,
+    collection: r.collection as Collection,
     description: r.description || undefined,
-    shortDescription: r.short_description ?? undefined,
-    stock: r.stock_left ?? undefined,
-    purchasable: r.purchasable,
-    benefits: r.benefits.map((b) => ({ icon: b.icon, title: b.title, text: b.description ?? undefined })),
-    variants: variants.length ? variants : undefined,
-    promoLabel: r.promotion?.label ?? undefined,
   };
-}
+};
 
-/** Active products in the CMS's order. Falls back to the bundled catalogue only when the CMS is unreachable. */
+/** Active products in CRM order. Falls back to the bundled catalogue when the CRM is missing or errors. */
 export async function getCatalog(): Promise<Product[]> {
-  if (!cmsEnabled) return fallback;
+  if (!crmReady) return fallback;
   try {
-    return (await fetchProducts()).map(fromCms).filter((p): p is Product => !!p);
+    const res = await fetch(crmUrl("/products"), { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) throw new Error(String(res.status));
+    // A product needs a photo and one of this store's two collections to be shown.
+    return ((await res.json()) as Row[]).filter((r) => r.image && (r.collection === "bladi" || r.collection === "zman")).map(fromRow);
   } catch (e) {
-    console.error("catalog: CMS unreachable, falling back to bundled products", e);
+    console.error("catalog: falling back to bundled products", e);
     return fallback;
   }
 }
 
-/** Product pages are rendered per request; let a CDN keep them for a minute so CMS edits are live almost at once. */
+/** Product pages are rendered per request; let a CDN keep them for a minute so a new product is live almost at once. */
 export const cacheShort = (res: ResponseInit & { headers: Headers }) =>
   res.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");

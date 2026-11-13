@@ -1,30 +1,31 @@
 ---
 import Page from "../layouts/Page.astro";
-import Marquee from "../components/Marquee.astro";
+import HeroReassurance from "../components/HeroReassurance.astro";
 import Hero from "../components/Hero.astro";
-import CollectionsShowcase from "../components/CollectionsShowcase.astro";
-import CuratedProducts from "../components/CuratedProducts.astro";
+import Collections from "../components/Collections.astro";
+import FeaturedProducts from "../components/FeaturedProducts.astro";
 import Story from "../components/Story.astro";
-import BrandFilms from "../components/BrandFilms.astro";
-import Reassurance from "../components/Reassurance.astro";
-import Craftsmanship from "../components/Craftsmanship.astro";
+import Trust from "../components/Trust.astro";
+import Skirts from "../components/Skirts.astro";
+import ContactCta from "../components/ContactCta.astro";
+import Testimonials from "../components/Testimonials.astro";
+import Instagram from "../components/Instagram.astro";
 import { organizationLd, websiteLd } from "../data/seo";
 import { getCatalog, cacheShort } from "../lib/catalog";
-import { loadHome } from "../lib/home";
 
 export const prerender = false;
 const products = await getCatalog();
 cacheShort(Astro.response);
-
-const home = await loadHome(products);
 ---
-<Page title="Maison Sabra | Sacs artisanaux marocains en velours, cuir et tissu berbère" description="Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du savoir-faire marocain. Découvrez les collections Z’man, Bladi et bientôt Atar." jsonLd={[organizationLd(), websiteLd()]}>
-  <Hero hero={home.hero} />
-  <Marquee />
-  <CollectionsShowcase items={home.collections} />
-  <CuratedProducts products={home.featured.products} heading={home.featured.heading} intro={home.featured.body} />
-  <Story mission={home.mission} />
-  <Craftsmanship craft={home.craft} />
-  <BrandFilms />
-  <Reassurance />
+<Page title="Maison Sabra | Sacs artisanaux marocains en cuir et velours" description="Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du patrimoine marocain. Fait main au Maroc." jsonLd={[organizationLd(), websiteLd()]}>
+  <Hero />
+  <HeroReassurance />
+  <Collections bladi={products.filter((p) => p.collection === "bladi")} zman={products.filter((p) => p.collection === "zman")} />
+  <Story />
+  <FeaturedProducts products={products} />
+  <Trust />
+  <Skirts />
+  <Testimonials />
+  <ContactCta />
+  <Instagram />
 </Page>

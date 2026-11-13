@@ -2,7 +2,7 @@ import { config as C } from "../data/config.js";
 import { products as P } from "../data/products.js";
 import * as L from "../lib/logic.js";
 import { analytics as A } from "../lib/events.js";
-import { supabaseReady, placeOrder, checkPromo } from "../lib/supabase.js";
+import { crmReady, placeOrder, checkPromo } from "../lib/crm.js";
 import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
 
 (function () {
@@ -32,7 +32,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
 
   function applyStatic() {
     renderTrust();
-    $("#demo-ribbon").hidden = supabaseReady;
+    $("#demo-ribbon").hidden = crmReady;
   }
 
   /* ---------- 1. Sélection de modèle (source unique) ---------- */
@@ -147,17 +147,17 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     for (var i = 0; i < o.qty; i++) { var p = byId(state.bags[i]); out.push(p ? p.price : ref); }
     return out;
   }
-  /* Codes promo : le pourcentage et le montant viennent de la base (apply_promo), pas de la config.
-     Config = repli si Supabase est absent ou injoignable. Un code absent / inactif / non valable pour ces sacs masque l'offre. */
+  /* Codes promo : le pourcentage et le montant viennent de la base (`POST /promo`), pas de la config.
+     Config = repli si le CRM est absent ou injoignable. Un code absent / inactif / non valable pour ces sacs masque l'offre. */
   var promoCache = {}; // "CODE|id,id" → { percent, discount } | null (refusé) | "err" (injoignable)
   function bagIds(o) { var ids = []; for (var i = 0; i < o.qty; i++) ids.push(state.bags[i] || state.modelId); return ids; }
   function promoKey(o) { return o.code + "|" + bagIds(o).join(","); }
-  function promoOf(o) { return o.code && supabaseReady ? promoCache[promoKey(o)] : undefined; }
+  function promoOf(o) { return o.code && crmReady ? promoCache[promoKey(o)] : undefined; }
   function offerAvailable(o) { return promoOf(o) !== null; }
   function offerPercent(o) { var r = promoOf(o); return r && r !== "err" ? r.percent : o.discountPercent; }
   function ensurePromos() {
     OFFERS.forEach(function (o) {
-      if (!o.code || !supabaseReady) return;
+      if (!o.code || !crmReady) return;
       var key = promoKey(o); if (key in promoCache) return;
       promoCache[key] = undefined; var ctrl = new AbortController(), to = setTimeout(function () { ctrl.abort(); }, C.order.timeoutMs);
       checkPromo(o.code, bagIds(o), ctrl.signal).then(function (r) { promoCache[key] = r; }, function () { promoCache[key] = "err"; })
@@ -347,7 +347,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   /** Mémorise la commande validée (rien n'est encore envoyé) et prépare l'upsell éventuel. */
   function capture(o, ps, data, upOk) {
     state.done = true;
-    var simulated = !supabaseReady;
+    var simulated = !crmReady;
     var n = L.normalizePhone(data.phone);
     session = {
       clientOrderId: state.clientOrderId, orderRef: "", simulated: simulated, placed: simulated,
@@ -364,7 +364,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   }
 
   var finalizing = false;
-  /** Enregistre la commande dans Supabase (fonction `place_order`) puis ouvre la page de remerciement. */
+  /** Enregistre la commande dans le CRM (`POST /orders`) puis ouvre la page de remerciement. */
   function finalize(onError) {
     var s = session; if (!s) return;
     if (s.placed) return go("thanks");
@@ -450,10 +450,10 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   /* --- Upsell --- */
   function upChoiceId() { var r = $('input[name="upcolor"]:checked'); return r ? r.value : null; }
 
-  /* Upsell réel : le code `U.code` ne s'applique qu'au 2e sac (apply_promo interrogée avec ce seul sac) ; le pourcentage et le montant
-     viennent de la base. Sans Supabase (démo), l'ancien calcul « 2e sac à −X % » de la config est conservé. */
+  /* Upsell réel : le code `U.code` ne s'applique qu'au 2e sac (`POST /promo` interrogé avec ce seul sac) ; le pourcentage et le montant
+     viennent de la base. Sans le CRM (démo), l'ancien calcul « 2e sac à −X % » de la config est conservé. */
   var upCache = {}; // "id1,id2" → { percent, discount } | null (refusé) | "err"
-  function upLive() { return supabaseReady && !!U.code; }
+  function upLive() { return crmReady && !!U.code; }
   function upPromo(a, b) { return upLive() ? upCache[a + "," + b] : undefined; }
   function upValid(r) { return !!r && r !== "err"; }
   var allIds = function () { return P.map(function (p) { return p.id; }); };

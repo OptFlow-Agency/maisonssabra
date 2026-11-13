@@ -1,0 +1,39 @@
+---
+const reviews = [
+  { name: 'Salma R.', text: 'Maison Sabra, c’est bien plus qu’un sac… c’est une œuvre d’art. Dès que je le porte, on me demande d’où il vient. La finition est impeccable, et on sent le travail fait main derrière chaque détail.' },
+  { name: 'Karima', text: 'J’ai été touchée par l’authenticité des produits. Mon sac Maison Sabra m’accompagne partout, il allie tradition et élégance avec une touche marocaine que j’adore. Je recommande à 100 %.' },
+  { name: '@eddahabitouria', text: 'أحييك مدام بهيجة على ابتكاراتك الرائعة التقيت بك يوم الأحد الماضى كل عروضك كانت تعبر عن اللمسة المغربية مزيد من التألق وبالطبع كنت محضوضة باقتناء قطعتين أفتخر بهما', arabic: true },
+];
+const faq = [
+  ['Comment passer commande ?', 'Renseignez vos coordonnées et votre adresse dans le formulaire de commande express, puis confirmez votre commande. Vous pouvez également utiliser le panier.'],
+  ['Comment se passe le paiement ?', 'Le paiement s’effectue à la livraison. Pour toute précision sur la livraison, consultez notre page dédiée.'],
+  ['La livraison est-elle offerte ?', 'La livraison est gratuite à partir de 1 000 dhs de commande.'],
+  ['Comment demander un retour ou un échange ?', 'Consultez notre page Retours et réclamations pour connaître les conditions applicables et les démarches à suivre.'],
+  ['Où trouver les détails du modèle ?', 'Les photos et la description de cette fiche présentent le modèle sélectionné. Pour un renseignement complémentaire, contactez Maison Sabra.'],
+];
+---
+<section class="bg-white py-16 md:py-24" aria-labelledby="product-reviews-title">
+  <div class="mx-auto max-w-(--max) px-(--gutter)">
+    <p class="mb-3 text-[.625rem] font-semibold uppercase tracking-wider text-rose-dusty">Retours d’expérience</p>
+    <h2 id="product-reviews-title" class="mb-10 text-step-2">Elles racontent leur expérience Maison Sabra</h2>
+    <div class="grid gap-5 md:grid-cols-3">
+      {reviews.map((review) => <figure class="m-0 flex flex-col rounded-lg bg-white border border-gold/20 p-6">
+        <span class="font-display text-4xl text-rose-dusty" aria-hidden="true">“</span>
+        <blockquote class="flex-1 text-sm leading-7 text-ink-soft" lang={review.arabic ? 'ar' : 'fr'} dir={review.arabic ? 'rtl' : undefined}>{review.text}</blockquote>
+        <figcaption class="mt-6 border-t border-gold/20 pt-4 text-xs font-bold tracking-wider text-burgundy">{review.name}</figcaption>
+      </figure>)}
+    </div>
+    <div class="mx-auto mt-20 max-w-3xl md:mt-28">
+      <p class="mb-3 text-center text-[.625rem] font-semibold uppercase tracking-wider text-rose-dusty">Transparence totale</p>
+      <h2 class="text-center text-step-2">Questions fréquentes</h2>
+      <p class="mt-4 mb-8 text-center text-sm text-ink-soft">Tout ce que vous devez savoir avant de passer commande.</p>
+      <div class="grid gap-3">
+        {faq.map(([question, answer]) => <details class="group rounded bg-white border border-gold/20 p-5">
+          <summary class="flex min-h-6 cursor-pointer list-none items-center justify-between gap-4 text-xs font-semibold uppercase tracking-[.08em] text-burgundy focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy [&::-webkit-details-marker]:hidden">{question}<span class="text-lg text-rose-dusty transition-transform group-open:rotate-180" aria-hidden="true">⌄</span></summary>
+          <p class="mt-4 text-sm leading-7 text-ink-soft">{answer}</p>
+        </details>)}
+      </div>
+      <div class="mt-6 flex flex-wrap justify-center gap-6 text-xs text-burgundy"><a class="underline underline-offset-4" href="https://maisonsabra.ma/livraison-maison-sabra/">Livraison</a><a class="underline underline-offset-4" href="https://maisonsabra.ma/retours-reclamations-maison-sabra/">Retours et réclamations</a></div>
+    </div>
+  </div>
+</section>
