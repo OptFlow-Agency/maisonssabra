@@ -6,10 +6,13 @@ export const site = {
   description: "Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du patrimoine marocain.",
   ogImage: "/img/hero-zman-beige.webp",
   instagram: "https://www.instagram.com/maison_sabra",
-  // International format without "+" or spaces, e.g. "212612345678". The WhatsApp button stays hidden while this is empty.
+  // Fallback WhatsApp number (international format, no "+"). The CMS value (settings → contact) wins when set.
   whatsapp: "",
   freeShippingFrom: 1000,
+  // Shipping thresholds, low-stock limits, offers and discounts are managed in the CMS: see lib/store.ts and lib/offer.ts.
 } as const;
 
-export const whatsappLink = (text: string) =>
-  site.whatsapp ? `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(text)}` : "";
+export const whatsappLink = (text: string, number?: string | null) => {
+  const n = number || site.whatsapp;
+  return n ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : "";
+};

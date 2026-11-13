@@ -1,0 +1,22 @@
+---
+import ProductCard from "./ProductCard.astro";
+import type { Product } from "../data/products";
+interface Props { products: Product[]; heading?: string | null; intro?: string | null }
+const { products, heading, intro } = Astro.props;
+---
+{products.length > 0 && (
+  <section class="bg-cream-soft pt-16 pb-16 lg:pt-28 lg:pb-28" aria-labelledby="pieces-title">
+    <div class="mx-auto max-w-(--max) px-(--gutter)">
+      <div class="mx-auto mb-9 grid max-w-[40rem] justify-items-center gap-4 text-center lg:mb-14" data-reveal>
+        <div class="grid justify-items-center gap-3">
+          <h2 id="pieces-title" class="text-step-2 lg:text-[2.75rem]">{heading || "Nos pièces emblématiques"}</h2>
+          <p class="m-0 max-w-[46ch] text-ink-soft">{intro ?? "Des créations pour le quotidien comme pour vos plus belles occasions."}</p>
+        </div>
+        <a class="inline-flex min-h-11 items-center text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href="/boutique">Toute la boutique</a>
+      </div>
+      <ul class="m-0 grid list-none grid-cols-2 gap-x-3 gap-y-9 p-0 min-[48rem]:gap-x-6 min-[48rem]:gap-y-12 lg:grid-cols-3 lg:gap-x-8">
+        {products.map((p) => <li><ProductCard product={p} /></li>)}
+      </ul>
+    </div>
+  </section>
+)}

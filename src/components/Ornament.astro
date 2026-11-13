@@ -1,0 +1,10 @@
+---
+// A quiet divider: two gold hairlines around a khatam (eight-pointed star), the motif of the zellige panel in the hero.
+interface Props { class?: string }
+const { class: cls = "" } = Astro.props;
+---
+<div class={`flex items-center gap-4 text-gold ${cls}`} role="presentation" aria-hidden="true">
+  <span class="h-px w-12 bg-current/60"></span>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="14" height="14"/><rect x="5" y="5" width="14" height="14" transform="rotate(45 12 12)"/></svg>
+  <span class="h-px w-12 bg-current/60"></span>
+</div>

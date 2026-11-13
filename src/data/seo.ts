@@ -26,11 +26,11 @@ export const websiteLd = () => ({
   publisher: { "@id": abs("/#organization") },
 });
 
-export const productLd = (p: Product, description: string, collection: string) => ({
+export const productLd = (p: Product, description: string, collection: string, rating?: { average: number; count: number } | null) => ({
   "@type": "Product",
   name: p.name,
   description,
-  image: [p.img, p.img2].filter(Boolean).map((i) => abs(i!)),
+  image: (p.gallery?.length ? p.gallery : [p.img, p.img2]).filter(Boolean).map((i) => abs(i!)),
   sku: p.slug,
   brand: { "@type": "Brand", name: site.name },
   category: collection,
@@ -39,10 +39,12 @@ export const productLd = (p: Product, description: string, collection: string) =
     url: abs(`/produit/${p.slug}`),
     priceCurrency: "MAD",
     price: p.price,
-    availability: "https://schema.org/InStock",
+    availability: p.purchasable === false ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
     itemCondition: "https://schema.org/NewCondition",
     seller: { "@id": abs("/#organization") },
   },
+  // Only genuine, approved reviews from the CMS: the block is omitted when there are none.
+  ...(rating && rating.count > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: rating.average, reviewCount: rating.count } } : {}),
 });
 
 export const itemListLd = (products: Product[]) => ({

@@ -17,6 +17,7 @@
   h1, h2, h3 { @apply font-display font-medium leading-[1.05] text-burgundy text-balance; }
   p { @apply text-pretty; }
   ::selection { @apply bg-rose text-burgundy-deep; }
+  html { caret-color: var(--color-gold); accent-color: var(--color-burgundy); }
   :focus-visible { @apply rounded-xs outline-2 outline-offset-3 outline-burgundy; }
   .on-dark :focus-visible { @apply outline-cream; }
   ::-webkit-scrollbar { width: 12px; }
@@ -26,12 +27,13 @@
 
 @layer components {
   /* Chapter label, "01 — Collection": gold rule + tracked caps, the case study's section marker. */
-  .eyebrow { @apply flex items-center gap-4 font-body text-[0.6875rem] leading-none font-semibold tracking-[0.2em] min-[30rem]:tracking-[0.28em] text-rose-dusty uppercase before:h-px before:w-10 before:bg-gold before:content-['']; }
+  .eyebrow { @apply flex items-center gap-4 font-body text-[0.6875rem] leading-none font-semibold tracking-[0.2em] min-[30rem]:tracking-[0.26em] text-rose-dusty uppercase; }
   .on-dark .eyebrow { @apply text-rose; }
   .rule-gold { @apply h-px w-full border-0 bg-linear-to-r from-gold/0 via-gold/70 to-gold/0; }
   .btn {
-    @apply inline-flex min-h-13 cursor-pointer items-center gap-3 whitespace-nowrap rounded-none border-0 bg-rose px-6 font-body text-xs leading-none font-semibold tracking-[0.18em] text-burgundy-deep uppercase no-underline transition-colors duration-300 hover:bg-rose-dusty hover:text-white active:bg-burgundy active:text-white;
+    @apply inline-flex min-h-13 cursor-pointer items-center justify-center gap-3 whitespace-nowrap rounded-none border-0 bg-burgundy px-7 font-body text-xs leading-none font-semibold tracking-[0.16em] text-cream-soft uppercase no-underline transition-colors duration-300 hover:bg-burgundy-deep active:bg-burgundy-deep;
   }
+  .on-dark .btn { @apply bg-rose text-burgundy-deep hover:bg-cream-soft hover:text-burgundy; }
   .btn svg { transition: transform 0.35s var(--ease-out); }
   .btn:hover svg { transform: translateX(4px); }
   .icon-btn {
@@ -96,4 +98,16 @@ html.js [data-reveal]:not(.is-in) { opacity: 0; translate: 0 1.5rem; }
 [data-reveal] { transition: opacity 0.9s var(--ease-out) var(--d, 0s), translate 0.9s var(--ease-out) var(--d, 0s); }
 @media (prefers-reduced-motion: reduce) {
   html.js [data-reveal]:not(.is-in) { opacity: 1; translate: none; }
+}
+
+/* Image curtain: the frame opens from the bottom as it scrolls into view. */
+html.js [data-clip]:not(.is-in) { clip-path: inset(100% 0 0 0); }
+[data-clip] { clip-path: inset(0); transition: clip-path 1.3s var(--ease-out) var(--d, 0s); }
+[data-parallax] { will-change: transform; }
+/* Hero entrance: the photograph settles from a slight zoom. */
+@keyframes settle { from { scale: 1.12; } }
+.hero-img { animation: settle 2.2s var(--ease-out) both; }
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-clip]:not(.is-in) { clip-path: inset(0); }
+  .hero-img { animation: none; }
 }

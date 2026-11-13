@@ -1,0 +1,23 @@
+---
+// Slow ticker of the house's materials. Decorative: hidden from assistive tech, paused under reduced motion.
+const words = ["Velours brodé", "Cuir", "Tissu berbère", "Dorures", "Fait main au Maroc"];
+const diamond = `<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 0l5 5-5 5-5-5z" fill="currentColor"/></svg>`;
+---
+<div class="on-dark overflow-hidden border-y border-gold/40 bg-burgundy py-4 text-cream-soft select-none lg:py-5" aria-hidden="true">
+  <div class="marquee flex w-max gap-0">
+    {[0, 1].map(() => (
+      <ul class="m-0 flex shrink-0 list-none items-center p-0">
+        {[...words, ...words].map((w) => (
+          <li class="flex items-center gap-6 pr-6 font-display text-[1.375rem] font-medium whitespace-nowrap italic lg:gap-10 lg:pr-10 lg:text-[2rem]">
+            {w}<span class="text-rose"><Fragment set:html={diamond} /></span>
+          </li>
+        ))}
+      </ul>
+    ))}
+  </div>
+</div>
+<style>
+  .marquee { animation: marquee 48s linear infinite; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .marquee { animation: none; } }
+</style>

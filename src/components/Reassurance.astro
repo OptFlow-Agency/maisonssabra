@@ -1,0 +1,38 @@
+---
+import { loadStoreConfig, freeShippingText } from "../lib/store";
+import { cmsEnabled, fetchSettings } from "../lib/cms";
+import { whatsappLink } from "../data/site";
+// Messages are managed in the CMS. Hand-written trust messages (settings → trust) win; otherwise the blocks are built from the store's
+// real settings: payment methods, free-delivery threshold, returns policy, contact. Nothing configured: the section is not rendered.
+type Block = { title: string; text: string | null; linkLabel: string | null; linkUrl: string | null };
+const config = await loadStoreConfig();
+let blocks: Block[] = config.trust.slice(0, 4);
+if (!blocks.length && cmsEnabled) {
+  const s = await fetchSettings().catch(() => null);
+  if (s) {
+    const pay = s.payment_methods[0];
+    const free = freeShippingText(config);
+    const wa = whatsappLink("Bonjour Maison Sabra, j’ai une question.", s.contact.whatsapp);
+    blocks = [
+      pay && { title: pay.label, text: pay.description, linkLabel: null, linkUrl: null },
+      free && { title: free, text: s.shipping.delay, linkLabel: config.deliveryPolicyUrl ? "Conditions de livraison" : null, linkUrl: config.deliveryPolicyUrl },
+      s.returns.summary && { title: "Retours et échanges", text: s.returns.summary, linkLabel: config.returnsPolicyUrl ? "Politique de retour" : null, linkUrl: config.returnsPolicyUrl },
+      wa && { title: "Une question ?", text: "Écrivez-nous, nous vous accompagnons avant et après votre commande.", linkLabel: "Nous écrire sur WhatsApp", linkUrl: wa },
+    ].filter((b): b is Block => !!b);
+  }
+}
+const cols = ["", "lg:grid-cols-1", "lg:grid-cols-2", "lg:grid-cols-3", "lg:grid-cols-4"][blocks.length];
+---
+{blocks.length > 0 && (
+  <section class="border-y border-dashed border-ink/25 bg-cream-soft py-12 lg:py-16" aria-label="Acheter en confiance">
+    <ul class:list={["m-0 mx-auto grid max-w-(--max) list-none gap-0 divide-y divide-dashed divide-ink/25 p-0 px-(--gutter) lg:divide-x lg:divide-y-0", cols]}>
+      {blocks.map((b) => (
+        <li class="grid content-start gap-2 py-6 first:pt-0 last:pb-0 lg:px-8 lg:py-2 lg:first:pl-0 lg:last:pr-0">
+          <h2 class="m-0 text-[1.375rem] leading-tight">{b.title}</h2>
+          {b.text && <p class="m-0 max-w-[36ch] text-[0.9375rem] leading-snug text-ink-soft">{b.text}</p>}
+          {b.linkLabel && b.linkUrl && <a class="mt-1 inline-flex min-h-11 w-fit items-center text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href={b.linkUrl}>{b.linkLabel}</a>}
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
