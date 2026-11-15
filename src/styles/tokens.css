@@ -8,6 +8,7 @@
   --color-cream: #ffffff; /* white surface */
   --color-cream-soft: #ffffff; /* white page background */
   --color-card-beige: #f5ecde; /* collection card surface */
+  --color-ivory: #fff9f2; /* page ground: light beige */
   --color-sand: #c7a389;
   --color-bronze: #c3813d;
   --color-white: #ffffff;
@@ -51,6 +52,8 @@
 :root {
   --gutter: clamp(1rem, 4vw, 3rem);
   --max: 90rem;
-  --header-h: 4.5rem;
+  /* Floating header: 0.75rem top inset + bar (3.5rem, 4rem from the nav breakpoint). */
+  --header-h: 3.5rem; /* phones: 0.5rem inset + 3rem bar */
   --header-h-stuck: 3.75rem;
 }
+@media (min-width: 78rem) { :root { --header-h: 4.75rem; } }

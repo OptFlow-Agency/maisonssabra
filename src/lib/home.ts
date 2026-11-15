@@ -31,6 +31,8 @@ export type Home = {
   featured: { heading: string | null; body: string | null; products: Product[] };
   mission: { heading: string | null; paragraphs: string[]; cta: Link | null; image: Pic | null } | null;
   craft: { heading: string | null; body: string | null; details: { pic: Pic; label: string }[] } | null;
+  /** Optional discovery copy (a homepage "text" section). */
+  text: { heading: string | null; paragraphs: string[] } | null;
 };
 
 export async function loadHome(catalog: Product[]): Promise<Home> {
@@ -63,13 +65,18 @@ export async function loadHome(catalog: Product[]): Promise<Home> {
         };
       })
     : staticCollections.map((c) => ({ ...c, image: null, comingSoon: !c.href }));
+  // A collection announced but not yet in the CMS (Atar) still appears, as "Bientôt disponible", so the homepage presents all three.
+  for (const c of staticCollections) {
+    if (!c.href && collections.length < 3 && !collections.some((x) => x.slug === c.slug)) collections.push({ ...c, image: null, comingSoon: true });
+  }
 
   // Featured pieces: the homepage section's own list, else products flagged "featured" in the CMS, else the CMS's first products.
   const f = first("featured-products");
   const bySlug = new Map(catalog.map((p) => [p.slug, p]));
   const picked = (f?.products ?? []).map((s) => bySlug.get(s)).filter((p): p is Product => !!p);
   const flaggedProducts = featuredRaw.map(fromCms).filter((p): p is Product => !!p);
-  const products = (picked.length ? picked : flaggedProducts.length ? flaggedProducts : catalog).slice(0, 6);
+  // Sold-out pieces never headline the homepage.
+  const products = (picked.length ? picked : flaggedProducts.length ? flaggedProducts : catalog).filter((p) => p.purchasable !== false).slice(0, 8);
 
   const m = first("story");
   const mission: Home["mission"] = m ? { heading: m.heading, paragraphs: paragraphs(m.body), cta: safeLink(m.cta), image: pic(m.image, m.heading ?? "") } : null;
@@ -77,5 +84,8 @@ export async function loadHome(catalog: Product[]): Promise<Home> {
   const s = stories.find((x) => x.images.length > 0);
   const craft: Home["craft"] = s ? { heading: s.title, body: s.excerpt, details: s.images.slice(0, 3).map((i) => ({ pic: pic(i, i.caption ?? s.title)!, label: i.caption ?? i.alt })) } : null;
 
-  return { hero, collections, featured: { heading: f?.heading ?? null, body: f?.body ?? null, products }, mission, craft };
+  const t = first("text");
+  const text: Home["text"] = t && (t.heading || t.body) ? { heading: t.heading, paragraphs: paragraphs(t.body) } : null;
+
+  return { hero, collections, featured: { heading: f?.heading ?? null, body: f?.body ?? null, products }, mission, craft, text };
 }

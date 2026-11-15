@@ -12,9 +12,10 @@ const icons = {
 };
 const ctl = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-cream-soft transition-colors duration-200 hover:bg-cream-soft/15";
 ---
-<section id="notre-histoire" class="on-dark scroll-mt-16 overflow-hidden bg-burgundy py-16 text-cream-soft lg:py-28" aria-labelledby="films-title">
+<section id="notre-histoire" class="on-dark scroll-mt-24 overflow-hidden bg-burgundy py-16 text-cream-soft lg:py-28" aria-labelledby="films-title">
   <div class="mx-auto grid max-w-(--max) gap-8 px-(--gutter) lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:gap-16">
     <div class="grid content-start gap-4 lg:gap-6" data-reveal>
+      <p class="eyebrow m-0"><span class="h-px w-8 bg-rose" aria-hidden="true"></span>En mouvement</p>
       <h2 id="films-title" class="text-step-2 text-cream-soft lg:text-[2.75rem]">L’univers Maison Sabra, en mouvement.</h2>
       <p class="m-0 max-w-[36ch] text-cream-soft/80">Découvrez nos créations, nos matières et les histoires qui les inspirent.</p>
       <p class="m-0 max-w-[36ch] border-t border-gold/50 pt-4 font-display text-[1.25rem] leading-snug text-cream-soft">Maison Sabra réinterprète l’héritage marocain en sacs pensés pour la femme d’aujourd’hui : des textures riches, des motifs qui racontent, une allure contemporaine.</p>
@@ -27,8 +28,8 @@ const ctl = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-ful
     <div class="-mx-(--gutter) min-w-0 lg:mx-0">
       <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-(--gutter) px-(--gutter) pb-2 [scrollbar-width:none] focus-visible:outline-offset-4 [&::-webkit-scrollbar]:hidden lg:scroll-px-0 lg:px-0" data-films-track role="region" aria-roledescription="carrousel" aria-label="Films Maison Sabra" tabindex="0">
         {films.map((f, n) => (
-          <figure class="group/f m-0 w-[66vw] max-w-[17rem] shrink-0 snap-start min-[30rem]:w-[17rem]" data-film aria-label={`${n + 1} sur ${films.length}`}>
-            <div class="group/frame relative aspect-[9/16] overflow-hidden rounded-[1.25rem] bg-burgundy-deep" data-state="idle" data-frame>
+          <figure class="group/f m-0 w-[72vw] max-w-[17rem] shrink-0 snap-start min-[30rem]:w-[17rem]" data-film aria-label={`${n + 1} sur ${films.length}`}>
+            <div class="group/frame relative aspect-[9/16] overflow-hidden rounded-xl bg-burgundy-deep" data-state="idle" data-frame>
               <video class="size-full object-cover" src={f.src} poster={f.poster} preload="none" playsinline loop width="540" height="960" aria-label={f.label}></video>
               <button class="absolute inset-0 grid cursor-pointer place-items-center border-0 bg-transparent p-0 text-burgundy" type="button" data-play aria-label={`Lire la vidéo : ${f.title}`}>
                 <span class="grid size-16 place-items-center rounded-full bg-cream-soft/92 pl-0.5 transition-[scale,opacity] duration-300 group-data-[state=playing]/frame:scale-90 group-data-[state=playing]/frame:opacity-0 group-data-[state=loading]/frame:opacity-0 can-hover:group-hover/f:scale-105" aria-hidden="true" set:html={icons.play}></span>

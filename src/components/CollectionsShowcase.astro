@@ -1,55 +1,86 @@
 ---
+// The three collections as a bento grid. Atar, the newest, leads with the large tile; Z'man and Bladi complete the grid. CMS images replace the defaults when a collection has one.
 import type { HomeCollection } from "../lib/home";
 interface Props { items: HomeCollection[] }
 const { items } = Astro.props;
+const by = (slug: string) => items.find((c) => c.slug === slug);
+const atar = by("atar"), zman = by("zman"), bladi = by("bladi");
+
+type Img = { src: string; srcset?: string; w: number; h: number; alt: string; fit?: "contain" };
+const pick = (c: HomeCollection | undefined, fallback: Img): Img =>
+  c?.image ? { src: c.image.src, srcset: c.image.srcset, w: c.image.w ?? 1000, h: c.image.h ?? 1250, alt: c.image.alt } : fallback;
+
+const tiles = [
+  atar && {
+    c: atar, area: "atar", badge: "Nouvelle collection",
+    img: pick(atar, { src: "/img/collections/atar-camel.webp", srcset: "/img/collections/atar-camel-640.webp 640w, /img/collections/atar-camel.webp 1024w", w: 1024, h: 1536, alt: "Sac Atar en cuir camel orné d’un panneau tissé aux motifs berbères rouges, posé sur un bureau" }),
+    sizes: "(min-width: 64rem) 58vw, 100vw",
+  },
+  zman && {
+    c: zman, area: "zman",
+    img: pick(zman, { src: "/img/home/zman-720.webp", srcset: "/img/home/zman-480.webp 480w, /img/home/zman-720.webp 720w", w: 720, h: 894, alt: "Un sac Z’man en velours violet à motifs, tenu à la main avec sa chaîne dorée" }),
+    sizes: "(min-width: 64rem) 36vw, 50vw",
+  },
+  bladi && {
+    c: bladi, area: "bladi",
+    img: pick(bladi, { src: "/maisonsabra/Awray-sac-1-_ms-1000x999-800.webp", srcset: "/maisonsabra/Awray-sac-1-_ms-1000x999-480.webp 480w, /maisonsabra/Awray-sac-1-_ms-1000x999-800.webp 800w", w: 800, h: 799, alt: "Un sac Bladi en cuir moutarde orné de tissu berbère rayé", fit: "contain" }),
+    sizes: "(min-width: 64rem) 36vw, 50vw",
+  },
+].filter(Boolean) as { c: HomeCollection; area: string; badge?: string; second?: boolean; img: Img; sizes: string }[];
+// CMS names can carry a « Collection » prefix; the tiles show the plain name, like Atar.
+const plain = (n: string) => n.replace(/^Collection\s+/i, "");
 const arrow = `<svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5"/></svg>`;
-const zoom = "transition-transform duration-[900ms] ease-(--ease-out) can-hover:group-hover/c:scale-[1.04]";
 ---
-{items.length > 0 && (
-<section id="collections" class="scroll-mt-16 bg-cream-soft pt-14 pb-16 lg:pt-24 lg:pb-28" aria-labelledby="collections-title">
+{tiles.length > 0 && (
+<section id="collections" class="scroll-mt-24 bg-ivory pt-16 pb-10 lg:pt-24 lg:pb-16" aria-labelledby="collections-title">
   <div class="mx-auto max-w-(--max) px-(--gutter)">
-    <div class="mx-auto mb-9 grid max-w-[40rem] justify-items-center gap-4 text-center lg:mb-14" data-reveal>
+    <div class="mb-8 grid max-w-[40rem] gap-3 lg:mb-12" data-reveal>
       <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>Les collections</p>
-      <h2 id="collections-title" class="text-balance text-step-2 leading-[1.05] font-semibold lg:text-[2.75rem]">Trois collections, une même histoire.</h2>
-      <p class="m-0 max-w-[44ch] text-balance text-ink-soft">Découvrez différentes expressions de notre héritage, entre tradition et modernité.</p>
+      <h2 id="collections-title" class="m-0 text-balance text-step-2 lg:text-[2.75rem]">Trois collections, une même histoire.</h2>
+      <p class="m-0 max-w-[46ch] text-ink-soft">Découvrez différentes expressions de notre héritage, entre tradition et modernité.</p>
     </div>
 
-    <ul class="-mx-(--gutter) m-0 flex snap-x snap-mandatory list-none gap-3 overflow-x-auto overscroll-x-contain scroll-px-(--gutter) px-(--gutter) pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0" aria-label="Nos collections">
-      {items.map((c, i) => {
-        const soon = c.comingSoon || !c.href;
+    <ul class="bento m-0 grid list-none gap-3 p-0 lg:gap-4" aria-label="Nos collections">
+      {tiles.map((t, i) => {
+        const href = t.c.href;
+        const label = t.second ? `${plain(t.c.name)} : une autre pièce de la collection` : `Collection ${plain(t.c.name)} : ${t.c.line}`;
         const body = (
           <>
-            <span class="relative block aspect-[4/5] w-full overflow-hidden rounded-[1.1rem] bg-cream-soft" style={c.tone && !c.image ? `background:${c.tone}` : undefined}>
-              {c.image && <img class={`size-full object-cover ${zoom}`} src={c.image.src} srcset={c.image.srcset} sizes="(min-width: 64rem) 30vw, 76vw" width={c.image.w ?? 800} height={c.image.h ?? 1000} alt={c.image.alt} loading={i === 0 ? "eager" : "lazy"} decoding="async" />}
-              {!c.image && c.slug === "zman" && <img class={`size-full object-cover ${zoom}`} src="/img/home/zman-480.webp" srcset="/img/home/zman-480.webp 480w, /img/home/zman-720.webp 720w" sizes="(min-width: 64rem) 30vw, 76vw" width="720" height="894" alt="Un sac Z’man en velours violet à motifs, tenu à la main avec sa chaîne dorée" loading="lazy" decoding="async" />}
-              {!c.image && c.slug === "bladi" && <img class={`size-full object-contain mix-blend-multiply ${zoom}`} src="/maisonsabra/Awray-sac-1-_ms-1000x999-800.webp" srcset="/maisonsabra/Awray-sac-1-_ms-1000x999-480.webp 480w, /maisonsabra/Awray-sac-1-_ms-1000x999-800.webp 800w" sizes="(min-width: 64rem) 30vw, 76vw" width="800" height="799" alt="Un sac Bladi en cuir moutarde orné de tissu berbère rayé" loading="lazy" decoding="async" />}
-              {!c.image && c.slug !== "zman" && c.slug !== "bladi" && (
-                <span class="absolute inset-0 bg-burgundy" aria-hidden="true">
-                  <svg class="size-full" viewBox="0 0 320 400" preserveAspectRatio="xMidYMid slice">
-                    <defs>
-                      <pattern id={`lattice-${c.slug}`} width="40" height="40" patternUnits="userSpaceOnUse"><g fill="none" stroke="#b08231" stroke-width="1" opacity=".38"><rect x="10" y="10" width="20" height="20"/><rect x="10" y="10" width="20" height="20" transform="rotate(45 20 20)"/></g></pattern>
-                    </defs>
-                    <rect width="320" height="400" fill={`url(#lattice-${c.slug})`}/>
-                    <path d="M92 400V196a68 68 0 0 1 136 0v204z" fill="#4d0206"/>
-                    <path d="M92 400V196a68 68 0 0 1 136 0v204" fill="none" stroke="#efc383" stroke-width="1.5"/>
-                  </svg>
-                </span>
-              )}
-              {soon && <span class="absolute top-3 left-3 inline-flex min-h-8 items-center gap-2 rounded-full bg-cream-soft px-3.5 text-[0.6875rem] font-semibold tracking-[0.12em] text-burgundy uppercase"><span class="size-1.5 rotate-45 bg-gold" aria-hidden="true"></span>Bientôt disponible</span>}
-            </span>
-            <span class="flex items-end justify-between gap-4 px-2.5 pt-4 pb-2">
+            <img class={`absolute inset-0 size-full transition-transform duration-[900ms] ease-(--ease-out) can-hover:group-hover/t:scale-[1.04] ${t.img.fit === "contain" ? "object-contain p-[8%] mix-blend-multiply" : "object-cover"}`} src={t.img.src} srcset={t.img.srcset} sizes={t.sizes} width={t.img.w} height={t.img.h} alt={t.img.alt} loading={i === 0 ? "eager" : "lazy"} decoding="async" />
+            {/* Legibility veil: only under the caption, so the bag stays clear. */}
+            {!t.img.fit && <span class="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-burgundy-deep/70 to-transparent" aria-hidden="true"></span>}
+            {t.badge && <span class="absolute top-4 left-4 inline-flex min-h-8 items-center gap-2 rounded-full bg-ivory/95 px-3.5 text-[0.6875rem] font-semibold tracking-[0.12em] text-burgundy uppercase"><span class="size-1.5 rotate-45 bg-gold" aria-hidden="true"></span>{t.badge}</span>}
+            <span class={`absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 min-[30rem]:p-5 lg:p-6 ${t.img.fit ? "text-burgundy" : "text-cream-soft"}`}>
               <span class="grid gap-1">
-                <span class="font-display text-[2rem] leading-none font-semibold text-burgundy"><span class="mr-3 align-middle font-body text-[0.6875rem] font-semibold tracking-[0.2em] text-gold">0{i + 1}</span>{c.name}</span>
-                <span class="max-w-[26ch] text-sm leading-snug text-ink-soft">{c.line}</span>
+                {!t.second && !t.badge && <span class={`text-[0.625rem] font-semibold tracking-[0.18em] uppercase ${t.img.fit ? "text-ink-soft" : "text-cream-soft/85"} ${t.area === "bladi" ? "max-[30rem]:hidden" : ""}`}>{t.c.short}</span>}
+                <span class={`font-display leading-none ${t.area === "atar" ? "text-[2.5rem] lg:text-[3.5rem]" : t.area === "zman" ? "text-[1.75rem] lg:text-[2.25rem]" : "text-[1.375rem] min-[30rem]:text-[1.75rem] lg:text-[2.25rem]"}`}>{t.second ? `${plain(t.c.name)} · noir` : plain(t.c.name)}</span>
+                {t.area === "atar" && <span class="max-w-[30ch] text-sm text-cream-soft/90">{t.c.line}</span>}
               </span>
-              {!soon && <span class="grid size-11 shrink-0 place-items-center rounded-full bg-burgundy text-cream-soft transition-colors duration-300 group-hover/c:bg-burgundy-deep" aria-hidden="true"><Fragment set:html={arrow} /></span>}
+              {href && <span class={`grid size-10 shrink-0 lg:size-11 place-items-center rounded-full transition-colors duration-300 ${t.img.fit ? "bg-burgundy text-cream-soft group-hover/t:bg-burgundy-deep" : "bg-cream-soft/95 text-burgundy group-hover/t:bg-white"}`} aria-hidden="true"><Fragment set:html={arrow} /></span>}
             </span>
           </>
         );
-        const cls = "group/c block w-[78%] shrink-0 snap-start rounded-[1.5rem] bg-cream p-2.5 text-burgundy no-underline min-[30rem]:w-[54%] lg:w-auto";
-        return <li class="contents" style={`--d:${0.1 * i}s`}>{!soon ? <a class={cls} href={c.href!} aria-label={c.cta ?? c.name}>{body}</a> : <div class={cls}>{body}</div>}</li>;
+        const cls = `group/t relative block size-full overflow-hidden rounded-xl ${t.img.fit ? "bg-card-beige" : "bg-burgundy-deep"} no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy`;
+        return (
+          <li class={`bento-${t.area}`} data-reveal style={`--d:${0.08 * i}s`}>
+            {href ? <a class={cls} href={href} aria-label={label}>{body}</a> : <div class={cls} role="group" aria-label={label}>{body}</div>}
+          </li>
+        );
       })}
     </ul>
   </div>
 </section>
 )}
+
+<style>
+  /* Phones: Atar leads full width, then Z'man and Bladi side by side. */
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "atar atar" "zman bladi"; }
+  .bento-atar { grid-area: atar; aspect-ratio: 4 / 5; }
+  .bento-zman { grid-area: zman; aspect-ratio: 3 / 4; }
+  .bento-bladi { grid-area: bladi; aspect-ratio: 3 / 4; }
+  /* Desktop: Atar leads, about 60 % of the width; Z'man and Bladi stacked on the right. */
+  @media (min-width: 64rem) {
+    .bento { grid-template-columns: 1.6fr 1fr; grid-template-rows: 21rem 21rem; grid-template-areas: "atar zman" "atar bladi"; }
+    .bento > li { aspect-ratio: auto; }
+  }
+</style>

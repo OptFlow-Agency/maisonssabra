@@ -40,7 +40,7 @@ export type CmsOffer = {
 export type CmsSettings = {
   store_name: string; tagline: string | null; announcement: string | null;
   contact: { phone: string | null; whatsapp: string | null; email: string | null; instagram: string | null };
-  shipping: { default_cost: number; free_from: number | null; delay: string | null };
+  shipping: { default_cost: number; free_from: number | null; delay: string | null; zones?: { name: string; cities: string[]; cost: number; free_above: number | null }[] };
   trust: { title: string; text: string | null; link_label: string | null; link_url: string | null }[];
   payment_methods: { key: string; label: string; description: string | null }[];
   returns: { window_days: number | null; summary: string | null };

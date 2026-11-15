@@ -33,6 +33,7 @@ const config = await loadStoreConfig();
   {!bare && <FloatingCart />}
   <CartDrawer />
   <Toast />
-  <WhatsAppButton text={whatsappText} number={config.whatsapp} />
+  {/* Focused pages (checkout, confirmation) skip the floating shortcuts so nothing covers the form; help is offered inline there. */}
+  {!bare && <WhatsAppButton text={whatsappText} number={config.whatsapp} />}
   <script type="application/json" id="store-config" set:html={JSON.stringify(config).replace(/</g, "\\u003c")} />
 </Base>

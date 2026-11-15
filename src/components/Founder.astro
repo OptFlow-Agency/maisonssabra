@@ -1,0 +1,42 @@
+---
+// Founder story. The portrait frame stays empty (a quiet placeholder) until the photo is supplied:
+// set `photo` below to { src, alt, w, h } and it fills the frame.
+const photo: { src: string; alt: string; w: number; h: number } | null = null;
+---
+<section class="overflow-hidden bg-ivory py-16 lg:py-28" aria-labelledby="founder-title">
+  <div class="mx-auto grid max-w-(--max) items-center gap-12 px-(--gutter) lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-20">
+    <!-- Portrait: a cream print, slightly turned inside a hairline gold frame. -->
+    <figure class="relative mx-auto m-0 w-[min(82%,24rem)] lg:mx-0 lg:w-[min(100%,24rem)]" data-reveal>
+      <span class="absolute -inset-3 rotate-[-2deg] border border-gold/50" aria-hidden="true"></span>
+      <div class="relative bg-[#f8f1e6] p-3 pb-5 shadow-[0_24px_40px_-28px_rgb(77_2_6/0.45)] ring-1 ring-gold/25">
+        <div class="relative aspect-[4/5] overflow-hidden bg-card-beige">
+          {photo ? (
+            <img class="absolute inset-0 size-full object-cover" src={photo.src} alt={photo.alt} width={photo.w} height={photo.h} loading="lazy" decoding="async" />
+          ) : (
+            <span class="absolute inset-0 grid place-items-center" aria-hidden="true">
+              <span class="block size-16 bg-gold/35 [mask:url(/img/logo-ms.png)_center/contain_no-repeat]"></span>
+            </span>
+          )}
+        </div>
+        <figcaption class="mt-4 grid justify-items-center gap-1 text-center">
+          <span class="font-display text-[1.375rem] leading-none text-burgundy">Bahija Benhamid</span>
+          <span class="text-[0.625rem] font-semibold tracking-[0.2em] text-rose-dusty uppercase">Fondatrice &amp; créatrice</span>
+        </figcaption>
+      </div>
+    </figure>
+
+    <div class="grid gap-6" data-reveal style="--d:.1s">
+      <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>Fondée par Bahija Benhamid</p>
+      <h2 id="founder-title" class="m-0 text-step-2 leading-[1.1] text-balance lg:text-[3rem]">L’Âme de Maison Sabra — <em class="text-rose-dusty">Notre Histoire</em></h2>
+      <p class="m-0 max-w-[60ch] text-ink-soft">Icône de création et gardienne du patrimoine marocain, Bahija Benhamid a fondé Maison Sabra avec une vision intemporelle : transformer le noble héritage artisanal de Fès et Marrakech en pièces de haute maroquinerie contemporaine.</p>
+      <p class="m-0 max-w-[60ch] text-ink-soft">Chaque sac naît d’une passion profonde pour le Tarz traditionnel, le velours de soie pourpre et le travail du cuir tanné au végétal. Plus qu’un accessoire, Maison Sabra est un pont entre générations, où chaque broderie et chaque point d’or racontent la patience, la dignité et l’excellence des femmes et artisans maîtres du Royaume.</p>
+      <div class="mt-2 flex items-end justify-between gap-6 border-t border-gold/30 pt-6">
+        <p class="m-0 grid gap-1">
+          <span class="font-display text-[1.5rem] leading-none text-burgundy italic">Bahija Benhamid</span>
+          <span class="text-[0.625rem] font-semibold tracking-[0.16em] text-ink-soft uppercase">Atelier Maison Sabra · Maroc</span>
+        </p>
+        <span class="block size-8 shrink-0 bg-burgundy/50 [mask:url(/img/logo-ms.png)_center/contain_no-repeat]" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+</section>

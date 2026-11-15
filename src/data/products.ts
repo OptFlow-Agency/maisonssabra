@@ -1,5 +1,19 @@
 export type Collection = "bladi" | "zman";
 
+/** Pre-sized renditions of a CMS image. Bundled images follow the `name-480.webp` convention instead. */
+export type Sizes = { 480?: string; 800?: string };
+
+/** A CMS variant (colour, size…): own price, photo and stock. */
+export type ProductVariant = {
+  name: string; color?: string; img?: string; price: number; was?: number;
+  /** False: sold out or switched off. Never inferred on the client. */
+  purchasable: boolean;
+  /** Units left, only when the CMS reports it as low (at or under its threshold). */
+  left?: number;
+};
+
+export type Benefit = { icon: string; title: string; text?: string };
+
 export type Product = {
   slug: string;
   name: string;
@@ -12,11 +26,25 @@ export type Product = {
   isNew?: boolean;
   collection: Collection;
   description?: string;
+  /** Units left, only present when the CMS reports stock as low. Absent: nothing is claimed about availability. */
+  stock?: number;
+  /** False when inventory is tracked and exhausted. Absent/true: can be bought. */
+  purchasable?: boolean;
+  /** Additional photos, in CMS order (img/img2 are the first two). */
+  gallery?: string[];
+  /** Active benefits in CMS order. Empty: the section is not shown. */
+  benefits?: Benefit[];
+  variants?: ProductVariant[];
+  /** Name of a live scheduled promotion, when the CMS has one. */
+  promoLabel?: string;
+  shortDescription?: string;
 };
 
 type Seed = Omit<Product, "collection">;
 
 const m = "/maisonsabra";
+// Z’man studio shots (3/4 view on a light ground) and worn photos, from the Z’man shoot.
+const z = "/assets/products";
 
 const bladiSeed: Seed[] = [
   { slug: "azerwal", name: "Sac Azerwal en cuir bleu ciel et tissu berbère", price: 549, was: 890, img: `${m}/Azerwal-sac-3-_ms-1000x999.webp`, img2: `${m}/alt/azerwal.webp`, alt: "Sac Azerwal en cuir bleu ciel, rabat clouté et tissu berbère rayé" },
@@ -25,14 +53,14 @@ const bladiSeed: Seed[] = [
 ];
 
 const zmanSeed: Seed[] = [
-  { slug: "zman-multicolore", name: "Sac Z’man – Tissu velours multicolore & dorures", price: 549, was: 890, img: `${m}/083A5723-_ms-1000x988.webp`, img2: `${m}/alt/multicolore.webp`, alt: "Sac Z’man en velours multicolore rehaussé de dorures, chaîne dorée" },
-  { slug: "zman-vert", name: "Sac Z’man – Velours vert & tissu doré", price: 549, was: 945, img: `${m}/083A5723ms-verte-_ms-1000x988.webp`, img2: `${m}/alt/vert.webp`, alt: "Sac Z’man en velours vert sur tissu doré, chaîne dorée" },
-  { slug: "zman-beige", name: "Sac Z’man – Velours beige brodé doré", price: 549, was: 949, img: `${m}/083A5723ms-blan-casser-_ms-1000x988.webp`, img2: `${m}/alt/beige.webp`, alt: "Sac Z’man en velours beige brodé de fils dorés, chaîne dorée" },
-  { slug: "zman-rouge", name: "Sac Z’man – Velours rouge & tissu doré", price: 549, was: 990, img: `${m}/083A5723ms-rouge-_ms-1000x988.webp`, alt: "Sac Z’man en velours rouge à motifs sur tissu doré, chaîne dorée" },
-  { slug: "zman-violet", name: "Sac Z’man – Violet royal & doré en velours relief", price: 549, was: 890, img: `${m}/083A5538-_ms-1000x988.webp`, img2: `${m}/alt/violet.webp`, alt: "Sac Z’man violet royal en velours relief doré, chaîne dorée", isNew: true },
+  { slug: "zman-multicolore", name: "Sac Z’man – Tissu velours multicolore & dorures", price: 549, was: 890, img: `${z}/multicolore-1.webp`, img2: `${z}/multicolore-3.webp`, alt: "Sac Z’man en velours multicolore rehaussé de dorures, chaîne dorée" },
+  { slug: "zman-vert", name: "Sac Z’man – Velours vert & tissu doré", price: 549, was: 945, img: `${z}/vert-3.webp`, img2: `${z}/vert-1.webp`, alt: "Sac Z’man en velours vert sur tissu doré, chaîne dorée" },
+  { slug: "zman-beige", name: "Sac Z’man – Velours beige brodé doré", price: 549, was: 949, img: `${z}/beige-5.webp`, img2: `${z}/beige-3.webp`, alt: "Sac Z’man en velours beige brodé de fils dorés, chaîne dorée" },
+  { slug: "zman-rouge", name: "Sac Z’man – Velours rouge & tissu doré", price: 549, was: 990, img: `${z}/rouge-4.webp`, img2: `${z}/rouge-2.webp`, alt: "Sac Z’man en velours rouge à motifs sur tissu doré, chaîne dorée" },
+  { slug: "zman-violet", name: "Sac Z’man – Violet royal & doré en velours relief", price: 549, was: 890, img: `${z}/violet-3.webp`, img2: `${z}/violet-1.webp`, alt: "Sac Z’man violet royal en velours relief doré, chaîne dorée", isNew: true },
 ];
 
-/** Bundled catalogue: used only when the CRM is unreachable (see lib/catalog.ts). */
+/** Bundled catalogue: used only when the CMS is unreachable (see lib/catalog.ts). */
 export const fallback: Product[] = [
   ...bladiSeed.map((p): Product => ({ ...p, collection: "bladi" })),
   ...zmanSeed.map((p): Product => ({ ...p, collection: "zman" })),
@@ -42,26 +70,15 @@ export const discount = (p: Product) => (p.was && p.was > p.price ? Math.round((
 
 /**
  * Resized copies of an image. The bundled photos follow a `name-480.webp` convention; images served by the
- * CRM have their own generated names, which `getCatalog()` registers here.
+ * CMS have their own generated names, which `fromCms()` registers here.
  */
-const sized = new Map<string, Partial<Record<"480" | "800", string>>>();
-export const registerSizes = (src: string, sizes: Partial<Record<"480" | "800", string>> | undefined) => {
-  if (sizes) sized.set(src, sizes);
+const sized = new Map<string, Sizes>();
+export const registerSizes = (src: string | undefined | null, sizes: Sizes | undefined) => {
+  if (src && sizes && (sizes[480] || sizes[800])) sized.set(src, sizes);
 };
-export const variant = (src: string, w: 480 | 800) => sized.get(src)?.[w] ?? src.replace(/\.webp$/, `-${w}.webp`);
+export const variant = (src: string, w: 480 | 800) =>
+  sized.get(src)?.[w] ?? (sized.has(src) || /^https?:/.test(src) ? src : src.replace(/\.webp$/, `-${w}.webp`));
 export const srcset = (src: string) => `${variant(src, 480)} 480w, ${variant(src, 800)} 800w, ${src} 1000w`;
 
-/** Muted colour field behind each product photo, echoing its colourway (studio shots are on white, so they multiply onto it). */
-const tones: [RegExp, string][] = [
-  [/azerwal|bleu/, "#a9c1d3"],
-  [/tazult|violet/, "#b9a6c9"],
-  [/awray|jaune|moutarde/, "#e2c262"],
-  [/vert/, "#a8ae7a"],
-  [/rouge/, "#d98d88"],
-  [/beige|blan/, "#ecd7ae"],
-  [/multicolore/, "#e4c7b0"],
-];
-export const tone = (p: Pick<Product, "slug" | "name">) => {
-  const k = `${p.slug} ${p.name}`.toLowerCase();
-  return tones.find(([re]) => re.test(k))?.[1] ?? "#d9c3ac";
-};
+/** Neutral ground behind product photos (gallery, variants, cart). No colour-matched tints: the bag's own colours carry the image. */
+export const tone = (_p?: Pick<Product, "slug" | "name">) => "#f4f2ef";

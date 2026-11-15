@@ -22,15 +22,27 @@ if (!blocks.length && cmsEnabled) {
   }
 }
 const cols = ["", "lg:grid-cols-1", "lg:grid-cols-2", "lg:grid-cols-3", "lg:grid-cols-4"][blocks.length];
+// One small line icon per message, matched on its wording; unknown topics get a neutral mark.
+const icons: [RegExp, string][] = [
+  [/paiement|payer|livraison.*r[ée]gl|cash/i, "M3 7h18v11H3z M3 11h18 M7 15h3"],
+  [/livraison|exp[ée]di|colis/i, "M2 6h12v10H2z M14 10h4l3 3v3h-7 M5 18.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0 M16 18.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0"],
+  [/retour|[ée]change|rembours/i, "M4 9h12a4 4 0 0 1 0 8h-3 M8 5L4 9l4 4"],
+  [/question|assistance|whatsapp|contact|conseil|aide/i, "M4 5h16v11H9l-5 4z M8 10h8"],
+];
+const icon = (b: Block) => icons.find(([re]) => re.test(`${b.title} ${b.text ?? ""}`))?.[1] ?? "M12 4l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z";
 ---
 {blocks.length > 0 && (
-  <section class="border-y border-dashed border-ink/25 bg-cream-soft py-12 lg:py-16" aria-label="Acheter en confiance">
-    <ul class:list={["m-0 mx-auto grid max-w-(--max) list-none gap-0 divide-y divide-dashed divide-ink/25 p-0 px-(--gutter) lg:divide-x lg:divide-y-0", cols]}>
+  <section class="border-y border-gold/30 bg-ivory py-8 lg:py-10" aria-labelledby="trust-title">
+    <h2 id="trust-title" class="sr-only">Acheter en confiance</h2>
+    <ul class:list={["m-0 mx-auto grid max-w-(--max) list-none grid-cols-1 gap-x-10 gap-y-6 p-0 px-(--gutter) min-[40rem]:grid-cols-2", cols]}>
       {blocks.map((b) => (
-        <li class="grid content-start gap-2 py-6 first:pt-0 last:pb-0 lg:px-8 lg:py-2 lg:first:pl-0 lg:last:pr-0">
-          <h2 class="m-0 text-[1.375rem] leading-tight">{b.title}</h2>
-          {b.text && <p class="m-0 max-w-[36ch] text-[0.9375rem] leading-snug text-ink-soft">{b.text}</p>}
-          {b.linkLabel && b.linkUrl && <a class="mt-1 inline-flex min-h-11 w-fit items-center text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href={b.linkUrl}>{b.linkLabel}</a>}
+        <li class="flex items-start gap-3.5">
+          <svg class="mt-0.5 size-5 shrink-0 text-burgundy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon(b)} /></svg>
+          <div class="grid gap-1">
+            <h3 class="m-0 font-body text-[0.875rem] leading-snug font-semibold tracking-normal text-ink">{b.title}</h3>
+            {b.text && <p class="m-0 max-w-[36ch] text-[0.8125rem] leading-snug text-ink-soft">{b.text}</p>}
+            {b.linkLabel && b.linkUrl && <a class="inline-flex min-h-11 w-fit items-center text-[0.75rem] font-semibold text-burgundy underline decoration-gold decoration-1 underline-offset-[0.4em] hover:text-rose-dusty" href={b.linkUrl}>{b.linkLabel}</a>}
+          </div>
         </li>
       ))}
     </ul>

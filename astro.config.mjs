@@ -7,5 +7,9 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   site: 'https://maisonsabra.ma',
   adapter: vercel(),
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    // Dev server only: allow ngrok tunnels (any subdomain) for previewing on real phones.
+    server: { allowedHosts: ['.ngrok-free.app'] },
+  },
 });

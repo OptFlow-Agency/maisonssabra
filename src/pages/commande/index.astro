@@ -1,108 +1,177 @@
 ---
 import Page from "../../layouts/Page.astro";
-import Breadcrumbs from "../../components/Breadcrumbs.astro";
-import { site } from "../../data/site";
+import { loadStoreConfig } from "../../lib/store";
+import { whatsappLink } from "../../data/site";
 
-const fields = [
-  { id: "first_name", label: "Prénom", autocomplete: "given-name", half: true },
-  { id: "last_name", label: "Nom", autocomplete: "family-name", half: true },
-  { id: "phone", label: "Téléphone", autocomplete: "tel", type: "tel", inputmode: "tel", hint: "Pour la livraison, par exemple 06 12 34 56 78" },
-  { id: "address", label: "Adresse", autocomplete: "street-address", hint: "Rue, numéro, quartier" },
-  { id: "city", label: "Ville", autocomplete: "address-level2" },
+export const prerender = false; // payment, delivery and zone data come from the CMS
+const config = await loadStoreConfig();
+
+// Orders are created as cash on delivery by the CMS (Orders → paymentMethod defaults to "cod"); configured methods win when present.
+const payments = config.payments.length ? config.payments : ["Paiement à la livraison"];
+const cities = [...new Set(config.zones.flatMap((z) => z.cities))].sort((a, b) => a.localeCompare(b, "fr"));
+const help = whatsappLink("Bonjour Maison Sabra, j’ai une question sur ma commande.", config.whatsapp);
+
+type Field = { id: string; label: string; autocomplete: string; placeholder: string; half?: boolean; type?: string; inputmode?: string; hint?: string; list?: string };
+const fields: Field[] = [
+  { id: "first_name", label: "Prénom", autocomplete: "given-name", placeholder: "", half: true },
+  { id: "last_name", label: "Nom", autocomplete: "family-name", placeholder: "", half: true },
+  { id: "phone", label: "Téléphone", autocomplete: "tel-national", placeholder: "06 12 34 56 78", type: "tel", inputmode: "tel", hint: "Pour vous joindre au sujet de votre livraison." },
+  { id: "city", label: "Ville", autocomplete: "address-level2", placeholder: "Casablanca", list: cities.length ? "cities" : undefined },
+  { id: "address", label: "Adresse de livraison", autocomplete: "street-address", placeholder: "Rue, numéro, quartier" },
 ];
+const tick = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
 ---
 <Page title="Finaliser ma commande | Maison Sabra" description="Renseignez vos coordonnées de livraison pour finaliser votre commande Maison Sabra." noindex bare>
-  <section class="bg-cream-soft pt-8 pb-20 min-[48rem]:pt-10 min-[48rem]:pb-28" aria-labelledby="checkout-title">
-    <div class="mx-auto max-w-(--max) px-(--gutter)">
-      <Breadcrumbs crumbs={[["Accueil", "/"], ["Boutique", "/boutique"], ["Commande", "/commande"]]} />
-      <h1 id="checkout-title" class="mt-8 mb-10 text-step-3 min-[48rem]:mb-14">Finaliser ma commande</h1>
+  <section class="bg-ivory pt-6 pb-16 min-[60rem]:pt-10 min-[60rem]:pb-24" aria-labelledby="checkout-title">
+    <div class="mx-auto max-w-[68rem] px-(--gutter)">
+      <div class="mb-6 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 min-[60rem]:mb-10">
+        <h1 id="checkout-title" class="m-0 text-step-2">Finaliser ma commande</h1>
+        <a class="text-sm text-ink-soft underline decoration-gold/60 underline-offset-4 hover:text-burgundy" href="/boutique">Continuer mes achats</a>
+      </div>
 
-      <div class="hidden max-w-[34rem] gap-5 border border-gold/55 bg-white p-8" data-empty>
+      <div class="hidden max-w-[34rem] gap-5 rounded-lg border border-gold/40 bg-white p-8" data-empty>
         <p class="m-0 font-display text-step-1 text-burgundy">Votre panier est vide</p>
         <p class="m-0 text-ink-soft">Ajoutez un sac pour passer commande.</p>
         <a class="btn justify-self-start" href="/boutique">Découvrir la boutique</a>
       </div>
 
-      <div class="grid gap-12 min-[60rem]:grid-cols-[1.1fr_1fr] min-[60rem]:items-start min-[60rem]:gap-20" data-checkout hidden>
-        <form class="grid gap-6" novalidate data-form aria-describedby="form-error">
-          <h2 class="text-step-1">Vos coordonnées</h2>
+      <div class="grid gap-6 min-[60rem]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] min-[60rem]:items-start min-[60rem]:gap-12" data-checkout hidden>
 
-          <p id="form-error" class="m-0 hidden border border-burgundy-deep bg-white p-4 text-burgundy-deep" role="alert" tabindex="-1" data-form-error></p>
+        <!-- Order summary: collapsible on phones (the total stays visible), always open and sticky on desktop. -->
+        <aside class="rounded-lg border border-gold/40 bg-white min-[60rem]:sticky min-[60rem]:top-28 min-[60rem]:col-start-2 min-[60rem]:row-start-1" aria-labelledby="summary-title">
+          <details class="group" data-summary-details>
+            <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-3 min-[60rem]:pointer-events-none min-[60rem]:px-7 min-[60rem]:pt-6 min-[60rem]:pb-2 [&::-webkit-details-marker]:hidden">
+              <span class="grid gap-0.5">
+                <h2 id="summary-title" class="m-0 font-display text-[1.375rem] leading-tight text-burgundy">Votre commande</h2>
+                <span class="text-[0.8125rem] text-ink-soft min-[60rem]:hidden"><span data-summary-count></span> · <span class="underline underline-offset-2 group-open:hidden">Voir le détail</span><span class="hidden underline underline-offset-2 group-open:inline">Masquer le détail</span></span>
+              </span>
+              <span class="text-lg font-semibold text-burgundy tabular-nums min-[60rem]:hidden" data-summary-total-mini></span>
+            </summary>
+            <div class="grid gap-4 px-5 pb-5 min-[60rem]:px-7 min-[60rem]:pb-7">
+              <ul class="m-0 list-none divide-y divide-gold/25 p-0" data-summary-lines></ul>
+              <button class="w-fit cursor-pointer border-0 bg-transparent p-0 text-sm text-burgundy underline decoration-gold underline-offset-4 hover:text-rose-dusty" type="button" data-cart-link>Modifier mon panier</button>
 
-          <div class="grid gap-x-5 gap-y-6 min-[30rem]:grid-cols-2">
-            {fields.map((f) => (
-              <div class={`grid content-start gap-2 ${f.half ? "" : "min-[30rem]:col-span-2"}`}>
-                <label class="field-label" for={f.id}>{f.label}</label>
-                <input class="field" id={f.id} name={f.id} type={f.type ?? "text"} inputmode={f.inputmode} autocomplete={f.autocomplete} required maxlength="300" aria-describedby={`${f.id}-msg`} />
-                <p id={`${f.id}-msg`} class="m-0 min-h-5 text-sm text-ink-soft" data-msg data-hint={f.hint ?? ""}>{f.hint}</p>
+              <form class="grid gap-2 border-t border-gold/30 pt-4" novalidate data-promo-form>
+                <label class="text-[0.8125rem] font-semibold text-ink" for="promo">Code promo</label>
+                <div class="flex gap-2">
+                  <input class="field min-h-11 min-w-0 flex-1 rounded-md tracking-[0.08em] uppercase" id="promo" name="promo" type="text" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Votre code" aria-describedby="promo-msg" />
+                  <button class="btn-ghost min-h-11 rounded-md px-4" type="submit" data-promo-btn>Appliquer</button>
+                </div>
+                <p id="promo-msg" class="m-0 min-h-5 text-sm text-ink-soft" role="status" data-promo-msg></p>
+              </form>
+
+              <dl class="m-0 grid gap-2 border-t border-gold/30 pt-4 text-sm tabular-nums">
+                <div class="flex justify-between gap-4"><dt class="text-ink-soft">Sous-total</dt><dd class="m-0" data-sum-sub></dd></div>
+                <div class="hidden justify-between gap-4 font-medium text-rose-dusty" data-discount-row><dt>Réduction <span data-discount-code></span></dt><dd class="m-0" data-discount-amount></dd></div>
+                <div class="flex justify-between gap-4"><dt class="text-ink-soft">Livraison</dt><dd class="m-0 text-right" data-sum-ship></dd></div>
+                <div class="mt-1 flex items-baseline justify-between gap-4 border-t border-gold/30 pt-3"><dt class="font-semibold tracking-[0.06em] text-ink uppercase" data-total-label>Total à payer</dt><dd class="m-0 text-[1.5rem] leading-none font-semibold text-burgundy" data-summary-total></dd></div>
+                <div class="hidden justify-end text-[0.8125rem] font-semibold text-rose-dusty" data-savings-row><dd class="m-0" data-savings></dd></div>
+              </dl>
+            </div>
+          </details>
+        </aside>
+
+        <form class="grid gap-8 min-[60rem]:col-start-1 min-[60rem]:row-start-1" novalidate data-form aria-describedby="form-error">
+          <p id="form-error" class="m-0 hidden rounded-md border border-burgundy-deep/60 bg-white p-4 text-sm text-burgundy-deep" role="alert" tabindex="-1" data-form-error></p>
+
+          <fieldset class="m-0 grid gap-5 border-0 p-0">
+            <legend class="mb-1 flex w-full items-baseline justify-between gap-4 p-0">
+              <span class="font-display text-[1.375rem] text-burgundy">Livraison</span>
+              <span class="text-[0.75rem] text-ink-soft">* obligatoire</span>
+            </legend>
+            <div class="grid gap-x-4 gap-y-5 min-[30rem]:grid-cols-2">
+              {fields.map((f) => (
+                <div class={`grid content-start gap-1.5 ${f.half ? "" : "min-[30rem]:col-span-2"}`}>
+                  <label class="text-[0.8125rem] font-semibold text-ink" for={f.id}>{f.label} <span class="text-rose-dusty" aria-hidden="true">*</span></label>
+                  <input class="field min-h-12 rounded-md" id={f.id} name={f.id} type={f.type ?? "text"} inputmode={f.inputmode as "tel" | undefined} autocomplete={f.autocomplete} placeholder={f.placeholder || undefined} list={f.list} required aria-required="true" maxlength="300" aria-describedby={`${f.id}-msg`} />
+                  <p id={`${f.id}-msg`} class="m-0 text-[0.8125rem] text-ink-soft empty:hidden" data-msg data-hint={f.hint ?? ""}>{f.hint}</p>
+                </div>
+              ))}
+              <div class="grid content-start gap-1.5 min-[30rem]:col-span-2">
+                <label class="text-[0.8125rem] font-semibold text-ink" for="notes">Informations complémentaires pour la livraison <span class="font-normal text-ink-soft">(facultatif)</span></label>
+                <textarea class="field min-h-20 rounded-md py-3" id="notes" name="notes" rows="2" maxlength="500" placeholder="Étage, point de repère, horaire préféré…"></textarea>
+              </div>
+            </div>
+            {cities.length > 0 && <datalist id="cities">{cities.map((c) => <option value={c} />)}</datalist>}
+          </fieldset>
+
+          <fieldset class="m-0 grid gap-3 border-0 p-0">
+            <legend class="mb-1 p-0 font-display text-[1.375rem] text-burgundy">Mode de paiement</legend>
+            {payments.map((m, i) => (
+              <div class="flex items-start gap-3 rounded-md border border-burgundy/40 bg-white p-4">
+                <span class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-[5px] border-burgundy" aria-hidden="true"></span>
+                <div class="grid gap-1">
+                  <p class="m-0 text-[0.9375rem] font-semibold text-ink">{m}{payments.length === 1 && <span class="sr-only"> (seul mode de paiement proposé)</span>}</p>
+                  {i === 0 && <p class="m-0 text-[0.8125rem] text-ink-soft">Réglez votre commande à la réception, selon les conditions de livraison applicables.</p>}
+                </div>
               </div>
             ))}
-          </div>
+          </fieldset>
 
           <div class="absolute -left-[9999px]" aria-hidden="true">
             <label>Ne pas remplir <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
           </div>
 
-          <button class="btn justify-center disabled:cursor-wait disabled:opacity-70" type="submit" data-submit>
-            <span data-submit-label>Confirmer ma commande</span>
-          </button>
-        </form>
-
-        <aside class="order-first grid gap-6 border border-gold/55 bg-white p-6 min-[48rem]:p-8 min-[60rem]:order-none min-[60rem]:sticky min-[60rem]:top-28" aria-labelledby="summary-title">
-          <div class="flex items-baseline justify-between gap-4">
-            <h2 id="summary-title" class="text-step-1">Votre commande</h2>
-            <a class="text-sm text-ink-soft underline underline-offset-4 hover:text-rose-dusty" href="/commande" data-cart-link>Modifier</a>
+          <div class="grid gap-3">
+            <p class="m-0 flex items-baseline justify-between gap-4 tabular-nums" aria-live="polite">
+              <span class="text-sm text-ink-soft" data-cta-total-label>Total à payer</span>
+              <span class="text-[1.375rem] font-semibold text-burgundy" data-cta-total></span>
+            </p>
+            <button class="btn min-h-14 justify-center gap-3 disabled:cursor-wait disabled:opacity-70" type="submit" data-submit>
+              <span class="hidden size-4 animate-spin rounded-full border-2 border-cream-soft/40 border-t-cream-soft motion-reduce:animate-none" aria-hidden="true" data-spinner></span>
+              <span data-submit-label>Confirmer ma commande</span>
+            </button>
+            <ul class="m-0 grid list-none gap-1.5 p-0 text-[0.8125rem] text-ink-soft">
+              <li class="flex items-center gap-2"><span class="text-gold" set:html={tick}></span>{payments[0]} : rien à régler en ligne.</li>
+              {config.returnsPolicyUrl && <li class="flex items-center gap-2"><span class="text-gold" set:html={tick}></span><a class="text-ink-soft underline decoration-gold/60 underline-offset-2 hover:text-burgundy" href={config.returnsPolicyUrl} target="_blank" rel="noopener">Conditions de retour et d’échange</a></li>}
+              {help && <li class="flex items-center gap-2"><span class="text-gold" set:html={tick}></span><span>Une question ? <a class="text-ink-soft underline decoration-gold/60 underline-offset-2 hover:text-burgundy" href={help} target="_blank" rel="noopener">Écrivez-nous sur WhatsApp</a></span></li>}
+            </ul>
           </div>
-          <ul class="m-0 list-none divide-y divide-burgundy/15 p-0" data-summary-lines></ul>
-
-          <form class="grid gap-2 border-t border-gold/55 pt-5" novalidate data-promo-form>
-            <label class="field-label" for="promo">Code promo</label>
-            <div class="flex gap-2">
-              <input class="field min-w-0 flex-1 tracking-[0.08em] uppercase" id="promo" name="promo" type="text" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="promo-msg" />
-              <button class="btn-ghost min-h-13" type="submit" data-promo-btn>Appliquer</button>
-            </div>
-            <p id="promo-msg" class="m-0 min-h-5 text-sm text-ink-soft" role="status" data-promo-msg></p>
-          </form>
-
-          <p class="m-0 hidden items-baseline justify-between text-sm" data-discount-row>
-            <span>Réduction <span class="font-semibold tracking-[0.06em]" data-discount-code></span></span>
-            <span class="font-semibold tabular-nums" data-discount-amount></span>
-          </p>
-          <p class="m-0 flex items-baseline justify-between border-t border-gold/55 pt-5">
-            <span class="text-sm font-semibold tracking-[0.08em] uppercase">Total</span>
-            <span class="text-step-1 font-semibold text-burgundy tabular-nums" data-summary-total></span>
-          </p>
-          <p class="m-0 text-sm text-ink-soft" data-summary-ship>Livraison gratuite dès {site.freeShippingFrom.toLocaleString("fr-FR")} dhs.</p>
-        </aside>
+        </form>
       </div>
     </div>
   </section>
 </Page>
 
 <script>
-  import { getLines, subtotal, clearCart } from "../../scripts/cart";
-  import { crmReady, crmPost, crmErrorCode } from "../../lib/crm";
+  import { getBuyableLines as getLines, subtotal, clearCart, resyncCart } from "../../scripts/cart";
+  import { emptyConfig, getStoreConfig, shippingQuote, type StoreConfig } from "../../lib/store";
+  import { countBags, fmtMad, loadOffer, verify } from "../../lib/offer";
+  import { checkPromo as cmsCheckPromo, placeOrder, cmsEnabled, CmsError } from "../../lib/cms";
+  const fmt = fmtMad;
+  const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
 
-  const fmt = (n: number) => `${n.toLocaleString("fr-FR")} dhs`;
+  // Same delivery rule as the cart drawer and the CMS order hook (lib/store → shippingQuote), now with the city once typed.
+  let store: StoreConfig = emptyConfig;
+  getStoreConfig().then((c) => { store = c; renderSummary(); }).catch(() => {});
 
-  const empty = document.querySelector<HTMLElement>("[data-empty]")!;
-  const wrap = document.querySelector<HTMLElement>("[data-checkout]")!;
-  const form = document.querySelector<HTMLFormElement>("[data-form]")!;
-  const formError = form.querySelector<HTMLElement>("[data-form-error]")!;
-  const submit = form.querySelector<HTMLButtonElement>("[data-submit]")!;
-  const submitLabel = form.querySelector<HTMLElement>("[data-submit-label]")!;
-  const list = document.querySelector<HTMLElement>("[data-summary-lines]")!;
-  const total = document.querySelector<HTMLElement>("[data-summary-total]")!;
-  const promoForm = document.querySelector<HTMLFormElement>("[data-promo-form]")!;
-  const promoInput = promoForm.querySelector<HTMLInputElement>("#promo")!;
-  const promoBtn = promoForm.querySelector<HTMLButtonElement>("[data-promo-btn]")!;
-  const promoMsg = promoForm.querySelector<HTMLElement>("[data-promo-msg]")!;
-  const discountRow = document.querySelector<HTMLElement>("[data-discount-row]")!;
+  const empty = $("[data-empty]");
+  const wrap = $("[data-checkout]");
+  const form = $<HTMLFormElement>("[data-form]");
+  const formError = $("[data-form-error]");
+  const submit = $<HTMLButtonElement>("[data-submit]");
+  const submitLabel = $("[data-submit-label]");
+  const spinner = $("[data-spinner]");
+  const list = $("[data-summary-lines]");
+  const promoForm = $<HTMLFormElement>("[data-promo-form]");
+  const promoInput = $<HTMLInputElement>("#promo");
+  const promoBtn = $<HTMLButtonElement>("[data-promo-btn]");
+  const promoMsg = $("[data-promo-msg]");
+  const discountRow = $("[data-discount-row]");
+  const details = $<HTMLDetailsElement>("[data-summary-details]");
 
-  type Promo = { code: string; percent: number; discount: number };
+  // Desktop: the summary is always open. Phones: collapsed, with the total in view.
+  const wide = matchMedia("(min-width: 60rem)");
+  const syncOpen = () => { if (wide.matches) details.open = true; };
+  syncOpen(); wide.addEventListener("change", syncOpen);
+
+  type Promo = { code: string; percent: number; discount: number; auto?: boolean; label?: string };
   let promo: Promo | null = null;
   const payable = () => subtotal() - (promo?.discount ?? 0);
-  const items = () => getLines().map((l) => ({ slug: l.id, qty: l.qty }));
+  const items = () => getLines().map((l) => ({ slug: l.id, qty: l.qty, ...(l.variant ? { variant: l.variant } : {}) }));
+  const cityValue = () => (form.elements.namedItem("city") as HTMLInputElement).value;
+  const quote = () => shippingQuote(store, payable(), cityValue());
+  const toPay = () => payable() + (quote().cost ?? 0);
 
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text = "") => {
     const e = document.createElement(tag);
@@ -117,49 +186,65 @@ const fields = [
     empty.classList.toggle("hidden", has);
     empty.classList.toggle("grid", !has);
     wrap.hidden = !has;
+    const n = lines.reduce((k, l) => k + l.qty, 0);
+    $("[data-summary-count]").textContent = `${n} article${n > 1 ? "s" : ""}`;
     list.replaceChildren(...lines.map((l) => {
-      const li = el("li", "grid grid-cols-[4.5rem_1fr_auto] items-center gap-4 py-4");
-      const img = el("img", "size-18 bg-cream-soft object-cover");
-      img.src = l.img; img.alt = l.name; img.width = 72; img.height = 72;
-      const body = el("div", "grid gap-1");
-      body.append(el("p", "m-0 font-display text-lg leading-tight text-burgundy", l.name), el("p", "m-0 text-sm text-ink-soft tabular-nums", `Quantité : ${l.qty}`));
-      li.append(img, body, el("p", "m-0 font-semibold tabular-nums", fmt(l.price * l.qty)));
+      const li = el("li", "grid grid-cols-[4rem_1fr_auto] items-center gap-3 py-3");
+      const frame = el("span", "relative block");
+      const img = el("img", "size-16 rounded-md bg-[#f4f2ef] object-cover");
+      img.src = l.img; img.alt = ""; img.width = 64; img.height = 64;
+      const badge = el("span", "absolute -top-1.5 -right-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-burgundy px-1 text-[0.6875rem] font-semibold text-cream-soft tabular-nums", String(l.qty));
+      badge.setAttribute("aria-hidden", "true");
+      frame.append(img, badge);
+      const body = el("div", "grid min-w-0 gap-0.5");
+      body.append(el("p", "m-0 line-clamp-2 text-[0.875rem] leading-snug font-medium text-ink", l.name));
+      body.append(el("p", "m-0 text-[0.75rem] text-ink-soft tabular-nums", `${l.variant ? `${l.variant} · ` : ""}${l.qty} × ${fmt(l.price)}`));
+      li.append(frame, body, el("p", "m-0 text-sm font-semibold tabular-nums", fmt(l.price * l.qty)));
       return li;
     }));
-    total.textContent = fmt(payable());
-    submitLabel.textContent = has ? `Confirmer ma commande · ${fmt(payable())}` : "Confirmer ma commande";
+
+    const q = quote();
+    $("[data-sum-sub]").textContent = fmt(subtotal());
+    $("[data-sum-ship]").textContent = q.label;
+    const label = q.cost == null ? "Total hors livraison" : "Total à payer";
+    $("[data-total-label]").textContent = label;
+    $("[data-cta-total-label]").textContent = `${label} :`;
+    for (const s of ["[data-summary-total]", "[data-summary-total-mini]", "[data-cta-total]"]) $(s).textContent = fmt(toPay());
     discountRow.classList.toggle("hidden", !promo);
     discountRow.classList.toggle("flex", !!promo);
     if (promo) {
-      discountRow.querySelector("[data-discount-code]")!.textContent = `${promo.code} (−${promo.percent} %)`;
-      discountRow.querySelector("[data-discount-amount]")!.textContent = `−${fmt(promo.discount)}`;
+      $("[data-discount-code]").textContent = promo.auto ? `${promo.label ?? "Offre"} (−${promo.percent} %)` : `${promo.code} (−${promo.percent} %)`;
+      $("[data-discount-amount]").textContent = `−${fmt(promo.discount)}`;
     }
-    promoInput.disabled = !!promo;
-    promoBtn.textContent = promo ? "Retirer" : "Appliquer";
+    const savingsRow = $("[data-savings-row]");
+    savingsRow.classList.toggle("hidden", !promo?.discount);
+    savingsRow.classList.toggle("flex", !!promo?.discount);
+    $("[data-savings]").textContent = promo?.discount ? `Vous économisez ${fmt(promo.discount)}` : "";
+    promoInput.disabled = !!promo && !promo.auto;
+    promoBtn.textContent = promo && !promo.auto ? "Retirer" : "Appliquer";
   }
 
-  /* ---------- Promo code ---------- */
+  /* ---------- Promo code (one discount at a time: a code replaces the automatic offer, removing it brings the offer back) ---------- */
   const say = (text: string, bad = false) => {
     promoMsg.textContent = text;
     promoMsg.className = `m-0 min-h-5 text-sm ${bad ? "font-medium text-burgundy-deep" : "text-ink-soft"}`;
     promoInput.toggleAttribute("aria-invalid", bad);
   };
   async function checkPromo(code: string): Promise<Promo | null> {
-    const res = await crmPost("/promo", { code, items: items() });
-    if (!res.ok) throw new Error(String(res.status));
-    const r = (await res.json()) as { percent: number; discount: number } | null;
+    // Throws when the CMS can't be reached; null when the code isn't valid for this cart.
+    const r = await cmsCheckPromo(code, items());
     return r ? { code, ...r } : null;
   }
   promoForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (promo) { promo = null; promoInput.value = ""; say(""); renderSummary(); promoInput.focus(); return; }
+    if (promo && !promo.auto) { promo = null; promoInput.value = ""; say("Code retiré."); renderSummary(); promoInput.focus(); syncBundle(); return; }
     const code = promoInput.value.trim().toUpperCase();
     if (!code) { say("Saisissez votre code promo.", true); promoInput.focus(); return; }
-    if (!crmReady) { say("Les codes promo sont momentanément indisponibles.", true); return; }
+    if (!cmsEnabled) { say("Les codes promo sont momentanément indisponibles.", true); return; }
     promoBtn.disabled = true; promoBtn.textContent = "Vérification…";
     try {
       const r = await checkPromo(code);
-      if (r) { promo = r; say(`Code appliqué : −${fmt(r.discount)}.`); }
+      if (r) { promo = r; bundleSeq++; say(`Code appliqué : −${fmt(r.discount)}.`); }
       else say("Ce code n’est pas valide pour les produits de votre panier.", true);
     } catch { say("Impossible de vérifier le code. Réessayez.", true); }
     promoBtn.disabled = false;
@@ -167,20 +252,47 @@ const fields = [
   });
   // The cart can change while a code is applied (drawer): keep the discount honest.
   async function refreshPromo() {
-    if (!promo) return;
+    if (!promo || promo.auto) return;
     try { const r = await checkPromo(promo.code); promo = r; say(r ? `Code appliqué : −${fmt(r.discount)}.` : "Ce code ne s’applique plus à votre panier.", !r); } catch { /* keep the last known discount; the server recomputes at checkout */ }
     renderSummary();
   }
+  // Quantity offer defined in the CMS: same server check as the cart drawer (POST /promo), applied on its own while no other code is in use.
+  let bundleSeq = 0;
+  async function syncBundle() {
+    if (promo && !promo.auto) return;
+    const my = ++bundleSeq;
+    const lines = getLines();
+    const cfg = await loadOffer();
+    let r = null;
+    if (cfg && lines.length && countBags(lines, cfg) >= cfg.quantity) r = await verify(cfg, items());
+    if (my !== bundleSeq || (promo && !promo.auto)) return;
+    const hadAuto = promoMsg.dataset.auto === "1";
+    promo = cfg && r ? { code: cfg.code, ...r, auto: true, label: cfg.title } : null;
+    if (promo && cfg) say(`${cfg.title} appliquée : −${fmt(promo.discount)}.`); else if (hadAuto) say("");
+    promoMsg.dataset.auto = promo ? "1" : "";
+    renderSummary();
+  }
   renderSummary();
-  document.addEventListener("cart:change", () => { renderSummary(); refreshPromo(); });
+  syncBundle();
+  document.addEventListener("cart:change", () => { renderSummary(); refreshPromo(); syncBundle(); });
 
-  /* ---------- Validation ---------- */
+  /* ---------- Fields: validation, phone normalisation, draft kept across reloads and failures ---------- */
+  // Same canonical form as the CMS (utilities/phone.ts): 0612345678.
+  const normalizePhone = (raw: string) => {
+    const s = raw.replace(/[\s.\-()‎‏ ]/g, "");
+    let rest: string | null = null;
+    if (s.startsWith("+212")) rest = s.slice(4);
+    else if (s.startsWith("00212")) rest = s.slice(5);
+    else if (/^212\d{9}$/.test(s)) rest = s.slice(3);
+    return rest !== null ? (rest.startsWith("0") ? rest : `0${rest}`) : s;
+  };
+  const prettyPhone = (p: string) => (/^0\d{9}$/.test(p) ? p.replace(/(\d{2})(?=\d)/g, "$1 ").trim() : p);
   const rules: Record<string, (v: string) => string> = {
     first_name: (v) => (v.length < 2 ? "Saisissez votre prénom." : ""),
     last_name: (v) => (v.length < 2 ? "Saisissez votre nom." : ""),
-    phone: (v) => (v.replace(/[\s.\-()]/g, "").match(/^(\+?212|0)[5-7]\d{8}$/) ? "" : "Saisissez un numéro marocain valide, par exemple 06 12 34 56 78."),
-    address: (v) => (v.length < 5 ? "Saisissez votre adresse complète : rue, numéro, quartier." : ""),
+    phone: (v) => (/^0[5-7]\d{8}$/.test(normalizePhone(v)) ? "" : "Saisissez un numéro marocain valide, par exemple 06 12 34 56 78."),
     city: (v) => (v.length < 2 ? "Saisissez votre ville." : ""),
+    address: (v) => (v.length < 5 ? "Précisez votre adresse : rue, numéro, quartier." : ""),
   };
   const input = (id: string) => form.elements.namedItem(id) as HTMLInputElement;
   const message = (id: string) => form.querySelector<HTMLElement>(`#${id}-msg`)!;
@@ -188,73 +300,91 @@ const fields = [
   function check(id: string): boolean {
     const i = input(id), m = message(id);
     const err = rules[id](i.value.trim());
-    if (err) { i.setAttribute("aria-invalid", "true"); m.textContent = err; m.className = "m-0 min-h-5 text-sm font-medium text-burgundy-deep"; }
-    else { i.removeAttribute("aria-invalid"); m.textContent = m.dataset.hint ?? ""; m.className = "m-0 min-h-5 text-sm text-ink-soft"; }
+    if (err) { i.setAttribute("aria-invalid", "true"); m.textContent = err; m.className = "m-0 text-[0.8125rem] font-medium text-burgundy-deep empty:hidden"; }
+    else { i.removeAttribute("aria-invalid"); m.textContent = m.dataset.hint ?? ""; m.className = "m-0 text-[0.8125rem] text-ink-soft empty:hidden"; }
     return !err;
   }
   Object.keys(rules).forEach((id) => {
-    input(id).addEventListener("blur", () => { if (input(id).value) check(id); });
+    input(id).addEventListener("blur", () => {
+      if (id === "phone" && input(id).value) { const n = normalizePhone(input(id).value); if (/^0[5-7]\d{8}$/.test(n)) input(id).value = prettyPhone(n); }
+      if (input(id).value) check(id);
+    });
     input(id).addEventListener("input", () => { if (input(id).getAttribute("aria-invalid")) check(id); });
   });
+  input("city").addEventListener("change", renderSummary);
+  input("city").addEventListener("input", () => { if (store.zoned) renderSummary(); });
+
+  // Draft: what was typed survives a reload or a failed attempt (this tab only; cleared once the order is saved).
+  const DRAFT = "ms-checkout-draft";
+  const saved = (() => { try { return JSON.parse(sessionStorage.getItem(DRAFT) || "{}"); } catch { return {}; } })();
+  [...Object.keys(rules), "notes"].forEach((id) => {
+    const f = form.elements.namedItem(id) as HTMLInputElement | HTMLTextAreaElement;
+    if (saved[id] && !f.value) f.value = saved[id];
+    f.addEventListener("input", () => { try { saved[id] = f.value; sessionStorage.setItem(DRAFT, JSON.stringify(saved)); } catch {} });
+  });
+  if (saved.city) renderSummary();
 
   const showError = (text: string) => { formError.textContent = text; formError.classList.remove("hidden"); formError.focus(); };
+  const busy = (on: boolean) => {
+    submit.disabled = on;
+    spinner.classList.toggle("hidden", !on);
+    submitLabel.textContent = on ? "Envoi en cours…" : "Confirmer ma commande";
+  };
 
+  /* ---------- Submission: one request at a time; the CMS re-prices everything and is the only source of the final amount ---------- */
+  let sending = false;
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (sending) return;
     formError.classList.add("hidden");
     const bad = Object.keys(rules).filter((id) => !check(id));
     if (bad.length) { showError(`Veuillez corriger ${bad.length > 1 ? "les champs signalés" : "le champ signalé"} avant de confirmer.`); input(bad[0]).focus(); return; }
     if ((form.elements.namedItem("website") as HTMLInputElement).value) { location.assign("/commande/merci"); return; } // honeypot
 
-    if (!crmReady) { showError("La commande en ligne est momentanément indisponible. Merci de réessayer plus tard."); return; }
+    if (!cmsEnabled) { showError("La commande en ligne est momentanément indisponible. Merci de réessayer plus tard."); return; }
+    if (!getLines().length) { showError("Aucun article de votre panier n’est encore disponible."); return; }
 
-    submit.disabled = true;
-    submitLabel.textContent = "Envoi en cours…";
+    sending = true;
+    busy(true);
     try {
-      const q = new URLSearchParams(location.search);
-      const res = await crmPost("/orders", {
+      const notes = (form.elements.namedItem("notes") as HTMLTextAreaElement).value.trim();
+      const { order_number } = await placeOrder({
         firstName: input("first_name").value.trim(),
         lastName: input("last_name").value.trim(),
-        phone: input("phone").value.trim(),
+        phone: normalizePhone(input("phone").value.trim()),
         address: input("address").value.trim(),
         city: input("city").value.trim(),
+        ...(notes ? { notes } : {}),
         items: items(),
         source: "store",
-        attribution: {
-          landingPage: location.pathname,
-          referrer: document.referrer || undefined,
-          utmSource: q.get("utm_source") || undefined,
-          utmMedium: q.get("utm_medium") || undefined,
-          utmCampaign: q.get("utm_campaign") || undefined,
-          fbclid: q.get("fbclid") || undefined,
-        },
         ...(promo ? { promo: promo.code } : {}),
       });
-      if (!res.ok) {
-        const code = await crmErrorCode(res);
-        if (code === "invalid_items") {
-          showError("Un article de votre panier n’est plus disponible. Rafraîchissez la page puis vérifiez votre panier.");
-          submit.disabled = false;
-          renderSummary();
-          return;
-        }
-        if (code === "invalid_promo") {
-          promo = null; promoInput.value = "";
-          say("Ce code n’est plus valide. Il a été retiré de votre commande.", true);
-          renderSummary();
-          showError("Le code promo n’est plus valide : le total a été mis à jour. Vérifiez-le puis confirmez à nouveau.");
-          submit.disabled = false;
-          return;
-        }
-        throw new Error(String(res.status));
-      }
-      const { order_number } = (await res.json()) as { order_number: number };
+      // Success only once the CMS has saved the order and returned its number.
+      try { sessionStorage.removeItem(DRAFT); } catch {}
       clearCart();
       location.assign(`/commande/merci?n=${encodeURIComponent(order_number)}`);
-    } catch {
-      showError("Votre commande n’a pas pu être envoyée. Votre panier est conservé : vérifiez votre connexion puis réessayez.");
-      submit.disabled = false;
-      renderSummary();
+      return;
+    } catch (e) {
+      const code = e instanceof CmsError ? e.code : "";
+      sending = false;
+      busy(false);
+      if (code === "invalid_promo") {
+        promo = null; promoInput.value = "";
+        say("Ce code n’est plus valide. Il a été retiré de votre commande.", true);
+        renderSummary(); syncBundle();
+        showError("Le code promo n’est plus valide : le total a été mis à jour. Vérifiez-le puis confirmez à nouveau.");
+        return;
+      }
+      if (code === "out_of_stock" || code === "insufficient_stock" || code === "invalid_items") {
+        showError(code === "insufficient_stock" ? "La quantité demandée n’est plus disponible pour un des articles. Ajustez votre panier puis confirmez à nouveau." : "Un article de votre panier n’est plus disponible. Votre panier a été mis à jour : vérifiez-le puis confirmez à nouveau.");
+        resyncCart(); // re-reads the catalogue and flags what can no longer be bought
+        return;
+      }
+      if (code === "invalid_phone") { check("phone"); showError("Saisissez un numéro marocain valide, par exemple 06 12 34 56 78."); input("phone").focus(); return; }
+      if (code === "invalid_customer") { showError("Vérifiez vos coordonnées : prénom, nom, ville et adresse sont nécessaires à la livraison."); return; }
+      if (e instanceof CmsError) { showError("Votre commande n’a pas pu être enregistrée. Votre panier et vos informations sont conservés : réessayez dans un instant."); return; }
+      // No answer from the server (connection lost, timeout): the order may or may not have been saved. Say so plainly, so a retry is a conscious choice.
+      showError("La connexion a été interrompue avant la confirmation. Votre commande a peut-être été enregistrée : avant de réessayer, contactez-nous pour vérifier, afin d’éviter une commande en double.");
     }
   });
 </script>

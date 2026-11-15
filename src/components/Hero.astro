@@ -1,131 +1,259 @@
 ---
-import { fallback, tone } from "../data/products";
-const names: Record<string, string> = { "zman-multicolore": "Multicolore", "zman-vert": "Vert", "zman-beige": "Beige", "zman-rouge": "Rouge", "zman-violet": "Violet" };
-const files: Record<string, string> = { "zman-multicolore": "multicolore", "zman-vert": "vert", "zman-beige": "beige", "zman-rouge": "rouge", "zman-violet": "violet" };
-const options = fallback
-  .filter((p) => p.collection === "zman")
-  .map((p) => ({
-    slug: p.slug,
-    color: names[p.slug] ?? p.slug,
-    desc: p.name.replace(/^Sac Z’man\s*[–-]\s*/, ""),
-    price: p.price,
-    alt: p.alt,
-    src: `/img/hero/${files[p.slug]}.webp`,
-    tint: tone(p),
-  }));
-const start = options.find((o) => o.slug === "zman-rouge") ?? options[0];
-const letters = ["S", "A", "B", "R", "A"];
+import { collections } from "../data/collections";
+
+// Two scenes in the same arcade: the heritage piece in a caftan, then the same craft in a modern, everyday wardrobe.
+const slides = [
+  {
+    key: "tradition",
+    label: "Tradition",
+    eyebrow: "Maison Sabra · Fait main au Maroc",
+    line1: "L’héritage marocain",
+    line2: "porté avec élégance.",
+    lead: "Des créations artisanales inspirées du patrimoine marocain, façonnées à la main dans nos ateliers.",
+    img: "/img/hero/model.webp", img640: "/img/hero/model-640.webp", w: 1024, h: 1535,
+    alt: "Une femme en caftan bordeaux brodé d’or porte un sac Z’man en velours multicolore à chaîne dorée",
+    cls: "h-[88%] bottom-0",
+  },
+  {
+    key: "modern",
+    label: "Au quotidien",
+    eyebrow: "Maison Sabra · Pour chaque jour",
+    line1: "L’artisanat marocain",
+    line2: "pour la femme d’aujourd’hui.",
+    lead: "Du bureau aux soirées en ville, nos sacs accompagnent vos journées avec l’allure d’une pièce faite main.",
+    img: "/img/hero/model-modern.webp", img640: "/img/hero/model-modern-640.webp", w: 1024, h: 1536,
+    alt: "Une femme en tailleur noir marche en ville, un sac en cuir camel orné de tissu berbère à la main",
+    // Full-length photo: scaled up and dropped below the frame so she is cropped under the bag, framed like the caftan scene.
+    cls: "h-[100%] -bottom-[14%]",
+  },
+];
 ---
-<section class="hero relative isolate overflow-hidden grid grid-cols-2 items-end h-[clamp(640px,calc(100svh-var(--header-h)),960px)] px-(--gutter) pb-10 bg-white border-b border-gold/35 [--f:clamp(8rem,22vw,24rem)] max-[1025px]:[--f:24vw] max-[1025px]:h-auto max-[1025px]:min-h-160 max-[1025px]:items-start max-[1025px]:pb-9 max-[769px]:flex max-[769px]:flex-col max-[769px]:items-stretch max-[769px]:pb-7" aria-labelledby="hero-title" data-hero style={`--glow: ${start.tint}`}>
-  <div class="hero-stage absolute z-0 inset-x-0 top-0 flex flex-col items-center pt-[clamp(70px,12vh,140px)] pointer-events-none max-[1025px]:relative max-[1025px]:inset-auto max-[1025px]:col-span-full max-[1025px]:row-start-1 max-[1025px]:-mx-(--gutter) max-[1025px]:pb-7 max-[769px]:pt-7 max-[769px]:pb-0">
-    <p class="hero-wordmark relative z-0 m-0 flex font-display font-medium text-[length:var(--f)] leading-[.8] tracking-[.06em] pl-[.06em] text-burgundy select-none transition-transform duration-600 ease-(--ease-out) motion-reduce:transition-none [&_span]:block" aria-hidden="true">{letters.map((l, i) => <span style={`--i:${i}`}>{l}</span>)}</p>
+<!--
+  House-level hero, two scenes. Desktop: the model walks across the riad arcade, left of centre; the copy sits in a right-hand
+  column with the button and collections beneath; a faint wordmark runs behind. Phones: the scene becomes a portrait band,
+  copy below on ivory. Scenes alternate automatically (held only while off screen or in a hidden tab; a plain fade under reduced motion).
+  Scroll motion runs on the shared Lenis instance (scripts/smooth.ts).
+-->
+<section class="hero relative isolate overflow-hidden -mt-(--header-h) h-[clamp(680px,100svh,1000px)] bg-ivory border-b border-gold/35" aria-labelledby="hero-title" aria-roledescription="carrousel" data-hero data-active="0">
+  <div class="hero-scene absolute inset-0 -z-1">
+    <div class="hero-media absolute inset-0 overflow-hidden" aria-hidden="true">
+      <img
+        class="hero-bg absolute inset-0 size-full object-cover object-[50%_100%] will-change-transform"
+        src="/img/hero/arches.webp"
+        srcset="/img/hero/arches-960.webp 960w, /img/hero/arches.webp 1584w"
+        sizes="100vw"
+        width="1584" height="672"
+        alt=""
+        loading="eager"
+        decoding="async"
+        data-hero-bg
+      />
+      <!-- Ivory wash, stronger on the right: quiets the arcade behind the copy so the model and the title lead. -->
+      <span class="hero-wash absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_srgb,var(--color-ivory)_8%,transparent)_0%,color-mix(in_srgb,var(--color-ivory)_30%,transparent)_45%,color-mix(in_srgb,var(--color-ivory)_80%,transparent)_100%)]"></span>
+    </div>
 
-    <a class="hero-bag relative z-1 block w-[min(42vw,700px)] mt-[calc(var(--f)*-.3)] pointer-events-auto transition-transform duration-600 ease-(--ease-out) motion-reduce:transition-none max-[1025px]:w-[60vw] max-[769px]:w-[80vw] max-[769px]:mt-[calc(var(--f)*-.2)] focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" href={`/produit/${start.slug}`} data-bag-link aria-label={`Découvrir le sac Z’man ${start.color.toLowerCase()}`}>
-      <span class="hero-glow absolute -z-1 left-1/2 top-[46%] w-[125%] aspect-square -translate-1/2 bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--glow)_42%,transparent),transparent_72%)] opacity-55 transition-[background] duration-600" aria-hidden="true"></span>
-      <span class="hero-floor absolute -z-1 left-1/2 -bottom-[2%] w-[78%] h-[9%] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--color-burgundy-deep)_26%,transparent),transparent)] blur-[7px]" aria-hidden="true"></span>
-      <span class="hero-bag-float relative block aspect-1000/740">
-        {options.map((o) => (
-          <img
-            class:list={["hero-bag-img absolute inset-0 size-full object-contain opacity-0 [&.is-active]:opacity-100 transition-opacity duration-400 ease-in-out motion-reduce:duration-200", { "is-active": o.slug === start.slug }]}
-            data-slug={o.slug}
-            src={o.slug === start.slug ? o.src : undefined}
-            data-src={o.src}
-            width="1000" height="740"
-            alt={o.slug === start.slug ? o.alt : ""}
-            data-alt={o.alt}
-            fetchpriority={o.slug === start.slug ? "high" : undefined}
-            loading={o.slug === start.slug ? "eager" : undefined}
-            sizes="(max-width: 768px) 80vw, (max-width: 1024px) 60vw, min(42vw, 700px)"
-            srcset={o.slug === start.slug ? `${o.src.replace(".webp", "-480.webp")} 480w, ${o.src.replace(".webp", "-800.webp")} 800w, ${o.src} 1000w` : undefined}
-            decoding="async"
-          />
-        ))}
-      </span>
-    </a>
-  </div>
+    <p class="hero-wordmark pointer-events-none absolute inset-x-0 top-[calc(var(--header-h)+2vh)] m-0 select-none text-center font-display text-[clamp(5rem,15vw,15rem)] leading-none whitespace-nowrap text-burgundy/[.07] uppercase will-change-transform" aria-hidden="true" data-hero-wordmark>Maison Sabra</p>
 
-  <div class="hero-copy relative z-2 col-start-1 max-w-100 max-[1025px]:row-start-2 max-[1025px]:col-span-full max-[769px]:order-1 max-[769px]:max-w-none max-[769px]:mt-5">
-    <p class="hero-eyebrow m-0 mb-3.5 text-burgundy text-[.6875rem] font-semibold tracking-[.16em] uppercase">Collection Z’man</p>
-    <h1 id="hero-title" class="m-0 text-burgundy text-[clamp(2rem,3.6vw,3.5rem)] leading-[1.02] tracking-[-.02em] text-balance [&_em]:font-medium">Éclats de <em>Tradition.</em></h1>
-    <p class="hero-lead max-w-[32ch] mt-4 mb-[22px] text-ink-soft text-sm leading-7">Des créations artisanales inspirées du patrimoine marocain.</p>
-    <a class="hero-cta inline-flex items-center gap-3.5 min-h-11 text-burgundy text-[.8125rem] font-semibold underline decoration-1 underline-offset-8 decoration-gold transition-[text-decoration-color,gap] duration-300 ease-(--ease-out) hover:gap-5 hover:decoration-burgundy motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" href="/boutique">Découvrir la collection <span aria-hidden="true">→</span></a>
-  </div>
-
-  <div class="hero-pick relative z-2 col-start-2 justify-self-end w-[min(100%,20rem)] text-right flex flex-col items-end max-[1025px]:row-start-3 max-[1025px]:col-span-full max-[1025px]:justify-self-start max-[1025px]:items-start max-[1025px]:text-left max-[1025px]:mt-6 max-[769px]:order-2 max-[769px]:w-full max-[769px]:mt-[26px] max-[769px]:pt-5 max-[769px]:border-t max-[769px]:border-gold/35" aria-label="La pièce à l’honneur">
-    <p class="hero-pick-name m-0 max-w-[24ch] text-ink-soft text-[.8125rem] leading-[1.6]" data-name>{start.desc}</p>
-    <a class="hero-pick-price inline-flex items-center gap-3 min-h-11 mt-1 mb-3.5 text-burgundy text-xl no-underline [&_b]:font-medium [&_span]:inline-flex [&_span]:gap-1.5 [&_span]:items-baseline [&_svg]:transition-transform [&_svg]:duration-300 hover:[&_svg]:translate-x-[3px] hover:[&_svg]:-translate-y-[3px] motion-reduce:[&_svg]:transition-none focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" href={`/produit/${start.slug}`} data-price-link aria-label={`Voir le sac Z’man ${start.color.toLowerCase()}`}>
-      <span><b data-price>{start.price}</b> dhs</span>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 19L19 5M5 5h14v14" /></svg>
-    </a>
-    <p class="hero-pick-label m-0 mb-2.5 text-ink-soft text-[.6875rem]" id="hero-swatch-label">À chaque allure, son coloris.</p>
-    <ul class="hero-swatches flex gap-2 list-none m-0 p-0 max-[769px]:w-[calc(100%+var(--gutter))] max-[769px]:-mr-(--gutter) max-[769px]:pr-(--gutter) max-[769px]:overflow-x-auto max-[769px]:[scrollbar-width:none] max-[769px]:snap-x [&::-webkit-scrollbar]:hidden [&_li]:shrink-0" role="group" aria-labelledby="hero-swatch-label">
-      {options.map((o) => (
-        <li>
-          <button type="button" class="hero-swatch relative grid place-items-center size-11 p-0 border-0 rounded-full bg-cream/70 cursor-pointer transition-[transform,box-shadow] duration-250 ease-(--ease-out) hover:-translate-y-0.5 aria-pressed:ring-1 aria-pressed:ring-gold aria-pressed:ring-offset-1 aria-pressed:ring-offset-white [&_img]:size-[78%] [&_img]:object-contain motion-reduce:transition-none snap-start focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" data-slug={o.slug} aria-label={o.color} aria-pressed={o.slug === start.slug ? "true" : "false"} title={o.color}>
-            <img src={o.src} width="1000" height="740" alt="" loading="lazy" decoding="async" />
-          </button>
-        </li>
+    <div class="hero-models absolute inset-0 will-change-transform" data-hero-models>
+      {slides.map((s, i) => (
+        <img
+          class={`hero-model absolute left-[33%] w-auto max-w-none [transform:translateX(-50%)] drop-shadow-[0_30px_40px_rgb(77_2_6/0.18)] ${s.cls}`}
+          src={s.img}
+          srcset={`${s.img640} 640w, ${s.img} ${s.w}w`}
+          sizes="(max-width: 768px) 70vw, 40vw"
+          width={s.w} height={s.h}
+          alt={s.alt}
+          fetchpriority={i === 0 ? "high" : undefined}
+          loading={i === 0 ? "eager" : "lazy"}
+          decoding="async"
+          data-slide-img={i}
+          aria-hidden={i === 0 ? undefined : "true"}
+        />
       ))}
-    </ul>
+    </div>
+  </div>
+
+  <div class="hero-content mx-auto grid h-full max-w-(--max) grid-cols-[1.15fr_1fr] px-(--gutter) pt-(--header-h)">
+    <div class="hero-copy col-start-2 grid content-center py-10 will-change-transform" data-hero-copy>
+      <!-- Both scenes' copy share one cell, so the column never jumps when they swap. -->
+      <div class="grid">
+        {slides.map((s, i) => (
+          <div class="hero-slide [grid-area:1/1]" data-slide={i} aria-roledescription="diapositive" aria-label={`${i + 1} sur ${slides.length} : ${s.label}`} aria-hidden={i === 0 ? undefined : "true"} inert={i !== 0}>
+            <p class="hero-in m-0 mb-5 flex items-center gap-3 text-burgundy text-[.6875rem] font-semibold tracking-[.28em] uppercase"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>{s.eyebrow}</p>
+            {i === 0 ? (
+              <h1 id="hero-title" class="hero-in hero-title m-0 font-display font-normal text-burgundy-deep text-[clamp(2rem,3.5vw,3.5rem)] leading-[1.05] tracking-[.005em]"><span class="block whitespace-nowrap uppercase">{s.line1}</span> <em class="block whitespace-nowrap font-medium italic">{s.line2}</em></h1>
+            ) : (
+              <p class="hero-in hero-title m-0 font-display font-normal text-burgundy-deep text-[clamp(2rem,3.5vw,3.5rem)] leading-[1.05] tracking-[.005em]"><span class="block whitespace-nowrap uppercase">{s.line1}</span> <em class="block whitespace-nowrap font-medium italic">{s.line2}</em></p>
+            )}
+            <p class="hero-in m-0 mt-6 max-w-[36ch] text-ink-soft text-[0.9375rem] leading-7">{s.lead}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="hero-in mt-8 flex flex-wrap items-center gap-x-8 gap-y-5">
+        <a class="group inline-flex min-h-12 items-center gap-3 bg-burgundy px-7 text-[.6875rem] font-semibold tracking-[.2em] text-cream-soft uppercase no-underline transition-colors duration-300 ease-(--ease-out) hover:bg-burgundy-deep motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" href="/boutique">
+          Découvrir nos collections
+          <span class="transition-transform duration-300 ease-(--ease-out) group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden="true">→</span>
+        </a>
+        <!-- Scene controls: label + progress line; the active one fills while it is shown. -->
+        <div class="flex items-center gap-5" role="group" aria-label="Choisir l’ambiance">
+          {slides.map((s, i) => (
+            <button type="button" class="group/d grid min-h-11 cursor-pointer content-center gap-1.5 border-0 bg-transparent p-0 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-burgundy" aria-pressed={i === 0 ? "true" : "false"} data-goto={i}>
+              <span class="text-[.625rem] font-semibold tracking-[.16em] text-ink-soft uppercase tabular-nums group-aria-pressed/d:text-burgundy">0{i + 1} · {s.label}</span>
+              <span class="block h-px w-16 overflow-hidden bg-gold/35"><span class="block h-full w-full origin-left scale-x-0 bg-burgundy" data-progress></span></span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- The three collections of the maison. -->
+      <nav class="hero-in hero-index mt-10 border-t border-gold/40 pt-5" aria-label="Nos collections">
+        <ul class="m-0 grid list-none grid-cols-3 gap-4 p-0">
+          {collections.map((c) => (
+            <li>
+              {c.href ? (
+                <a class="group grid min-h-11 content-start gap-1 text-burgundy no-underline focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-4" href={c.href}>
+                  <span class="font-display text-[1.5rem] leading-none underline decoration-transparent decoration-1 underline-offset-[.3em] transition-[text-decoration-color] duration-300 group-hover:decoration-gold">{c.name}</span>
+                  <span class="text-[.625rem] font-semibold tracking-[.14em] uppercase text-ink-soft">{c.short}</span>
+                </a>
+              ) : (
+                <span class="grid min-h-11 content-start gap-1 text-burgundy">
+                  <span class="font-display text-[1.5rem] leading-none">{c.name}</span>
+                  <span class="text-[.625rem] font-semibold tracking-[.14em] uppercase text-ink-soft">{c.short}</span>
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
   </div>
 </section>
 
-<script define:vars={{ options }}>
-  const root = document.querySelector("[data-hero]");
-  if (root) {
-    const imgs = [...root.querySelectorAll(".hero-bag-img")];
-    const btns = [...root.querySelectorAll(".hero-swatch")];
-    const name = root.querySelector("[data-name]");
-    const price = root.querySelector("[data-price]");
-    const link = root.querySelector("[data-price-link]");
-    const bagLink = root.querySelector("[data-bag-link]");
-    const byslug = Object.fromEntries(options.map((o) => [o.slug, o]));
-    const load = (img) => { if (img && !img.src && img.dataset.src) img.src = img.dataset.src; };
+<script>
+  import { onScroll } from "../scripts/smooth";
 
-    const select = (slug) => {
-      const o = byslug[slug];
-      if (!o) return;
-      imgs.forEach((img) => {
-        const on = img.dataset.slug === slug;
-        if (on) { load(img); img.alt = img.dataset.alt; } else { img.alt = ""; }
-        img.classList.toggle("is-active", on);
-      });
-      btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.slug === slug)));
-      name.textContent = o.desc;
-      price.textContent = o.price;
-      link.href = bagLink.href = `/produit/${slug}`;
-      link.setAttribute("aria-label", `Voir le sac Z’man ${o.color.toLowerCase()}`);
-      bagLink.setAttribute("aria-label", `Découvrir le sac Z’man ${o.color.toLowerCase()}`);
-      root.style.setProperty("--glow", o.tint);
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+  if (hero) {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    /* ---------- Scenes: cross-fade on a timer, or on demand ---------- */
+    const DWELL = 5000; // ms per scene
+    const slides = [...hero.querySelectorAll<HTMLElement>("[data-slide]")];
+    const imgs = [...hero.querySelectorAll<HTMLImageElement>("[data-slide-img]")];
+    const dots = [...hero.querySelectorAll<HTMLButtonElement>("[data-goto]")];
+    let cur = 0, start = performance.now(), elapsed = 0, paused = false, visible = true;
+
+    const show = (i: number) => {
+      cur = (i + slides.length) % slides.length;
+      hero.dataset.active = String(cur);
+      slides.forEach((s, k) => { const on = k === cur; s.toggleAttribute("inert", !on); on ? s.removeAttribute("aria-hidden") : s.setAttribute("aria-hidden", "true"); });
+      imgs.forEach((im, k) => { const on = k === cur; if (on && im.loading === "lazy") im.loading = "eager"; on ? im.removeAttribute("aria-hidden") : im.setAttribute("aria-hidden", "true"); });
+      dots.forEach((d, k) => d.setAttribute("aria-pressed", String(k === cur)));
+      elapsed = 0; start = performance.now();
     };
+    // Warm the second model once the page is idle so the first swap never shows an empty frame.
+    const warm = () => imgs.forEach((im) => (im.loading = "eager"));
+    if ("requestIdleCallback" in window) requestIdleCallback(warm); else setTimeout(warm, 1500);
 
-    btns.forEach((b) => {
-      const warm = () => load(imgs.find((i) => i.dataset.slug === b.dataset.slug));
-      b.addEventListener("pointerenter", () => { warm(); if (matchMedia("(hover: hover) and (pointer: fine)").matches) select(b.dataset.slug); });
-      b.addEventListener("focus", warm);
-      b.addEventListener("click", () => select(b.dataset.slug));
-    });
+    const sync = () => {
+      const was = paused;
+      // Always alternating while in view; only an off-screen hero or a hidden tab holds the current scene.
+      paused = !visible || document.hidden;
+      if (paused && !was) elapsed += performance.now() - start;
+      if (!paused && was) start = performance.now();
+    };
+    const frame = (now: number) => {
+      const t = paused ? elapsed : elapsed + (now - start);
+      dots.forEach((d, k) => { const bar = d.querySelector<HTMLElement>("[data-progress]")!; bar.style.transform = `scaleX(${k === cur ? Math.min(1, t / DWELL) : 0})`; });
+      if (!paused && t >= DWELL) show(cur + 1);
+      requestAnimationFrame(frame);
+    };
+    dots.forEach((d) => d.addEventListener("click", () => { show(Number(d.dataset.goto)); sync(); }));
+    document.addEventListener("visibilitychange", sync);
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); }, { threshold: 0.35 }).observe(hero);
+    sync();
+    requestAnimationFrame(frame);
 
-    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1200));
-    idle(() => imgs.forEach(load));
-
-
+    /* ---------- Scroll motion on the shared Lenis instance (transform/opacity only) ---------- */
+    if (!reduce) {
+      const models = hero.querySelector<HTMLElement>("[data-hero-models]")!;
+      const mark = hero.querySelector<HTMLElement>("[data-hero-wordmark]")!;
+      const copy = hero.querySelector<HTMLElement>("[data-hero-copy]")!;
+      const bg = hero.querySelector<HTMLElement>("[data-hero-bg]")!;
+      const desk = matchMedia("(min-width: 769px)");
+      let h = hero.offsetHeight;
+      addEventListener("resize", () => (h = hero.offsetHeight), { passive: true });
+      let done = false;
+      const tick = (y: number) => {
+        const p = Math.min(1, Math.max(0, y / h)); // 0 at the top, 1 once the hero has scrolled away
+        if (p >= 1 && done) return;
+        done = p >= 1;
+        models.style.transform = `translate3d(0, ${(p * h * 0.16).toFixed(1)}px, 0) scale(${(1 + p * 0.04).toFixed(4)})`;
+        mark.style.transform = `translate3d(${(-p * 12).toFixed(2)}vw, ${(p * h * 0.3).toFixed(1)}px, 0)`;
+        bg.style.transform = `translate3d(0, ${(p * h * 0.22).toFixed(1)}px, 0) scale(${(1.02 + p * 0.06).toFixed(4)})`;
+        if (desk.matches) {
+          copy.style.transform = `translate3d(0, ${(p * h * -0.12).toFixed(1)}px, 0)`;
+          copy.style.opacity = String(Math.max(0, 1 - p * 1.6));
+        } else { copy.style.transform = ""; copy.style.opacity = ""; }
+      };
+      onScroll(tick);
+      tick(scrollY);
+      desk.addEventListener("change", () => { done = false; tick(scrollY); });
+    }
   }
 </script>
 
 <style>
-  /* Motion */
+  /* Scene swap: models and copy cross-fade; the incoming model steps in from the left, the outgoing one fades in place. */
+  .hero-model { opacity: 0; translate: -2% 0; transition: opacity .6s var(--ease-out), translate .8s var(--ease-out); }
+  .hero-slide { opacity: 0; translate: 0 10px; transition: opacity .45s var(--ease-out), translate .6s var(--ease-out); }
+  .hero[data-active="0"] [data-slide-img="0"], .hero[data-active="1"] [data-slide-img="1"] { opacity: 1; translate: 0 0; }
+  .hero[data-active="0"] [data-slide="0"], .hero[data-active="1"] [data-slide="1"] { opacity: 1; translate: 0 0; transition-delay: .1s; }
+
+  /* Entrance on first load: the scene settles, the models step in, the copy follows line by line. */
   @media (prefers-reduced-motion: no-preference) {
-    .hero-wordmark span { animation: hero-letter .6s var(--ease-out) both; animation-delay: calc(var(--i) * 60ms); }
-    .hero-bag-float { animation: hero-bag-in .65s var(--ease-out) .25s both; }
-    .hero-copy, .hero-pick { animation: hero-up .4s var(--ease-out) .75s both; }
-    .hero-pick { animation-delay: .8s; }
-    @keyframes hero-letter { from { opacity: 0; transform: translateY(28%); clip-path: inset(0 0 100% 0); } to { opacity: 1; transform: none; clip-path: inset(-10% 0 -10% 0); } }
-    @keyframes hero-bag-in { from { opacity: 0; scale: .96; } }
-    @keyframes hero-up { from { opacity: 0; transform: translateY(12px); } }
+    .hero-bg { animation: hero-settle 2.2s var(--ease-out) both; }
+    .hero-models { animation: hero-step 1.4s var(--ease-out) .15s both; }
+    .hero-wordmark { animation: hero-fade 2s var(--ease-out) .3s both; }
+    .hero-in { animation: hero-up .9s var(--ease-out) both; }
+    .hero-slide .hero-in:nth-child(1) { animation-delay: .45s; }
+    .hero-slide .hero-in:nth-child(2) { animation-delay: .55s; }
+    .hero-slide .hero-in:nth-child(3) { animation-delay: .65s; }
+    .hero-copy > .hero-in:nth-of-type(2) { animation-delay: .75s; }
+    .hero-index { animation-delay: .9s; }
+    @keyframes hero-settle { from { scale: 1.08; } }
+    @keyframes hero-step { from { opacity: 0; translate: -3% 4%; } }
+    @keyframes hero-fade { from { opacity: 0; } }
+    @keyframes hero-up { from { opacity: 0; translate: 0 18px; } }
   }
   @media (prefers-reduced-motion: reduce) {
-    .hero-bag-float, .hero-copy, .hero-pick { animation: hero-fade .6s ease both; }
-    @keyframes hero-fade { from { opacity: 0; } }
+    .hero-model, .hero-slide { transition: opacity .3s linear; translate: none; }
+  }
+
+  /* Phones: portrait scene band (model centred on the floor), copy below on ivory. */
+  @media (max-width: 768.98px) {
+    .hero { height: auto; }
+    .hero-scene { position: relative; inset: auto; z-index: 0; aspect-ratio: auto; height: min(calc(100vw * 1.08 + var(--header-h)), 76svh); min-height: 26rem; width: 100%; }
+    .hero-wash { background: linear-gradient(180deg, transparent 60%, var(--color-ivory) 100%); }
+    /* The hem dissolves into the ivory below instead of stopping on a hard line. */
+    .hero-model { left: 50%; height: 90%; mask-image: linear-gradient(180deg, #000 78%, transparent 100%); }
+    .hero-model[data-slide-img="1"] { height: 110%; bottom: -22%; mask-image: linear-gradient(180deg, #000 70%, transparent 82%); }
+    /* Models start below the floating header, so it never covers a head; the band grows by the same amount. */
+    .hero-models { top: calc(var(--header-h) + 1rem); }
+    .hero-wordmark { top: calc(var(--header-h) + 1rem); font-size: 19vw; }
+    .hero-content { display: block; height: auto; padding-top: 0; }
+    .hero-copy { padding: 0.5rem 0 1rem; }
+    /* Two lines on every phone: sized so the longest first line fits the column from 360px up. */
+    .hero-title { font-size: clamp(1.5rem, 7.1vw, 2.5rem); }
+    .hero-slide > p:first-child { letter-spacing: .16em; white-space: nowrap; gap: .625rem; }
+    .hero-slide > p:first-child > span { width: 1.25rem; }
+    /* Compact collection row: smaller names and subtitles, tight spacing, no space below. */
+    .hero-index { margin-top: 1.5rem; padding-top: .75rem; }
+    .hero-index ul { gap: .5rem; }
+    .hero-index a > span + span, .hero-index li > span > span + span { font-size: .5rem; letter-spacing: .06em; line-height: 1.3; white-space: nowrap; }
+    .hero-index a, .hero-index li > span { min-height: 0; }
+    .hero-index a, .hero-index li > span { align-content: center; }
+    .hero-index a > span:first-child, .hero-index li > span > span { font-size: 1.25rem; }
   }
 </style>

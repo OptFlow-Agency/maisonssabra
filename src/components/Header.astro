@@ -6,15 +6,16 @@ const inCollections = path.startsWith("/collection") || path === "/boutique";
 const link = "relative block py-2 text-xs leading-none font-semibold tracking-[0.14em] whitespace-nowrap text-ink uppercase no-underline transition-colors duration-200 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-gold after:transition-transform after:duration-400 after:ease-(--ease-out) hover:after:scale-x-100 aria-[current]:after:scale-x-100 aria-expanded:after:scale-x-100";
 ---
 <div data-sentinel aria-hidden="true" class="-mb-px h-px"></div>
-<header class="group/h sticky top-0 z-50 border-b border-gold/40 bg-cream-soft transition-shadow duration-300 data-[stuck=true]:shadow-[0_10px_24px_-18px_rgb(74_15_34/0.45)]" data-header>
-  <div class="mx-auto grid h-16 max-w-(--max) grid-cols-[3rem_1fr_3rem] items-center px-(--gutter) nav:h-20 nav:grid-cols-[1fr_auto_1fr] nav:gap-8">
+<header class="group/h pointer-events-none sticky top-0 z-50 px-(--gutter) pt-2 nav:pt-3" data-header>
+  <!-- Floating bar: a soft pill over the page, lifts with a shadow once scrolled. -->
+  <div class="pointer-events-auto mx-auto grid h-12 max-w-(--max) grid-cols-[2.75rem_1fr_2.75rem] items-center rounded-xl border border-gold/30 bg-white/85 px-2.5 shadow-[0_8px_24px_-20px_rgb(74_15_34/0.35)] backdrop-blur-md backdrop-saturate-150 transition-shadow duration-300 group-data-[stuck=true]/h:shadow-[0_14px_32px_-18px_rgb(74_15_34/0.45)] nav:h-16 nav:grid-cols-[1fr_auto_1fr] nav:gap-8 nav:px-7">
     <button class="icon-btn -ml-2 nav:hidden" type="button" aria-expanded="false" aria-controls="menu-mobile" aria-label="Ouvrir le menu">
       <svg {...s}><path d="M4 8h16M4 16h16"/></svg>
     </button>
 
-    <a class="flex items-center gap-2.5 justify-self-center text-burgundy no-underline nav:justify-self-start" href="/" aria-label="Maison Sabra, accueil">
-      <span class="block size-9 bg-burgundy [mask:url(/img/logo-ms.png)_center/contain_no-repeat]" aria-hidden="true"></span>
-      <span class="hidden font-display text-[1.375rem] leading-none font-semibold tracking-[0.14em] uppercase min-[22rem]:block">Maison Sabra</span>
+    <a class="flex items-center gap-2 justify-self-center nav:gap-2.5 text-burgundy no-underline nav:justify-self-start" href="/" aria-label="Maison Sabra, accueil">
+      <span class="block size-7 bg-burgundy nav:size-9 [mask:url(/img/logo-ms.png)_center/contain_no-repeat]" aria-hidden="true"></span>
+      <span class="hidden font-display text-[0.9375rem] leading-none font-semibold tracking-[0.12em] whitespace-nowrap uppercase min-[22rem]:block min-[30rem]:text-[1.125rem] nav:text-[1.375rem] nav:tracking-[0.14em]">Maison Sabra</span>
     </a>
 
     <nav class="hidden justify-self-center nav:block" aria-label="Navigation principale">
@@ -39,7 +40,7 @@ const link = "relative block py-2 text-xs leading-none font-semibold tracking-[0
   </div>
 
   <!-- Desktop mega-menu: three visual cards -->
-  <div id="mega" class="invisible absolute inset-x-0 top-full hidden border-b border-gold/40 bg-cream-soft opacity-0 shadow-[0_24px_32px_-28px_rgb(74_15_34/0.5)] transition-[opacity,visibility,translate] duration-300 ease-(--ease-out) [translate:0_-0.5rem] data-[open=true]:visible data-[open=true]:opacity-100 data-[open=true]:[translate:0] nav:block" inert data-mega>
+  <div id="mega" class="pointer-events-auto invisible absolute inset-x-(--gutter) top-full mx-auto mt-2 hidden max-w-(--max) overflow-hidden rounded-xl border border-gold/30 bg-white/95 opacity-0 shadow-[0_24px_40px_-28px_rgb(74_15_34/0.5)] backdrop-blur-md transition-[opacity,visibility,translate] duration-300 ease-(--ease-out) [translate:0_-0.5rem] data-[open=true]:visible data-[open=true]:opacity-100 data-[open=true]:[translate:0] nav:block" inert data-mega>
     <ul class="m-0 mx-auto grid max-w-(--max) list-none grid-cols-3 gap-8 px-(--gutter) py-8 p-0">
       {collections.map((c) => (
         <li>
@@ -71,7 +72,7 @@ const link = "relative block py-2 text-xs leading-none font-semibold tracking-[0
   </div>
 
   <!-- Mobile drawer -->
-  <div id="menu-mobile" inert class="invisible absolute inset-x-0 top-full h-[calc(100dvh-4rem)] overflow-y-auto border-t border-gold/40 bg-cream-soft px-(--gutter) pt-3 pb-10 opacity-0 transition-[opacity,visibility] duration-300 ease-(--ease-out) group-data-[open=true]/h:visible group-data-[open=true]/h:opacity-100 nav:hidden" data-lenis-prevent>
+  <div id="menu-mobile" inert class="pointer-events-auto invisible absolute inset-x-(--gutter) top-full mt-2 h-[calc(100dvh-var(--header-h)-1.5rem)] overflow-y-auto rounded-xl border border-gold/30 bg-white px-5 pt-3 pb-10 opacity-0 transition-[opacity,visibility] duration-300 ease-(--ease-out) group-data-[open=true]/h:visible group-data-[open=true]/h:opacity-100 nav:hidden" data-lenis-prevent>
     <nav aria-label="Menu mobile">
       <ul class="m-0 list-none p-0">
         <li><a class="flex min-h-14 items-center border-b border-gold/40 text-xs font-semibold tracking-[0.16em] text-ink uppercase no-underline" href="/" aria-current={path === "/" ? "page" : undefined}>Accueil</a></li>

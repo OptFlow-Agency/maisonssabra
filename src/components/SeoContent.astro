@@ -1,0 +1,26 @@
+---
+// Discovery copy for shoppers and search engines. A homepage CMS section of type "text" replaces it when one exists.
+// Plain, natural French: what the bags are, what they're made of, where to find them. No policies, no FAQ (no approved source yet).
+import type { Home } from "../lib/home";
+interface Props { text: Home["text"] }
+const { text } = Astro.props;
+const link = "text-burgundy underline decoration-gold decoration-1 underline-offset-[0.25em] hover:text-rose-dusty";
+---
+<section class="bg-ivory py-16 lg:py-24" aria-labelledby="discover-title">
+  <div class="mx-auto grid max-w-(--max) gap-8 px-(--gutter) lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20">
+    <div class="grid content-start gap-4">
+      <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>Nos créations</p>
+      <h2 id="discover-title" class="m-0 max-w-[18ch] text-step-2 text-balance">{text?.heading || "Sacs artisanaux marocains pour femme"}</h2>
+    </div>
+    {text?.paragraphs.length ? (
+      <div class="grid max-w-[64ch] gap-4 text-ink-soft">{text.paragraphs.map((t) => <p class="m-0">{t}</p>)}</div>
+    ) : (
+      <div class="grid max-w-[64ch] gap-4 text-ink-soft">
+        <p class="m-0">Maison Sabra imagine des sacs marocains pour femme qui réunissent savoir-faire artisanal et allure d’aujourd’hui. Chaque création puise dans le patrimoine du Maroc, ses textures, ses motifs et ses couleurs, pour accompagner aussi bien le quotidien que les grandes occasions.</p>
+        <p class="m-0">La <a class={link} href="/collection-zman">collection Z’man</a> rassemble des sacs en velours rehaussés de dorures, montés sur un fermoir doré et portés à la chaîne : des pièces habillées, pensées pour sublimer un caftan comme une tenue de soirée.</p>
+        <p class="m-0">La <a class={link} href="/collection-bladi">collection Bladi</a> associe le cuir au tissu berbère rayé, pour des sacs colorés et pratiques qui rendent hommage aux artisanats de nos régions. Une troisième collection, Atar, se prépare.</p>
+        <p class="m-0">Retrouvez l’ensemble de nos sacs artisanaux marocains dans <a class={link} href="/boutique">la boutique</a>.</p>
+      </div>
+    )}
+  </div>
+</section>

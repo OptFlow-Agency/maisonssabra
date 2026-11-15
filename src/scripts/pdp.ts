@@ -103,11 +103,15 @@ function init(root: HTMLElement) {
     }));
     track.scrollLeft = 0;
     const many = imgs.length > 1;
+    // A single photo takes the full width; the thumbnail rail only exists when there is something to pick.
+    const gallery = thumbs.parentElement!;
+    ["min-[60rem]:grid", "min-[60rem]:grid-cols-[4.5rem_1fr]", "min-[60rem]:gap-4"].forEach((c) => gallery.classList.toggle(c, many));
+    thumbs.classList.toggle("min-[60rem]:grid", many);
     thumbs.replaceChildren(...(many ? imgs.map((src, i) => {
       const li = document.createElement("li");
       const b = document.createElement("button");
       b.type = "button"; b.dataset.thumb = String(i); b.setAttribute("aria-label", `Vue ${i + 1}`);
-      b.className = "block w-full cursor-pointer overflow-hidden border-0 p-0 ring-1 ring-burgundy/20 transition-shadow duration-300 aria-[current=true]:ring-2 aria-[current=true]:ring-burgundy hover:ring-burgundy/60";
+      b.className = "block w-full cursor-pointer overflow-hidden border-0 p-0 ring-1 ring-burgundy/20 transition-shadow duration-300 aria-[current=true]:ring-[1.5px] aria-[current=true]:ring-burgundy aria-[current=true]:ring-offset-2 aria-[current=true]:ring-offset-ivory hover:ring-gold";
       b.style.background = tone();
       const t = document.createElement("img");
       t.src = src.w480; t.alt = ""; t.width = 72; t.height = 72; t.loading = "lazy";
@@ -137,13 +141,12 @@ function init(root: HTMLElement) {
   function paintPrice() {
     const price = unitPrice(), was = unitWas();
     const pct = pctOf(price, was);
-    set("[data-price]", fmtMad(price));
+    set("[data-price-now]", fmtMad(price)); // not [data-price]: related cards carry that attribute for the cart
     // The strike-through, percentage and saving appear only when the CMS price really is lower than the compare-at price.
     const wasEl = $("[data-was]");
     wasEl.lastChild!.textContent = fmtMad(was ?? 0);
-    show(wasEl, pct > 0); show($("[data-pct]"), pct > 0); show($("[data-save]"), pct > 0);
-    $("[data-pct]").textContent = `−${pct} %`;
-    $("[data-save]").textContent = `Vous économisez ${fmtMad((was ?? price) - price)}`;
+    show(wasEl, pct > 0); show($("[data-save]"), pct > 0);
+    $("[data-save]").textContent = `Vous économisez ${fmtMad((was ?? price) - price)} (−${pct} %)`;
   }
   function paintStock() {
     const left = leftNow(), ok = buyable();
@@ -178,7 +181,7 @@ function init(root: HTMLElement) {
     show($("[data-perks-wrap]"), cur.perks.length > 0);
     ul.replaceChildren(...cur.perks.map((b) => {
       const li = mk("li", "flex items-start gap-3");
-      const ic = mk("span", "mt-px grid size-5 shrink-0 place-items-center rounded-full bg-burgundy text-cream-soft");
+      const ic = mk("span", "mt-[0.0625rem] shrink-0 text-burgundy [&_svg]:block");
       ic.innerHTML = b.icon; // trusted: static SVG from data/icons.ts, chosen by key
       const txt = mk("span");
       txt.append(mk("span", "font-semibold", b.title));
@@ -199,7 +202,7 @@ function init(root: HTMLElement) {
       const input = document.createElement("input");
       input.type = "radio"; input.name = "cms-variant"; input.value = String(i); input.className = "peer sr-only"; input.checked = i === vi; input.disabled = !v.buyable;
       input.setAttribute("aria-label", v.buyable ? v.name : `${v.name} : indisponible`);
-      const box = mk("span", "block overflow-hidden ring-1 ring-burgundy/20 transition-shadow duration-300 group-hover/v:ring-burgundy/60 peer-checked:ring-2 peer-checked:ring-burgundy peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy");
+      const box = mk("span", "block overflow-hidden rounded-md ring-1 ring-gold/40 transition-shadow duration-300 group-hover/v:ring-gold peer-checked:ring-[1.5px] peer-checked:ring-burgundy peer-checked:ring-offset-2 peer-checked:ring-offset-ivory peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy");
       if (v.img) {
         box.style.background = tone();
         const im = mk("img", "aspect-square w-full object-cover mix-blend-multiply"); im.src = v.img.w480; im.alt = ""; im.width = 80; im.height = 80; im.loading = "lazy";
@@ -290,7 +293,7 @@ function init(root: HTMLElement) {
       const label = mk("label", "group/v relative block w-[4.5rem] shrink-0 cursor-pointer min-[60rem]:w-20");
       const input = document.createElement("input");
       input.type = "radio"; input.name = "second"; input.value = b.slug; input.className = "peer sr-only"; input.checked = b.slug === second?.slug;
-      const box = mk("span", "block overflow-hidden ring-1 ring-burgundy/20 transition-shadow duration-300 group-hover/v:ring-burgundy/60 peer-checked:ring-2 peer-checked:ring-burgundy peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy");
+      const box = mk("span", "block overflow-hidden rounded-md ring-1 ring-gold/40 transition-shadow duration-300 group-hover/v:ring-gold peer-checked:ring-[1.5px] peer-checked:ring-burgundy peer-checked:ring-offset-2 peer-checked:ring-offset-ivory peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy");
       box.style.background = tone();
       const im = mk("img", "aspect-square w-full object-cover mix-blend-multiply");
       im.src = data.find((d) => d.slug === b.slug)?.thumb ?? b.img; im.alt = ""; im.width = 80; im.height = 80; im.loading = "lazy";

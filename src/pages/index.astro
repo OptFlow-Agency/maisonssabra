@@ -1,31 +1,41 @@
 ---
 import Page from "../layouts/Page.astro";
-import HeroReassurance from "../components/HeroReassurance.astro";
 import Hero from "../components/Hero.astro";
-import Collections from "../components/Collections.astro";
-import FeaturedProducts from "../components/FeaturedProducts.astro";
-import Story from "../components/Story.astro";
-import Trust from "../components/Trust.astro";
-import Skirts from "../components/Skirts.astro";
-import ContactCta from "../components/ContactCta.astro";
+import HeroReassurance from "../components/HeroReassurance.astro";
+import CollectionsShowcase from "../components/CollectionsShowcase.astro";
+import CuratedProducts from "../components/CuratedProducts.astro";
+import Reassurance from "../components/Reassurance.astro";
+import Heritage from "../components/Heritage.astro";
+import BrandFilms from "../components/BrandFilms.astro";
 import Testimonials from "../components/Testimonials.astro";
+import Founder from "../components/Founder.astro";
+import ContactCta from "../components/ContactCta.astro";
 import Instagram from "../components/Instagram.astro";
-import { organizationLd, websiteLd } from "../data/seo";
+import { itemListLd, organizationLd, websiteLd } from "../data/seo";
 import { getCatalog, cacheShort } from "../lib/catalog";
+import { loadHome } from "../lib/home";
 
 export const prerender = false;
 const products = await getCatalog();
 cacheShort(Astro.response);
+// Everything below the hero comes from the CMS where it has content, with approved defaults otherwise (see lib/home.ts).
+const home = await loadHome(products);
+const featured = home.featured.products;
 ---
-<Page title="Maison Sabra | Sacs artisanaux marocains en cuir et velours" description="Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du patrimoine marocain. Fait main au Maroc." jsonLd={[organizationLd(), websiteLd()]}>
+<Page
+  title="Maison Sabra | Sacs artisanaux marocains en cuir et velours"
+  description="Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du savoir-faire marocain. Découvrez les collections Z’man, Bladi et bientôt Atar."
+  jsonLd={[organizationLd(), websiteLd(), ...(featured.length ? [itemListLd(featured)] : [])]}
+>
   <Hero />
   <HeroReassurance />
-  <Collections bladi={products.filter((p) => p.collection === "bladi")} zman={products.filter((p) => p.collection === "zman")} />
-  <Story />
-  <FeaturedProducts products={products} />
-  <Trust />
-  <Skirts />
+  <CollectionsShowcase items={home.collections} />
+  <CuratedProducts products={featured} heading={home.featured.heading} intro={home.featured.body} />
+  <Reassurance />
+  <Heritage mission={home.mission} craft={home.craft} />
+  <BrandFilms />
   <Testimonials />
+  <Founder />
   <ContactCta />
   <Instagram />
 </Page>

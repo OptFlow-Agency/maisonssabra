@@ -11,7 +11,7 @@
 
 @layer base {
   html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h) + 1rem); scrollbar-color: var(--color-burgundy) var(--color-cream); }
-  body { @apply bg-cream-soft font-body text-step-0 leading-relaxed text-ink antialiased; }
+  body { @apply bg-ivory font-body text-step-0 leading-relaxed text-ink antialiased; }
   img, svg { @apply block h-auto max-w-full; }
   a { text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
   h1, h2, h3 { @apply font-display font-medium leading-[1.05] text-burgundy text-balance; }
@@ -32,6 +32,10 @@
   .rule-gold { @apply h-px w-full border-0 bg-linear-to-r from-gold/0 via-gold/70 to-gold/0; }
   .btn {
     @apply inline-flex min-h-13 cursor-pointer items-center justify-center gap-3 whitespace-nowrap rounded-none border-0 bg-burgundy px-7 font-body text-xs leading-none font-semibold tracking-[0.16em] text-cream-soft uppercase no-underline transition-colors duration-300 hover:bg-burgundy-deep active:bg-burgundy-deep;
+  }
+  /* Secondary action: outlined burgundy, same rhythm as .btn. */
+  .btn-ghost {
+    @apply inline-flex min-h-12 cursor-pointer items-center justify-center gap-3 whitespace-nowrap rounded-none border border-burgundy bg-transparent px-6 font-body text-xs leading-none font-semibold tracking-[0.16em] text-burgundy uppercase no-underline transition-colors duration-300 hover:bg-burgundy hover:text-cream-soft;
   }
   .on-dark .btn { @apply bg-rose text-burgundy-deep hover:bg-cream-soft hover:text-burgundy; }
   .btn svg { transition: transform 0.35s var(--ease-out); }
@@ -104,6 +108,11 @@ html.js [data-reveal]:not(.is-in) { opacity: 0; translate: 0 1.5rem; }
 html.js [data-clip]:not(.is-in) { clip-path: inset(100% 0 0 0); }
 [data-clip] { clip-path: inset(0); transition: clip-path 1.3s var(--ease-out) var(--d, 0s); }
 [data-parallax] { will-change: transform; }
+/* Floating header: the first section of every page runs up behind the bar, so the page's own background shows around it
+   (no white band). A transparent top border the size of the header keeps the content in place; the background paints under it.
+   The homepage hero handles this itself. */
+#contenu > :first-child:not(.hero) { margin-top: calc(-1 * var(--header-h)); border-top: var(--header-h) solid transparent; }
+
 /* Hero entrance: the photograph settles from a slight zoom. */
 @keyframes settle { from { scale: 1.12; } }
 .hero-img { animation: settle 2.2s var(--ease-out) both; }
