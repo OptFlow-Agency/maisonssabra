@@ -1,7 +1,12 @@
 ---
-// Founder story. The portrait frame stays empty (a quiet placeholder) until the photo is supplied:
-// set `photo` below to { src, alt, w, h } and it fills the frame.
-const photo: { src: string; alt: string; w: number; h: number } | null = null;
+// Founder story with a portrait of the founder in a framed print.
+const photo: { src: string; srcset: string; alt: string; w: number; h: number } | null = {
+  src: '/img/home/founder-800.webp',
+  srcset: '/img/home/founder-480.webp 480w, /img/home/founder-800.webp 800w',
+  alt: 'Portrait de Bahija Benhamid, fondatrice de Maison Sabra',
+  w: 800,
+  h: 994,
+};
 ---
 <section class="overflow-hidden bg-ivory py-16 lg:py-28" aria-labelledby="founder-title">
   <div class="mx-auto grid max-w-(--max) items-center gap-12 px-(--gutter) lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-20">
@@ -11,7 +16,7 @@ const photo: { src: string; alt: string; w: number; h: number } | null = null;
       <div class="relative bg-[#f8f1e6] p-3 pb-5 shadow-[0_24px_40px_-28px_rgb(77_2_6/0.45)] ring-1 ring-gold/25">
         <div class="relative aspect-[4/5] overflow-hidden bg-card-beige">
           {photo ? (
-            <img class="absolute inset-0 size-full object-cover" src={photo.src} alt={photo.alt} width={photo.w} height={photo.h} loading="lazy" decoding="async" />
+            <img class="absolute inset-0 size-full object-cover object-top" src={photo.src} srcset={photo.srcset} sizes="(min-width: 1024px) 24rem, 82vw" alt={photo.alt} width={photo.w} height={photo.h} loading="lazy" decoding="async" />
           ) : (
             <span class="absolute inset-0 grid place-items-center" aria-hidden="true">
               <span class="block size-16 bg-gold/35 [mask:url(/img/logo-ms.png)_center/contain_no-repeat]"></span>

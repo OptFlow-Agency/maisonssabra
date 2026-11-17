@@ -10,6 +10,6 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     // Dev server only: allow ngrok tunnels (any subdomain) for previewing on real phones.
-    server: { allowedHosts: ['.ngrok-free.app'] },
+    server: { allowedHosts: ['.ngrok-free.app', '.ngrok-free.dev'] },
   },
 });
