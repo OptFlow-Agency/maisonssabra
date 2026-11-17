@@ -1,16 +1,16 @@
-# Graph Report - maisonsabra  (2026-11-16)
+# Graph Report - maisonsabra  (2026-11-17)
 
 ## Corpus Check
-- 99 files · ~581,848 words
+- 98 files · ~583,004 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 440 nodes · 1018 edges · 28 communities (26 shown, 2 thin omitted)
+- 440 nodes · 1018 edges · 25 communities (23 shown, 2 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 31 edges (avg confidence: 0.59)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `abcd4e10`
+- Built from commit: `acb0d40a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -23,12 +23,9 @@
 - [[_COMMUNITY_dependencies|dependencies]]
 - [[_COMMUNITY_....componentsProductView.astro|../../components/ProductView.astro]]
 - [[_COMMUNITY_index.astro|index.astro]]
-- [[_COMMUNITY_seo.ts|seo.ts]]
 - [[_COMMUNITY_crm.js|crm.js]]
 - [[_COMMUNITY_logic.js|logic.js]]
-- [[_COMMUNITY_catalog.ts|catalog.ts]]
 - [[_COMMUNITY_Maison Sabra design reference|Maison Sabra design reference]]
-- [[_COMMUNITY_Product|Product]]
 - [[_COMMUNITY_Product|Product]]
 - [[_COMMUNITY_events.js|events.js]]
 - [[_COMMUNITY_Astro Starter Kit Minimal|Astro Starter Kit: Minimal]]
@@ -63,19 +60,19 @@
 ## Import Cycles
 - 1-file cycle: `src/scripts/cart.ts -> src/scripts/cart.ts`
 
-## Communities (28 total, 2 thin omitted)
+## Communities (25 total, 2 thin omitted)
 
 ### Community 0 - "app.js"
 Cohesion: 0.07
 Nodes (85): esc(), analytics, acceptUpsell(), alertBox(), applyStatic(), bagIds(), bagPrices(), capture() (+77 more)
 
 ### Community 1 - "cart.ts"
-Cohesion: 0.07
-Nodes (50): checkPromo(), fetchOffers(), fetchReviews(), invalidateCms(), countBags(), fmtMad(), Item, loadBags() (+42 more)
+Cohesion: 0.05
+Nodes (78): BASE, cached(), CartItem, checkPromo(), CmsCollection, CmsError, CmsOffer, CmsReview (+70 more)
 
 ### Community 2 - "cms.ts"
-Cohesion: 0.07
-Nodes (42): CollectionCard, collections, BASE, cached(), CartItem, CmsCollection, CmsError, CmsMedia (+34 more)
+Cohesion: 0.19
+Nodes (13): CollectionCard, collections, CmsMedia, CmsSection, fetchCollections(), Home, HomeCollection, Link (+5 more)
 
 ### Community 3 - "copy.js"
 Cohesion: 0.18
@@ -83,23 +80,19 @@ Nodes (18): config, p(), staticProducts, jsonLd, cities, duoFaq(), faqItems(), m
 
 ### Community 4 - "../../layouts/Page.astro"
 Cohesion: 0.09
-Nodes (29): @fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url, @fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url, ../components/AnnouncementBar.astro, ../components/CartDrawer.astro, ../components/ContactCta.astro, whatsapp, ../components/FloatingCart.astro, ../components/Footer.astro (+21 more)
+Nodes (28): @fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url, @fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url, ../components/AnnouncementBar.astro, ../components/CartDrawer.astro, ../components/ContactCta.astro, whatsapp, ../components/FloatingCart.astro, ../components/Footer.astro (+20 more)
 
 ### Community 5 - "dependencies"
 Cohesion: 0.08
 Nodes (22): dependencies, astro, @astrojs/vercel, @fontsource/cormorant-garamond, @fontsource-variable/jost, @fontsource-variable/montserrat, lenis, lucide-static (+14 more)
 
 ### Community 6 - "../../components/ProductView.astro"
-Cohesion: 0.14
-Nodes (19): ./ProductCard.astro, ../../components/ProductView.astro, benefitIcon(), icons, Benefit, bladiSeed, discount(), ProductVariant (+11 more)
+Cohesion: 0.06
+Nodes (52): ../components/BrandFilms.astro, ./Breadcrumbs.astro, ../components/CollectionView.astro, ../components/CuratedProducts.astro, ../components/Founder.astro, ../components/Instagram.astro, ../../components/NotFoundView.astro, ./ProductCard.astro (+44 more)
 
 ### Community 7 - "index.astro"
-Cohesion: 0.12
-Nodes (13): ../components/BrandFilms.astro, ../components/CollectionsShowcase.astro, atar, bladi, tiles, zman, ../components/Founder.astro, ../components/Heritage.astro (+5 more)
-
-### Community 8 - "seo.ts"
-Cohesion: 0.18
-Nodes (12): ../../components/NotFoundView.astro, breadcrumbLd(), itemListLd(), cacheShort(), list, list, p, ../data/seo (+4 more)
+Cohesion: 0.14
+Nodes (9): ../components/CollectionsShowcase.astro, atar, bladi, tiles, zman, ../components/Heritage.astro, portrait, [] (+1 more)
 
 ### Community 9 - "crm.js"
 Cohesion: 0.28
@@ -109,10 +102,6 @@ Nodes (11): BASE, crmErrorCode(), crmPost(), crmUrl(), TENANT, fromDb(), attribu
 Cohesion: 0.22
 Nodes (8): clampQty(), computeTotal(), formatPhoneDisplay(), isValidMoroccanPhone(), MSG, normalizePhone(), toE164(), validateOrder()
 
-### Community 11 - "catalog.ts"
-Cohesion: 0.29
-Nodes (9): Collection, fallback, registerSizes(), fromCms(), getCatalog(), CmsProduct, fetchProducts(), esc() (+1 more)
-
 ### Community 12 - "Maison Sabra design reference"
 Cohesion: 0.25
 Nodes (7): Brand, Header, Homepage hero, Homepage sections (below the hero), Interaction, Maison Sabra design reference, Palette and typography
@@ -120,10 +109,6 @@ Nodes (7): Brand, Header, Homepage hero, Homepage sections (below the hero), Int
 ### Community 13 - "Product"
 Cohesion: 0.25
 Nodes (7): Confirmed facts (from the live site), Open decisions, Platform, Product, Product Purpose, Stack, Users
-
-### Community 14 - "Product"
-Cohesion: 0.36
-Nodes (6): ./Breadcrumbs.astro, ./CatalogCard.astro, ../components/CollectionView.astro, ../components/CuratedProducts.astro, Product, ../data/products
 
 ### Community 15 - "events.js"
 Cohesion: 0.47
@@ -138,24 +123,24 @@ Cohesion: 0.50
 Nodes (3): exclude, extends, include
 
 ## Knowledge Gaps
-- **102 isolated node(s):** `name`, `type`, `version`, `node`, `dev` (+97 more)
+- **103 isolated node(s):** `name`, `type`, `version`, `node`, `dev` (+98 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **2 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `fallback` connect `catalog.ts` to `app.js`, `cart.ts`, `../../components/ProductView.astro`?**
+- **Why does `fallback` connect `../../components/ProductView.astro` to `app.js`, `cart.ts`?**
   _High betweenness centrality (0.322) - this node is a cross-community bridge._
-- **Why does `initMoments()` connect `app.js` to `catalog.ts`?**
+- **Why does `initMoments()` connect `app.js` to `../../components/ProductView.astro`?**
   _High betweenness centrality (0.321) - this node is a cross-community bridge._
-- **Why does `../../components/ProductView.astro` connect `../../components/ProductView.astro` to `cart.ts`, `cms.ts`, `../../layouts/Page.astro`, `seo.ts`, `Product`?**
-  _High betweenness centrality (0.106) - this node is a cross-community bridge._
+- **Why does `../../components/ProductView.astro` connect `../../components/ProductView.astro` to `cart.ts`, `../../layouts/Page.astro`?**
+  _High betweenness centrality (0.103) - this node is a cross-community bridge._
 - **Are the 12 inferred relationships involving `init()` (e.g. with `applyStatic()` and `initColorCards()`) actually correct?**
   _`init()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `name`, `type`, `version` to the rest of the system?**
-  _102 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _103 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `app.js` be split into smaller, more focused modules?**
   _Cohesion score 0.0694938440492476 - nodes in this community are weakly interconnected._
 - **Should `cart.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07486338797814207 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.050187265917602995 - nodes in this community are weakly interconnected._

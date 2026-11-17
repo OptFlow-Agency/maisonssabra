@@ -6,17 +6,25 @@ import type { Home } from "../lib/home";
 interface Props { mission: Home["mission"]; craft: Home["craft"] }
 const { mission, craft } = Astro.props;
 
+// The lead frame is landscape at the atelier photo's own ratio (1376×768), so the default photo shows whole; a CMS image is cropped to it.
 const lead = mission?.image ?? {
-  src: "/img/home/hero-895.webp", srcset: "/img/home/hero-640.webp 640w, /img/home/hero-895.webp 895w", w: 895, h: 1200,
-  alt: "Une femme en caftan brodé présente un sac Z’man en velours fleuri et dorures, dans un riad aux murs de zellige",
+  src: "/img/atelier-broderie.webp", srcset: undefined, w: 1376, h: 768,
+  alt: "Les mains d’un artisan brodent au fil d’or un velours bordeaux, dans un atelier marocain aux murs de zellige",
 };
 type Detail = { src: string; srcset?: string; w: number; h: number; alt: string; label: string; cls: string };
 const details: Detail[] = craft?.details.length
-  ? craft.details.slice(0, 2).map((d) => ({ src: d.pic.src, srcset: d.pic.srcset, w: d.pic.w ?? 1000, h: d.pic.h ?? 1000, alt: d.pic.alt || d.label, label: d.label, cls: "object-center" }))
+  ? craft.details.slice(0, 1).map((d) => ({ src: d.pic.src, srcset: d.pic.srcset, w: d.pic.w ?? 1000, h: d.pic.h ?? 1000, alt: d.pic.alt || d.label, label: d.label, cls: "object-center" }))
   : [
       { src: "/img/home/detail-928.webp", srcset: "/img/home/detail-640.webp 640w, /img/home/detail-928.webp 928w", w: 928, h: 1152, label: "Velours brodé et dorures", alt: "Gros plan sur la broderie dorée d’un sac Z’man, sa chaîne et son fermoir", cls: "scale-[1.35] object-[45%_70%]" },
-      { src: "/assets/moments/moment-1.webp", srcset: "/assets/moments/moment-1-640.webp 640w, /assets/moments/moment-1.webp 928w", w: 928, h: 1152, label: "Velours violet en relief", alt: "Une femme en tenue blanche tient un sac Z’man en velours violet en relief, chaîne dorée", cls: "object-[50%_62%]" },
     ];
+// Bento: the atelier photo full width (whole, at its own ratio), then the first close-up and a portrait of the Z’man bag side by side.
+type Tile = { src: string; srcset?: string; w: number; h: number; alt: string; label?: string; cls: string; place: string };
+const portrait = { src: "/img/home/hero-895.webp", srcset: "/img/home/hero-640.webp 640w, /img/home/hero-895.webp 895w", w: 895, h: 1200, alt: "Une femme en caftan brodé présente un sac Z’man en velours fleuri et dorures, dans un riad aux murs de zellige", cls: "object-[50%_55%]" };
+const tiles: Tile[] = [
+  { ...lead, w: lead.w ?? 1376, h: lead.h ?? 768, cls: "object-center", place: "col-span-2 aspect-[1376/768]" },
+  ...(details[0] ? [{ ...details[0], place: "aspect-square" }] : []),
+  { ...portrait, place: "aspect-square" },
+];
 const paragraphs = mission?.paragraphs.length
   ? mission.paragraphs
   : [
@@ -26,34 +34,29 @@ const paragraphs = mission?.paragraphs.length
 const cta = mission ? mission.cta : { label: "Découvrir notre histoire", href: "#notre-histoire" };
 ---
 <section id="maison" class="scroll-mt-24 overflow-hidden bg-ivory py-20 lg:py-32" aria-labelledby="heritage-title">
-  <div class="mx-auto grid max-w-(--max) gap-3 px-(--gutter) lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-20">
-    <!-- Phones: text first, then the large photo and the two close-ups together as one block. Desktop: photo left, text and close-ups right. -->
-    <figure class="relative order-2 m-0 aspect-[4/5] overflow-hidden rounded-xl lg:order-none lg:aspect-[3/4]" data-clip>
-      <img data-parallax="0.06" class="absolute inset-0 size-full object-cover" src={lead.src} srcset={lead.srcset} sizes="(min-width: 64rem) 44vw, 100vw" width={lead.w ?? 895} height={lead.h ?? 1200} alt={lead.alt} loading="lazy" decoding="async" />
-    </figure>
-
-    <div class="contents lg:grid lg:gap-10">
-      <div class="order-1 mb-7 grid gap-6 lg:order-none lg:mb-0" data-reveal>
+  <!-- Desktop: text left, the photos as a bento grid right, centred on each other. Phones: text, then the bento. -->
+  <div class="mx-auto grid max-w-(--max) gap-10 px-(--gutter) lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.35fr)] lg:items-center lg:gap-16">
+    <div class="grid gap-6 lg:gap-7" data-reveal>
+      <div class="grid gap-6">
         <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>La maison</p>
         <h2 id="heritage-title" class="m-0 max-w-[16ch] text-step-3 leading-[1.02] text-balance">{mission?.heading || "Un héritage marocain, une élégance contemporaine."}</h2>
+      </div>
+      <div class="grid gap-5">
         {paragraphs.map((t, i) => <p class:list={["m-0 max-w-[48ch]", i === 0 ? "font-display text-[1.375rem] leading-[1.35] text-burgundy italic lg:text-[1.625rem]" : "text-ink-soft"]}>{t}</p>)}
         {cta && <a class="inline-flex min-h-11 w-fit items-center gap-2 text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href={cta.href}>{cta.label} <span aria-hidden="true">→</span></a>}
       </div>
+    </div>
 
-      {details.length > 0 && (
-        <ul class="order-3 m-0 grid list-none grid-cols-2 gap-3 p-0 lg:order-none lg:gap-5" aria-label="Le savoir-faire en détail">
-          {details.map((d, i) => (
-            <li>
-              <figure class="m-0">
-                <span class="relative block aspect-square overflow-hidden rounded-lg bg-cream" data-clip style={`--d:${0.12 * (i + 1)}s`}>
-                  <img class={`absolute inset-0 size-full object-cover ${d.cls}`} src={d.src} srcset={d.srcset} sizes="(min-width: 64rem) 22vw, 46vw" width={d.w} height={d.h} alt={d.alt} loading="lazy" decoding="async" />
-                </span>
-                <figcaption class="mt-2.5 text-[0.8125rem] text-ink-soft">{d.label}</figcaption>
-              </figure>
-            </li>
-          ))}
-        </ul>
-      )}
+    <!-- Bento: two columns, the atelier photo spanning both on top. -->
+    <div>
+      <ul class="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:gap-5" aria-label="L’atelier et le savoir-faire en images">
+        {tiles.map((t, i) => (
+          <li class={`relative overflow-hidden rounded-xl bg-cream ${t.place}`} data-clip style={`--d:${0.1 * i}s`}>
+            <img class={`absolute inset-0 size-full object-cover ${t.cls}`} src={t.src} srcset={t.srcset} sizes={i === 0 ? "(min-width: 64rem) 55vw, 100vw" : "(min-width: 64rem) 28vw, 50vw"} width={t.w} height={t.h} alt={t.alt} loading="lazy" decoding="async" />
+            {t.label && <span class="absolute bottom-2 left-2 inline-flex min-h-7 items-center rounded-full bg-ivory/92 px-2.5 text-[0.6875rem] whitespace-nowrap lg:min-h-8 lg:px-3.5 lg:text-[0.75rem] font-medium text-burgundy backdrop-blur-sm lg:bottom-4 lg:left-4">{t.label}</span>}
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </section>

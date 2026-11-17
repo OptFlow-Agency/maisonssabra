@@ -1,12 +1,13 @@
 ---
 import type { Product } from '../data/products';
-import CatalogCard from './CatalogCard.astro';
+import ProductCard from './ProductCard.astro';
 interface Props { products: Product[]; title?: string; intro?: string; page?: boolean; showFilters?: boolean }
 const { products, title = "Toute la boutique", intro = "Paiement à la livraison partout au Maroc · Inspection avant règlement", page = false, showFilters = true } = Astro.props;
 const Heading = page ? "h1" : "h2";
-const filters = [{ key: 'all', label: 'Tous les produits' }, { key: 'zman', label: 'Collection Z’man' }, { key: 'bladi', label: 'Collection Bladi' }];
+// Atar has no pieces yet: its filter shows a "coming soon" note instead of an empty grid.
+const filters = [{ key: 'all', label: 'Tous les produits' }, { key: 'zman', label: 'Collection Z’man' }, { key: 'bladi', label: 'Collection Bladi' }, { key: 'atar', label: 'Collection Atar' }];
 ---
-<section class:list={["bg-white", page ? "pt-8 pb-16 md:pb-24" : "py-16 md:py-24"]} aria-labelledby="shop-title" data-featured-shop>
+<section class:list={["bg-ivory", page ? "pt-8 pb-16 md:pb-24" : "py-16 md:py-24"]} aria-labelledby="shop-title" data-featured-shop>
   <div class="mx-auto max-w-(--max) px-(--gutter)">
     <div class="mb-10 flex flex-col justify-between gap-6 border-b border-gold/25 pb-7 lg:flex-row lg:items-end">
       <div>
@@ -14,23 +15,41 @@ const filters = [{ key: 'all', label: 'Tous les produits' }, { key: 'zman', labe
         <Heading id="shop-title" class="m-0 text-step-3">{title}</Heading>
         <p class="mt-3 text-xs text-ink-soft">{intro}</p>
       </div>
-      {showFilters && <div class="flex max-w-full gap-1 overflow-x-auto border border-gold/25 bg-card-beige p-1" role="group" aria-label="Filtrer les produits">
-        {filters.map((filter) => <button type="button" data-product-filter={filter.key} aria-pressed={filter.key === 'all' ? 'true' : 'false'} class="min-h-11 shrink-0 cursor-pointer border-0 bg-transparent px-4 text-[.625rem] font-medium uppercase tracking-[.1em] text-ink-soft aria-pressed:bg-burgundy aria-pressed:text-white focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-2">{filter.label}</button>)}
-      </div>}
+      {showFilters && <>
+        <!-- Phones: a select. From md: tabs. Both drive the same filter. -->
+        <label class="grid gap-2 md:hidden">
+          <span class="sr-only">Filtrer les produits</span>
+          <select class="field w-full bg-white" data-product-select>
+            {filters.map((f) => <option value={f.key}>{f.label}</option>)}
+          </select>
+        </label>
+        <div class="hidden max-w-full gap-1 overflow-x-auto rounded-full border border-gold/25 bg-white p-1 md:flex" role="group" aria-label="Filtrer les produits">
+          {filters.map((filter) => <button type="button" data-product-filter={filter.key} aria-pressed={filter.key === 'all' ? 'true' : 'false'} class="min-h-11 shrink-0 cursor-pointer rounded-full border-0 bg-transparent px-5 text-[.625rem] font-medium uppercase tracking-[.1em] text-ink-soft transition-colors hover:text-burgundy aria-pressed:bg-burgundy aria-pressed:text-white focus-visible:outline-2 focus-visible:outline-burgundy focus-visible:outline-offset-2">{filter.label}</button>)}
+        </div>
+      </>}
     </div>
     {products.length === 0 && <p class="text-sm text-ink-soft">Aucun produit dans cette collection pour le moment.</p>}
-    <div class="grid grid-cols-1 gap-5 min-[480px]:grid-cols-2 lg:grid-cols-4">
-      {products.map((p) => <CatalogCard product={p} />)}
-    </div>
+    <p class="m-0 py-10 text-center font-display text-xl text-burgundy" data-product-empty role="status" hidden>La collection Atar arrive bientôt.</p>
+    <!-- Same card and grid as the home page selection; cards stretch so prices line up. -->
+    <ul class="m-0 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-3 md:gap-4 lg:grid-cols-4 lg:gap-6">
+      {products.map((p, i) => <li data-product-collection={p.collection}><ProductCard product={p} eager={i < 2} /></li>)}
+    </ul>
   </div>
 </section>
 <script>
   document.querySelectorAll<HTMLElement>('[data-featured-shop]').forEach((root) => {
     const buttons = root.querySelectorAll<HTMLButtonElement>('[data-product-filter]');
+    const select = root.querySelector<HTMLSelectElement>('[data-product-select]');
     const cards = root.querySelectorAll<HTMLElement>('[data-product-collection]');
-    buttons.forEach((button) => button.addEventListener('click', () => {
-      buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
-      cards.forEach((card) => { card.hidden = button.dataset.productFilter !== 'all' && card.dataset.productCollection !== button.dataset.productFilter; });
-    }));
+    const empty = root.querySelector<HTMLElement>('[data-product-empty]');
+    const apply = (key: string) => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.productFilter === key)));
+      if (select) select.value = key;
+      let shown = 0;
+      cards.forEach((card) => { card.hidden = key !== 'all' && card.dataset.productCollection !== key; if (!card.hidden) shown++; });
+      if (empty) empty.hidden = shown > 0 || cards.length === 0;
+    };
+    buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.productFilter!)));
+    select?.addEventListener('change', () => apply(select.value));
   });
 </script>

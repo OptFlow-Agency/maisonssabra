@@ -59,3 +59,15 @@ const bag = ShoppingBag.replace(/\swidth="\d+"/, ' width="18"').replace(/\sheigh
     </div>
   </div>
 </article>
+<script>
+  // Colour previews: a swatch swaps the card photo (the link still opens the product).
+  document.addEventListener("click", (e) => {
+    const b = (e.target as Element).closest<HTMLButtonElement>("[data-swatch]");
+    if (!b) return;
+    const card = b.closest("[data-card]")!;
+    const img = card.querySelector<HTMLImageElement>("[data-card-img]")!;
+    img.removeAttribute("srcset");
+    img.src = b.dataset.swatch!;
+    card.querySelectorAll("[data-swatch]").forEach((s) => s.setAttribute("aria-pressed", String(s === b)));
+  });
+</script>

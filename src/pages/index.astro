@@ -39,3 +39,8 @@ const featured = home.featured.products;
   <ContactCta />
   <Instagram />
 </Page>
+
+<style>
+  /* Home only: every section's ivory ground becomes the beige card surface. The footer sits outside <main>, so it keeps its own colours. */
+  :global(#contenu) { --color-ivory: var(--color-card-beige); }
+</style>

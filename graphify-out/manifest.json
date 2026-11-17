@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1794591944.4870791,
-    "ast_hash": "5342429fa2ca20910f1f75478111224a",
+    "mtime": 1794953447.266605,
+    "ast_hash": "d9d73c94c92999dc23d3300b9ba3b348",
     "semantic_hash": ""
   },
   ".vscode/extensions.json": {
@@ -25,8 +25,8 @@
     "semantic_hash": ""
   },
   "astro.config.mjs": {
-    "mtime": 1794773807.1901426,
-    "ast_hash": "2b55b278d4a02c3728caf45ed23f707f",
+    "mtime": 1794904623.622117,
+    "ast_hash": "82b75b6eb7896a1051443d50112da043",
     "semantic_hash": ""
   },
   "package.json": {
@@ -40,8 +40,8 @@
     "semantic_hash": ""
   },
   "src/components/BrandFilms.astro": {
-    "mtime": 1794773807.215511,
-    "ast_hash": "568839d46c838cafc3911d541acc4a68",
+    "mtime": 1794953002.3848212,
+    "ast_hash": "a345993945db093c6b8c28d7079343eb",
     "semantic_hash": ""
   },
   "src/components/Breadcrumbs.astro": {
@@ -54,14 +54,9 @@
     "ast_hash": "22548feaa32cf58e27c3535904ff218a",
     "semantic_hash": ""
   },
-  "src/components/CatalogCard.astro": {
-    "mtime": 1794591952.9144387,
-    "ast_hash": "5c6ef9815e5cc3873cc0bf9912e4108c",
-    "semantic_hash": ""
-  },
   "src/components/CollectionView.astro": {
-    "mtime": 1794591952.91486,
-    "ast_hash": "7e559c906cf5718feb53d683296169b0",
+    "mtime": 1794953746.008878,
+    "ast_hash": "6ca6bd66241a075e266c66385f23aa8c",
     "semantic_hash": ""
   },
   "src/components/Collections.astro": {
@@ -85,13 +80,13 @@
     "semantic_hash": ""
   },
   "src/components/CuratedProducts.astro": {
-    "mtime": 1794773807.2164917,
-    "ast_hash": "ce4bc597c9a5e8d6a2935fed3c43e0fa",
+    "mtime": 1794953746.0094974,
+    "ast_hash": "35f10653beda3e537be7522e75f0ddd8",
     "semantic_hash": ""
   },
   "src/components/FeaturedProducts.astro": {
-    "mtime": 1794591952.9156415,
-    "ast_hash": "1859f1f83e3ed6de1d4d5b8c51970ddb",
+    "mtime": 1794953746.009111,
+    "ast_hash": "8808e4695ca53f49c035201a2eff1b1f",
     "semantic_hash": ""
   },
   "src/components/FloatingCart.astro": {
@@ -115,8 +110,8 @@
     "semantic_hash": ""
   },
   "src/components/Heritage.astro": {
-    "mtime": 1794773807.2176168,
-    "ast_hash": "32e286737b9c9f71eebf4afdaffde336",
+    "mtime": 1794953224.8454506,
+    "ast_hash": "2ae4622f3def652c19e7b236331d5891",
     "semantic_hash": ""
   },
   "src/components/Hero.astro": {
@@ -150,8 +145,8 @@
     "semantic_hash": ""
   },
   "src/components/ProductCard.astro": {
-    "mtime": 1794773807.2183657,
-    "ast_hash": "72dc3c5fb0d0d5357d30bfde7ffd3b0a",
+    "mtime": 1794953746.0097535,
+    "ast_hash": "94db4f782be592dc471324e06e523467",
     "semantic_hash": ""
   },
   "src/components/ProductSupport.astro": {
@@ -185,8 +180,8 @@
     "semantic_hash": ""
   },
   "src/components/Testimonials.astro": {
-    "mtime": 1794773807.2188447,
-    "ast_hash": "3d20894d7e02c4ff149768063c1957e6",
+    "mtime": 1794953423.3656895,
+    "ast_hash": "25548a3bea9b7b0223a52163cb1b226d",
     "semantic_hash": ""
   },
   "src/components/Toast.astro": {
@@ -305,8 +300,8 @@
     "semantic_hash": ""
   },
   "src/pages/index.astro": {
-    "mtime": 1794773807.2205563,
-    "ast_hash": "4a19ad3509b2c0cb61a9ade7378a6714",
+    "mtime": 1794952126.0435162,
+    "ast_hash": "bb9725437cb73d72ce389d22843627af",
     "semantic_hash": ""
   },
   "src/pages/produit/[slug].astro": {

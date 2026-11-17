@@ -9,25 +9,77 @@ const published: Quote[] = [
   { name: "@eddahabitouria", quote: "أحييك مدام بهيجة على ابتكاراتك الرائعة التقيت بك يوم الأحد الماضى كل عروضك كانت تعبر عن اللمسة المغربية مزيد من التألق وبالطبع كنت محضوضة باقتناء قطعتين أفتخر بهما", arabic: true },
 ];
 const cms = cmsEnabled ? await fetchReviews().catch(() => null) : null;
-const fromCms: Quote[] = (cms?.reviews ?? []).slice(0, 3).map((r) => ({ name: r.author, quote: r.text, arabic: /[؀-ۿ]/.test(r.text), verified: r.verified }));
+const fromCms: Quote[] = (cms?.reviews ?? []).slice(0, 12).map((r) => ({ name: r.author, quote: r.text, arabic: /[؀-ۿ]/.test(r.text), verified: r.verified }));
 const quotes = fromCms.length ? fromCms : published;
+// Infinite loop: the list is rendered three times; visitors start on the middle copy and the script silently re-centres.
+// The outer copies are hidden from assistive tech and focus.
+const loop = quotes.length > 1 ? [0, 1, 2].flatMap((set) => quotes.map((q, i) => ({ q, i, clone: set !== 1 }))) : quotes.map((q, i) => ({ q, i, clone: false }));
+const arrow = (d: string) => `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+const nav = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border border-burgundy/40 bg-transparent p-0 text-burgundy transition-[background-color,color,opacity] duration-200 hover:bg-burgundy hover:text-cream-soft disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-burgundy";
 ---
-<section class="bg-ivory py-16 lg:py-24" aria-labelledby="temoignages-title">
+<section class="overflow-hidden bg-ivory py-16 lg:py-24" aria-labelledby="temoignages-title">
   <div class="mx-auto max-w-(--max) px-(--gutter)">
-    <div class="mb-10 grid gap-3 lg:mb-14" data-reveal>
-      <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>Elles en parlent</p>
-      <h2 id="temoignages-title" class="m-0 text-step-2 lg:text-[2.75rem]">Les mots de nos clientes</h2>
+    <div class="mb-10 flex flex-wrap items-end justify-between gap-6 lg:mb-14">
+      <div class="grid gap-3" data-reveal>
+        <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>Elles en parlent</p>
+        <h2 id="temoignages-title" class="m-0 text-step-2 lg:text-[2.75rem]">Les mots de nos clientes</h2>
+      </div>
+      <div class="flex items-center gap-3" role="group" aria-label="Parcourir les avis">
+        <button class={nav} type="button" data-quotes-prev aria-label="Avis précédents" set:html={arrow("M15 5l-7 7 7 7")}></button>
+        <button class={nav} type="button" data-quotes-next aria-label="Avis suivants" set:html={arrow("M9 5l7 7-7 7")}></button>
+      </div>
     </div>
-    <ul class="m-0 grid list-none gap-10 p-0 md:grid-cols-3 md:gap-12">
-      {quotes.map((q, i) => (
-        <li data-reveal style={`--d:${0.08 * i}s`}>
-          <figure class="m-0 grid gap-5 border-t border-gold/40 pt-6">
+
+    <!-- Manual, infinite carousel: native horizontal scroll with snap (swipe, trackpad, keyboard), plus the arrows above. Nothing moves on its own. -->
+    <ul class="-mx-(--gutter) m-0 flex list-none snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-(--gutter) px-(--gutter) py-2 [scrollbar-width:none] focus-visible:outline-offset-4 md:gap-5 [&::-webkit-scrollbar]:hidden" data-quotes-track role="region" aria-roledescription="carrousel" aria-label="Avis clientes" tabindex="0">
+      {loop.map(({ q, i, clone }) => (
+        <li class="flex w-[85%] shrink-0 snap-start md:w-[46%] lg:w-[36%]" data-reveal style={`--d:${0.08 * i}s`} aria-label={clone ? undefined : `${i + 1} sur ${quotes.length}`} aria-hidden={clone ? "true" : undefined} inert={clone} data-set-start={i === 0 ? "" : undefined}>
+          <figure class="m-0 flex w-full flex-col gap-5 rounded-2xl bg-white p-7 shadow-[0_20px_40px_-30px_rgb(77_2_6/0.35)] ring-1 ring-gold/20 lg:p-9">
             <span class="font-display text-5xl leading-[0.5] text-gold" aria-hidden="true">“</span>
             <blockquote class="m-0 font-display text-[1.25rem] leading-[1.45] text-burgundy" lang={q.arabic ? "ar" : "fr"} dir={q.arabic ? "rtl" : undefined}>{q.quote}</blockquote>
-            <figcaption class="text-[0.75rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">{q.name}{q.verified && <span class="font-medium normal-case tracking-normal"> · Achat vérifié</span>}</figcaption>
+            <figcaption class="mt-auto border-t border-gold/25 pt-4 text-[0.75rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">{q.name}{q.verified && <span class="font-medium normal-case tracking-normal"> · Achat vérifié</span>}</figcaption>
           </figure>
         </li>
       ))}
     </ul>
   </div>
 </section>
+
+<script>
+  const track = document.querySelector<HTMLElement>("[data-quotes-track]");
+  const prev = document.querySelector<HTMLButtonElement>("[data-quotes-prev]");
+  const next = document.querySelector<HTMLButtonElement>("[data-quotes-next]");
+  if (track && prev && next) {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+    const starts = [...track.querySelectorAll<HTMLElement>("[data-set-start]")];
+    const looped = starts.length === 3;
+    // One step = one card plus the gap; one set = the whole list once.
+    const step = () => {
+      const [a, b] = track.children;
+      return a && b ? (b as HTMLElement).offsetLeft - (a as HTMLElement).offsetLeft : track.clientWidth;
+    };
+    const setW = () => starts[1].offsetLeft - starts[0].offsetLeft;
+    const move = (dir: number) => track.scrollBy({ left: dir * step(), behavior: reduce.matches ? "auto" : "smooth" });
+    // Once scrolling settles in an outer copy, jump by one set to the same card in the middle copy (invisible: identical content).
+    const recentre = () => {
+      if (!looped) return;
+      const w = setW();
+      if (track.scrollLeft < w * 0.5) track.scrollLeft += w;
+      else if (track.scrollLeft > w * 1.5) track.scrollLeft -= w;
+    };
+    let t = 0;
+    track.addEventListener("scroll", () => { clearTimeout(t); t = window.setTimeout(recentre, 140); }, { passive: true });
+    prev.addEventListener("click", () => move(-1));
+    next.addEventListener("click", () => move(1));
+    track.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") { e.preventDefault(); move(-1); }
+      if (e.key === "ArrowRight") { e.preventDefault(); move(1); }
+    });
+    if (looped) {
+      track.scrollLeft = setW();
+      addEventListener("resize", () => { track.scrollLeft = setW() + (track.scrollLeft % setW()); });
+    } else {
+      prev.hidden = next.hidden = true;
+    }
+  }
+</script>

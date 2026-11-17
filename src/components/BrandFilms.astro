@@ -10,45 +10,57 @@ const icons = {
   prev: i('<path d="M15 5l-7 7 7 7"/>'),
   next: i('<path d="M9 5l7 7-7 7"/>'),
 };
+// The stack shows five cards (centre + two each side), so a short list is repeated to fill it; dots still count real films.
+const slides = Array.from({ length: films.length > 1 && films.length < 5 ? films.length * 2 : films.length }, (_, i) => ({ f: films[i % films.length], k: i % films.length }));
+const nav = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border border-burgundy/40 bg-transparent p-0 text-burgundy transition-colors duration-200 hover:bg-burgundy hover:text-cream-soft";
 const ctl = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-cream-soft transition-colors duration-200 hover:bg-cream-soft/15";
 ---
-<section id="notre-histoire" class="on-dark scroll-mt-24 overflow-hidden bg-burgundy py-16 text-cream-soft lg:py-28" aria-labelledby="films-title">
-  <div class="mx-auto grid max-w-(--max) gap-8 px-(--gutter) lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:gap-16">
-    <div class="grid content-start gap-4 lg:gap-6" data-reveal>
-      <p class="eyebrow m-0"><span class="h-px w-8 bg-rose" aria-hidden="true"></span>En mouvement</p>
-      <h2 id="films-title" class="text-step-2 text-cream-soft lg:text-[2.75rem]">L’univers Maison Sabra, en mouvement.</h2>
-      <p class="m-0 max-w-[36ch] text-cream-soft/80">Découvrez nos créations, nos matières et les histoires qui les inspirent.</p>
-      <p class="m-0 max-w-[36ch] border-t border-gold/50 pt-4 font-display text-[1.25rem] leading-snug text-cream-soft">Maison Sabra réinterprète l’héritage marocain en sacs pensés pour la femme d’aujourd’hui : des textures riches, des motifs qui racontent, une allure contemporaine.</p>
-      <div class="mt-4 hidden items-center gap-2 lg:flex" aria-label="Parcourir les vidéos" role="group">
-        <button class={`${ctl} border border-cream-soft/40`} type="button" data-films-prev aria-label="Vidéos précédentes" set:html={icons.prev}></button>
-        <button class={`${ctl} border border-cream-soft/40`} type="button" data-films-next aria-label="Vidéos suivantes" set:html={icons.next}></button>
-      </div>
+<section id="notre-histoire" class="scroll-mt-24 overflow-hidden bg-ivory py-16 lg:py-28" aria-labelledby="films-title">
+  <div class="mx-auto grid max-w-(--max) gap-10 px-(--gutter) lg:gap-14">
+    <div class="mx-auto grid max-w-[44rem] justify-items-center gap-4 text-center lg:gap-5" data-reveal>
+      <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>En mouvement<span class="h-px w-8 bg-gold" aria-hidden="true"></span></p>
+      <h2 id="films-title" class="m-0 text-step-3 leading-[1.02] text-balance">L’univers Maison Sabra, en mouvement.</h2>
+      <p class="m-0 max-w-[48ch] text-ink-soft">Découvrez nos créations, nos matières et les histoires qui les inspirent.</p>
+      <p class="m-0 max-w-[46ch] font-display text-[1.25rem] leading-snug text-burgundy italic lg:text-[1.375rem]">Maison Sabra réinterprète l’héritage marocain en sacs pensés pour la femme d’aujourd’hui : des textures riches, des motifs qui racontent, une allure contemporaine.</p>
     </div>
 
-    <div class="-mx-(--gutter) min-w-0 lg:mx-0">
-      <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-(--gutter) px-(--gutter) pb-2 [scrollbar-width:none] focus-visible:outline-offset-4 [&::-webkit-scrollbar]:hidden lg:scroll-px-0 lg:px-0" data-films-track role="region" aria-roledescription="carrousel" aria-label="Films Maison Sabra" tabindex="0">
-        {films.map((f, n) => (
-          <figure class="group/f m-0 w-[72vw] max-w-[17rem] shrink-0 snap-start min-[30rem]:w-[17rem]" data-film aria-label={`${n + 1} sur ${films.length}`}>
-            <div class="group/frame relative aspect-[9/16] overflow-hidden rounded-xl bg-burgundy-deep" data-state="idle" data-frame>
-              <video class="size-full object-cover" src={f.src} poster={f.poster} preload="none" playsinline loop width="540" height="960" aria-label={f.label}></video>
-              <button class="absolute inset-0 grid cursor-pointer place-items-center border-0 bg-transparent p-0 text-burgundy" type="button" data-play aria-label={`Lire la vidéo : ${f.title}`}>
-                <span class="grid size-16 place-items-center rounded-full bg-cream-soft/92 pl-0.5 transition-[scale,opacity] duration-300 group-data-[state=playing]/frame:scale-90 group-data-[state=playing]/frame:opacity-0 group-data-[state=loading]/frame:opacity-0 can-hover:group-hover/f:scale-105" aria-hidden="true" set:html={icons.play}></span>
-              </button>
-              <p class="pointer-events-none absolute inset-x-0 top-1/2 m-0 hidden -translate-y-1/2 text-center text-sm text-cream-soft group-data-[state=loading]/frame:block group-data-[state=error]/frame:block" data-status role="status"></p>
-              <button class="absolute inset-x-4 top-1/2 mt-8 hidden min-h-11 cursor-pointer border border-cream-soft bg-burgundy-deep/70 text-xs font-semibold tracking-[0.12em] text-cream-soft uppercase group-data-[state=error]/frame:block" type="button" data-retry>Réessayer</button>
-              <div class="absolute inset-x-0 bottom-0 hidden items-center gap-1 bg-linear-to-t from-burgundy-deep/85 to-transparent px-2 pt-8 pb-1.5 group-data-[state=paused]/frame:flex group-data-[state=playing]/frame:flex" data-bar>
-                <button class={ctl} type="button" data-toggle aria-label={`Mettre en pause : ${f.title}`} set:html={icons.pause}></button>
-                <input class="h-11 min-w-0 flex-1 cursor-pointer accent-gold" type="range" min="0" max="1000" value="0" aria-label={`Position de lecture : ${f.title}`} data-seek />
-                <button class={ctl} type="button" data-mute aria-pressed="false" aria-label={`Couper le son : ${f.title}`} set:html={icons.sound}></button>
-                <button class={ctl} type="button" data-full aria-label={`Plein écran : ${f.title}`} set:html={icons.full}></button>
+    <!-- Stacked carousel: every card shares one grid cell; the script tucks each one behind the active (centre) card, smaller and softer the further it sits. It advances on its own and holds while hovered, focused or playing. -->
+    <div class="grid gap-8">
+      <div class="relative grid touch-pan-y justify-items-center select-none [&>*]:[grid-area:1/1]" data-films-track role="region" aria-roledescription="carrousel" aria-label="Films Maison Sabra" tabindex="0">
+        {slides.map(({ f, k: n }, i) => (
+          <figure class="group/f relative m-0 w-[min(64vw,18rem)] transition-[transform,opacity,filter] duration-700 ease-(--ease-out) will-change-transform motion-reduce:transition-none lg:w-[20rem]" data-film={n} data-active={i === 0 ? "true" : "false"} aria-label={`${n + 1} sur ${films.length} : ${f.title}`}>
+            <div class="relative">
+              <div class="group/frame relative aspect-[9/16] overflow-hidden rounded-xl bg-burgundy-deep shadow-[0_30px_50px_-30px_rgb(77_2_6/0.55)]" data-state="idle" data-frame>
+                <video class="size-full object-cover" src={f.src} poster={f.poster} preload="none" playsinline loop width="540" height="960" aria-label={f.label}></video>
+                <button class="absolute inset-0 grid cursor-pointer place-items-center border-0 bg-transparent p-0 text-burgundy" type="button" data-play aria-label={`Lire la vidéo : ${f.title}`}>
+                  <span class="grid size-16 place-items-center rounded-full bg-cream-soft/92 pl-0.5 transition-[scale,opacity] duration-300 group-data-[state=playing]/frame:scale-90 group-data-[state=playing]/frame:opacity-0 group-data-[state=loading]/frame:opacity-0 group-data-[active=false]/f:opacity-0 can-hover:group-hover/f:scale-105" aria-hidden="true" set:html={icons.play}></span>
+                </button>
+                <p class="pointer-events-none absolute inset-x-0 top-1/2 m-0 hidden -translate-y-1/2 text-center text-sm text-cream-soft group-data-[state=loading]/frame:block group-data-[state=error]/frame:block" data-status role="status"></p>
+                <button class="absolute inset-x-4 top-1/2 mt-8 hidden min-h-11 cursor-pointer border border-cream-soft bg-burgundy-deep/70 text-xs font-semibold tracking-[0.12em] text-cream-soft uppercase group-data-[state=error]/frame:block" type="button" data-retry>Réessayer</button>
+                <div class="absolute inset-x-0 bottom-0 hidden items-center gap-1 bg-linear-to-t from-burgundy-deep/85 to-transparent px-2 pt-8 pb-1.5 group-data-[state=paused]/frame:flex group-data-[state=playing]/frame:flex" data-bar>
+                  <button class={ctl} type="button" data-toggle aria-label={`Mettre en pause : ${f.title}`} set:html={icons.pause}></button>
+                  <input class="h-11 min-w-0 flex-1 cursor-pointer accent-gold" type="range" min="0" max="1000" value="0" aria-label={`Position de lecture : ${f.title}`} data-seek />
+                  <button class={ctl} type="button" data-mute aria-pressed="false" aria-label={`Couper le son : ${f.title}`} set:html={icons.sound}></button>
+                  <button class={ctl} type="button" data-full aria-label={`Plein écran : ${f.title}`} set:html={icons.full}></button>
+                </div>
               </div>
+              <!-- Side cards: one click brings the film to the centre; its own controls stay inert until then. -->
+              <button class="absolute inset-0 hidden cursor-pointer rounded-xl border-0 bg-transparent p-0 group-data-[active=false]/f:block" type="button" tabindex="-1" data-focus aria-label={`Afficher la vidéo : ${f.title}`}></button>
             </div>
-            <figcaption class="mt-3 grid gap-0.5">
-              <span class="font-display text-xl leading-tight text-cream-soft">{f.title}</span>
-              <span class="text-sm text-cream-soft/75">{f.note}</span>
+            <figcaption class="mt-4 grid gap-0.5 text-center transition-opacity duration-500 group-data-[active=false]/f:opacity-0">
+              <span class="font-display text-xl leading-tight text-burgundy">{f.title}</span>
+              <span class="text-sm text-ink-soft">{f.note}</span>
             </figcaption>
           </figure>
         ))}
+      </div>
+
+      <div class="flex items-center justify-center gap-5" role="group" aria-label="Parcourir les vidéos">
+        <button class={`${nav}`} type="button" data-films-prev aria-label="Vidéo précédente" set:html={icons.prev}></button>
+        <div class="flex items-center gap-2.5">
+          {films.map((f, n) => <button class="h-2.5 w-2.5 cursor-pointer rounded-full border-0 bg-burgundy/25 p-0 transition-[width,background-color] duration-300 aria-[current=true]:w-7 aria-[current=true]:bg-burgundy" type="button" data-dot={n} aria-current={n === 0 ? "true" : "false"} aria-label={`Vidéo ${n + 1} : ${f.title}`}></button>)}
+        </div>
+        <button class={`${nav}`} type="button" data-films-next aria-label="Vidéo suivante" set:html={icons.next}></button>
       </div>
     </div>
   </div>
@@ -60,7 +72,6 @@ const ctl = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-ful
 <script>
   const track = document.querySelector<HTMLElement>("[data-films-track]");
   if (track) {
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)");
     const tpl = document.querySelector<HTMLTemplateElement>("[data-icons]")!;
     const icon = (k: string) => tpl.content.querySelector<HTMLElement>(`[data-i="${k}"]`)!.innerHTML;
     const films = [...track.querySelectorAll<HTMLElement>("[data-film]")].map((fig) => {
@@ -123,20 +134,84 @@ const ctl = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-ful
     }), { root: null, threshold: 0.25 });
     films.forEach((f) => io.observe(f.fig));
 
-    // Desktop arrows: scroll by one card, never hijack the wheel.
+    // 3D carousel: each card sits at a circular offset from the active one (…-1, 0, +1…), so the films loop.
     const prev = document.querySelector<HTMLButtonElement>("[data-films-prev]");
     const next = document.querySelector<HTMLButtonElement>("[data-films-next]");
-    const step = () => (films[0].fig.getBoundingClientRect().width || 272) + 16;
-    const sync = () => {
-      if (!prev || !next) return;
-      prev.disabled = track.scrollLeft < 4;
-      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
-      [prev, next].forEach((b) => b.classList.toggle("opacity-40", b.disabled));
+    const dots = [...document.querySelectorAll<HTMLButtonElement>("[data-dot]")];
+    const n = films.length;
+    let active = 0;
+    const place = () => {
+            films.forEach((f, i) => {
+        let o = i - active;
+        if (o > n / 2) o -= n;
+        if (o < -n / 2) o += n;
+        const d = Math.abs(o);
+        const on = o === 0;
+        // Straight cards side by side with a small gap: each step out is scaled down, faded and softened.
+        // Offsets (in card widths) = previous half-widths + gap + this half-width, so the gap stays even whatever the scale.
+        const scale = [1, 0.85, 0.72, 0.6];
+        const gap = 0.06;
+        let x = 0;
+        for (let k = 1; k <= Math.min(d, 3); k++) x += scale[k - 1] / 2 + gap + scale[k] / 2;
+        f.fig.style.transform = `translateX(${x * 100 * Math.sign(o)}%) scale(${scale[Math.min(d, 3)]})`;
+        f.fig.style.zIndex = String(10 - d);
+        f.fig.style.opacity = ["1", "0.9", "0.55", "0"][Math.min(d, 3)];
+        f.fig.style.filter = ["none", "blur(1px) saturate(0.85)", "blur(2.5px) saturate(0.75)", "none"][Math.min(d, 3)];
+        f.fig.style.pointerEvents = d > 2 ? "none" : "";
+        f.fig.dataset.active = String(on);
+        f.frame.inert = !on;
+        f.fig.setAttribute("aria-hidden", String(!on));
+      });
+      dots.forEach((b, i) => b.setAttribute("aria-current", String(i === Number(films[active].fig.dataset.film))));
     };
-    prev?.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: reduce.matches ? "auto" : "smooth" }));
-    next?.addEventListener("click", () => track.scrollBy({ left: step(), behavior: reduce.matches ? "auto" : "smooth" }));
-    track.addEventListener("scroll", sync, { passive: true });
-    addEventListener("resize", sync);
-    sync();
+    const go = (i: number) => {
+      const to = ((i % n) + n) % n;
+      if (to === active) return;
+      pauseOthers();
+      active = to;
+      place();
+    };
+    prev?.addEventListener("click", () => go(active - 1));
+    next?.addEventListener("click", () => go(active + 1));
+    // A dot jumps to the nearest card showing that film.
+    dots.forEach((b, k) => b.addEventListener("click", () => {
+      let best = active, dist = Infinity;
+      films.forEach((f, i) => {
+        if (Number(f.fig.dataset.film) !== k) return;
+        const o = Math.abs(((i - active + n + n / 2) % n) - n / 2);
+        if (o < dist) { dist = o; best = i; }
+      });
+      go(best);
+    }));
+    films.forEach((f, i) => f.fig.querySelector("[data-focus]")!.addEventListener("click", () => go(i)));
+    track.addEventListener("keydown", (e) => {
+      if ((e.target as HTMLElement).matches("input")) return;
+      if (e.key === "ArrowLeft") { e.preventDefault(); go(active - 1); }
+      if (e.key === "ArrowRight") { e.preventDefault(); go(active + 1); }
+    });
+    // Swipe (touch or mouse drag), ignored on the seek bar.
+    let x0: number | null = null;
+    track.addEventListener("pointerdown", (e) => { x0 = (e.target as HTMLElement).matches("input") ? null : e.clientX; });
+    track.addEventListener("pointerup", (e) => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
+    });
+    addEventListener("resize", place);
+    place();
+
+    // Autoplay: loops forever, but holds while the pointer is over the carousel, focus is inside it, a film is playing,
+    // the section is off screen, or the visitor prefers reduced motion.
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+    const area = track.parentElement!;
+    let hovered = false, visible = false;
+    area.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") hovered = true; });
+    area.addEventListener("pointerleave", () => { hovered = false; });
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.3 }).observe(track);
+    setInterval(() => {
+      const busy = hovered || !visible || reduce.matches || document.hidden || area.contains(document.activeElement) || films.some((f) => !f.video.paused);
+      if (!busy) go(active + 1);
+    }, 3500);
   }
 </script>

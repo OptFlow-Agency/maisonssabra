@@ -11,7 +11,7 @@ interface Props {
 }
 const { title, intro, products, crumbs, others } = Astro.props;
 ---
-<div class="bg-white pt-8 md:pt-10">
+<div class="bg-ivory pt-8 md:pt-10">
   <div class="mx-auto max-w-(--max) px-(--gutter)">
     <Breadcrumbs crumbs={crumbs} />
   </div>
@@ -21,3 +21,8 @@ const { title, intro, products, crumbs, others } = Astro.props;
     {others.map((o) => <a class="inline-flex min-h-11 items-center text-xs font-semibold tracking-[.08em] text-burgundy uppercase underline decoration-gold underline-offset-8 hover:text-rose-dusty focus-visible:outline-2 focus-visible:outline-burgundy" href={o.href}>{o.label}</a>)}
   </nav>
 </div>
+
+<style>
+  /* Shop pages share the home page's ground: ivory becomes the beige surface inside <main>; the footer keeps its colours. */
+  :global(#contenu) { --color-ivory: var(--color-card-beige); }
+</style>
