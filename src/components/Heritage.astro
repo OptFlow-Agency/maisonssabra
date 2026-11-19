@@ -7,9 +7,9 @@ interface Props { mission: Home["mission"]; craft: Home["craft"] }
 const { mission, craft } = Astro.props;
 
 // The lead frame is landscape at the atelier photo's own ratio (1376×768), so the default photo shows whole; a CMS image is cropped to it.
-const lead = mission?.image ?? {
-  src: "/img/atelier-broderie.webp", srcset: undefined, w: 1376, h: 768,
-  alt: "Les mains d’un artisan brodent au fil d’or un velours bordeaux, dans un atelier marocain aux murs de zellige",
+const lead = {
+  src: "/img/atelier-workshop.webp", srcset: undefined, w: 1376, h: 768,
+  alt: "Une artisane en blouse blanche coud un sac en cuir et tissu berbère dans son atelier marocain",
 };
 type Detail = { src: string; srcset?: string; w: number; h: number; alt: string; label: string; cls: string };
 const details: Detail[] = craft?.details.length
@@ -17,46 +17,53 @@ const details: Detail[] = craft?.details.length
   : [
       { src: "/img/home/detail-928.webp", srcset: "/img/home/detail-640.webp 640w, /img/home/detail-928.webp 928w", w: 928, h: 1152, label: "Velours brodé et dorures", alt: "Gros plan sur la broderie dorée d’un sac Z’man, sa chaîne et son fermoir", cls: "scale-[1.35] object-[45%_70%]" },
     ];
-// Bento: the atelier photo full width (whole, at its own ratio), then the first close-up and a portrait of the Z’man bag side by side.
-type Tile = { src: string; srcset?: string; w: number; h: number; alt: string; label?: string; cls: string; place: string };
 const portrait = { src: "/img/home/hero-895.webp", srcset: "/img/home/hero-640.webp 640w, /img/home/hero-895.webp 895w", w: 895, h: 1200, alt: "Une femme en caftan brodé présente un sac Z’man en velours fleuri et dorures, dans un riad aux murs de zellige", cls: "object-[50%_55%]" };
-const tiles: Tile[] = [
-  { ...lead, w: lead.w ?? 1376, h: lead.h ?? 768, cls: "object-center", place: "col-span-2 aspect-[1376/768]" },
-  ...(details[0] ? [{ ...details[0], place: "aspect-square" }] : []),
-  { ...portrait, place: "aspect-square" },
-];
 const paragraphs = mission?.paragraphs.length
   ? mission.paragraphs
   : [
       "Maison Sabra fait vivre l’héritage artisanal marocain à travers des sacs pensés pour la femme d’aujourd’hui.",
       "Velours brodé, dorures, cuir et tissu berbère : chaque pièce est façonnée à la main, avec le soin du détail qui fait la différence.",
     ];
-const cta = mission ? mission.cta : { label: "Découvrir notre histoire", href: "#notre-histoire" };
+const detail = details[0];
 ---
-<section id="maison" class="scroll-mt-24 overflow-hidden bg-ivory py-20 lg:py-32" aria-labelledby="heritage-title">
-  <!-- Desktop: text left, the photos as a bento grid right, centred on each other. Phones: text, then the bento. -->
-  <div class="mx-auto grid max-w-(--max) gap-10 px-(--gutter) lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.35fr)] lg:items-center lg:gap-16">
-    <div class="grid gap-6 lg:gap-7" data-reveal>
-      <div class="grid gap-6">
-        <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>La maison</p>
-        <h2 id="heritage-title" class="m-0 max-w-[16ch] text-step-3 leading-[1.02] text-balance">{mission?.heading || "Un héritage marocain, une élégance contemporaine."}</h2>
-      </div>
-      <div class="grid gap-5">
-        {paragraphs.map((t, i) => <p class:list={["m-0 max-w-[48ch]", i === 0 ? "font-display text-[1.375rem] leading-[1.35] text-burgundy italic lg:text-[1.625rem]" : "text-ink-soft"]}>{t}</p>)}
-        {cta && <a class="inline-flex min-h-11 w-fit items-center gap-2 text-xs font-semibold tracking-[0.14em] text-burgundy uppercase underline decoration-gold decoration-1 underline-offset-[0.5em] hover:text-rose-dusty" href={cta.href}>{cta.label} <span aria-hidden="true">→</span></a>}
-      </div>
-    </div>
+<section id="maison" class="scroll-mt-24 overflow-hidden bg-ivory py-16 sm:py-20 lg:py-28" aria-labelledby="heritage-title">
+  <div class="mx-auto grid max-w-(--max) px-(--gutter)">
+    <h2 id="heritage-title" class="sr-only">{mission?.heading || "Un héritage marocain, une élégance contemporaine."}</h2>
 
-    <!-- Bento: two columns, the atelier photo spanning both on top. -->
-    <div>
-      <ul class="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:gap-5" aria-label="L’atelier et le savoir-faire en images">
-        {tiles.map((t, i) => (
-          <li class={`relative overflow-hidden rounded-xl bg-cream ${t.place}`} data-clip style={`--d:${0.1 * i}s`}>
-            <img class={`absolute inset-0 size-full object-cover ${t.cls}`} src={t.src} srcset={t.srcset} sizes={i === 0 ? "(min-width: 64rem) 55vw, 100vw" : "(min-width: 64rem) 28vw, 50vw"} width={t.w} height={t.h} alt={t.alt} loading="lazy" decoding="async" />
-            {t.label && <span class="absolute bottom-2 left-2 inline-flex min-h-7 items-center rounded-full bg-ivory/92 px-2.5 text-[0.6875rem] whitespace-nowrap lg:min-h-8 lg:px-3.5 lg:text-[0.75rem] font-medium text-burgundy backdrop-blur-sm lg:bottom-4 lg:left-4">{t.label}</span>}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <!-- Bento cards, each with its own colour and voice. -->
+    <ul class="m-0 grid list-none gap-4 p-0 lg:min-h-[46rem] lg:grid-cols-12 lg:grid-rows-2 lg:gap-6" aria-label="L’atelier et le savoir-faire en images">
+      <li class="flex min-w-0 flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-[0_20px_50px_-30px_rgba(60,20,30,0.35)] lg:col-span-7 lg:row-span-2">
+        <div class="relative aspect-[1376/768] w-full lg:aspect-auto lg:min-h-0 lg:flex-1">
+          <img class="absolute inset-0 size-full object-cover object-center" src={lead.src} width={lead.w} height={lead.h} alt={lead.alt} loading="lazy" decoding="async" sizes="(min-width: 64rem) 55vw, 100vw" />
+          <span class="absolute top-4 left-4 inline-flex min-h-8 items-center rounded-full bg-ivory/92 px-4 text-xs font-semibold tracking-[0.12em] text-burgundy uppercase backdrop-blur-sm">L’atelier</span>
+        </div>
+        <div class="grid gap-3 p-6 sm:p-9">
+          <h3 class="m-0 font-display text-3xl leading-tight text-burgundy sm:text-4xl">Façonné à la main</h3>
+          <p class="m-0 max-w-[52ch] text-base text-ink-soft sm:text-lg">{paragraphs[1] ?? paragraphs[0]}</p>
+        </div>
+      </li>
+      {detail && (
+        <li class="grid min-w-0 grid-cols-[1fr_minmax(0,1fr)] overflow-hidden rounded-[1.75rem] bg-burgundy text-ivory lg:col-span-5">
+          <div class="grid content-center gap-3 p-6 sm:p-8">
+            <span class="inline-flex min-h-7 w-fit items-center rounded-full border border-gold/60 px-3 text-[0.6875rem] font-semibold tracking-[0.12em] text-gold uppercase">Savoir-faire</span>
+            <h3 class="m-0 font-display text-2xl leading-tight text-ivory sm:text-3xl">{detail.label}</h3>
+            <p class="m-0 text-sm text-ivory/80 sm:text-base">Broderies et dorures travaillées pièce par pièce.</p>
+          </div>
+          <div class="relative min-h-60 overflow-hidden">
+            <img class={`absolute inset-0 size-full object-cover ${detail.cls}`} src={detail.src} srcset={detail.srcset} sizes="(min-width: 64rem) 24vw, 45vw" width={detail.w} height={detail.h} alt={detail.alt} loading="lazy" decoding="async" />
+          </div>
+        </li>
+      )}
+      <li class="grid min-w-0 grid-cols-[1fr_minmax(0,1fr)] overflow-hidden rounded-[1.75rem] bg-[#e9d3b0] lg:col-span-5">
+        <div class="grid content-center gap-3 p-6 sm:p-8">
+          <span class="inline-flex min-h-7 w-fit items-center rounded-full bg-burgundy px-3 text-[0.6875rem] font-semibold tracking-[0.12em] text-ivory uppercase">Z’man</span>
+          <h3 class="m-0 font-display text-2xl leading-tight text-burgundy sm:text-3xl">Pensé pour elle</h3>
+          <p class="m-0 text-sm text-ink-soft sm:text-base">Des sacs à porter au quotidien comme en soirée.</p>
+        </div>
+        <div class="relative min-h-60 overflow-hidden">
+          <img class={`absolute inset-0 size-full object-cover ${portrait.cls}`} src={portrait.src} srcset={portrait.srcset} sizes="(min-width: 64rem) 24vw, 45vw" width={portrait.w} height={portrait.h} alt={portrait.alt} loading="lazy" decoding="async" />
+        </div>
+      </li>
+    </ul>
   </div>
 </section>

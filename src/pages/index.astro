@@ -22,25 +22,36 @@ cacheShort(Astro.response);
 const home = await loadHome(products);
 const featured = home.featured.products;
 ---
+
 <Page
   title="Maison Sabra | Sacs artisanaux marocains en cuir et velours"
   description="Sacs et pochettes artisanaux en velours, cuir et tissu berbère, inspirés du savoir-faire marocain. Découvrez les collections Z’man, Bladi et bientôt Atar."
-  jsonLd={[organizationLd(), websiteLd(), ...(featured.length ? [itemListLd(featured)] : [])]}
+  jsonLd={[
+    organizationLd(),
+    websiteLd(),
+    ...(featured.length ? [itemListLd(featured)] : []),
+  ]}
 >
   <Hero />
   <HeroReassurance />
   <CollectionsShowcase items={home.collections} />
-  <CuratedProducts products={featured} heading={home.featured.heading} intro={home.featured.body} />
+  <CuratedProducts
+    products={featured}
+    heading={home.featured.heading}
+    intro={home.featured.body}
+  />
+  <Founder />
   <Reassurance />
   <Heritage mission={home.mission} craft={home.craft} />
   <BrandFilms />
   <Testimonials />
-  <Founder />
   <ContactCta />
   <Instagram />
 </Page>
 
 <style>
   /* Home only: every section's ivory ground becomes the beige card surface. The footer sits outside <main>, so it keeps its own colours. */
-  :global(#contenu) { --color-ivory: var(--color-card-beige); }
+  :global(#contenu) {
+    --color-ivory: var(--color-card-beige);
+  }
 </style>

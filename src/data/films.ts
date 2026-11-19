@@ -9,4 +9,7 @@ export const films: Film[] = [
   { src: "/zmancollection/lp/assets/videos/zman-ugc-1.mp4", poster: "/zmancollection/lp/assets/videos/zman-ugc-1.jpg", title: "Maison Sabra sur 2M", note: "L’élégance marocaine à l’honneur", label: "Maison Sabra sur 2M, l’élégance marocaine à l’honneur" },
   { src: "/zmancollection/lp/assets/videos/zman-deballage-rouge.mp4", poster: "/zmancollection/lp/assets/videos/zman-deballage-rouge.jpg", title: "Le déballage du coffret", note: "Le sac Z’man rouge, de près", label: "Déballage du sac Z’man rouge, son coffret et ses détails" },
   { src: "/zmancollection/lp/assets/videos/zman-ugc-3.mp4", poster: "/zmancollection/lp/assets/videos/zman-ugc-3.jpg", title: "Z’man, portée", note: "La collection avec des caftans", label: "La collection Z’man portée avec des caftans" },
+  { src: "/assets/videos/post-video-1.mp4", poster: "/assets/videos/post-video-1.jpg", title: "Maison Sabra, en vidéo", note: "Instants Maison Sabra", label: "Vidéo Maison Sabra 1" },
+  { src: "/assets/videos/post-video-2.mp4", poster: "/assets/videos/post-video-2.jpg", title: "Maison Sabra, en vidéo", note: "Instants Maison Sabra", label: "Vidéo Maison Sabra 2" },
+  { src: "/assets/videos/post-video-3.mp4", poster: "/assets/videos/post-video-3.jpg", title: "Maison Sabra, en vidéo", note: "Instants Maison Sabra", label: "Vidéo Maison Sabra 3" },
 ];
