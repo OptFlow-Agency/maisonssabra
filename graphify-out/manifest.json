@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1794953447.266605,
-    "ast_hash": "d9d73c94c92999dc23d3300b9ba3b348",
+    "mtime": 1795124019.409823,
+    "ast_hash": "ca83e03cb6ffbcb9ae38c28f3c6c3831",
     "semantic_hash": ""
   },
   ".vscode/extensions.json": {
@@ -40,8 +40,8 @@
     "semantic_hash": ""
   },
   "src/components/BrandFilms.astro": {
-    "mtime": 1794953002.3848212,
-    "ast_hash": "a345993945db093c6b8c28d7079343eb",
+    "mtime": 1795165764.1744757,
+    "ast_hash": "3de9b24dc2e9149ec5e8ab80e04bb525",
     "semantic_hash": ""
   },
   "src/components/Breadcrumbs.astro": {
@@ -70,8 +70,8 @@
     "semantic_hash": ""
   },
   "src/components/ContactCta.astro": {
-    "mtime": 1794773807.2163658,
-    "ast_hash": "308a1e9affbbad322a018d096e3d6c21",
+    "mtime": 1795165764.174705,
+    "ast_hash": "d167d73437e887eb3f297dd10c371945",
     "semantic_hash": ""
   },
   "src/components/Craftsmanship.astro": {
@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "src/components/Founder.astro": {
-    "mtime": 1794864958.6378293,
-    "ast_hash": "da11f6d9f4020bd589c5233a7dffb474",
+    "mtime": 1795033179.2351923,
+    "ast_hash": "1131cea164d3ac1fab45c6215aca1be0",
     "semantic_hash": ""
   },
   "src/components/Header.astro": {
@@ -110,8 +110,8 @@
     "semantic_hash": ""
   },
   "src/components/Heritage.astro": {
-    "mtime": 1794953224.8454506,
-    "ast_hash": "2ae4622f3def652c19e7b236331d5891",
+    "mtime": 1795039147.7955782,
+    "ast_hash": "041b68bf87f27fe9c13d5dd683add976",
     "semantic_hash": ""
   },
   "src/components/Hero.astro": {
@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "src/components/ProductView.astro": {
-    "mtime": 1794773807.218517,
-    "ast_hash": "6f0b631b7420c39b55537314d7ff4dc2",
+    "mtime": 1795165764.1749806,
+    "ast_hash": "95e42ca12d77f23c9da45470ee8a887c",
     "semantic_hash": ""
   },
   "src/components/Reassurance.astro": {
@@ -180,8 +180,8 @@
     "semantic_hash": ""
   },
   "src/components/Testimonials.astro": {
-    "mtime": 1794953423.3656895,
-    "ast_hash": "25548a3bea9b7b0223a52163cb1b226d",
+    "mtime": 1795165764.1753361,
+    "ast_hash": "d5444a5212f74dfd5cba6beffceb3479",
     "semantic_hash": ""
   },
   "src/components/Toast.astro": {
@@ -205,8 +205,8 @@
     "semantic_hash": ""
   },
   "src/data/films.ts": {
-    "mtime": 1794591708.541267,
-    "ast_hash": "2e64c9e3630852de933524e598ab9a13",
+    "mtime": 1795165764.175603,
+    "ast_hash": "af579f2da0d2aae999c5dd6e20aa60cf",
     "semantic_hash": ""
   },
   "src/data/icons.ts": {
@@ -215,18 +215,18 @@
     "semantic_hash": ""
   },
   "src/data/products.ts": {
-    "mtime": 1794773807.2192976,
-    "ast_hash": "86a8dd12f600e2d97c462e90fd22fc2b",
+    "mtime": 1795165764.1759253,
+    "ast_hash": "81cb6878e99940b7535d3ae1736ef250",
     "semantic_hash": ""
   },
   "src/data/seo.ts": {
-    "mtime": 1794591708.5415916,
-    "ast_hash": "ce52e581fd11e91205256c5326dddd29",
+    "mtime": 1795165764.1761963,
+    "ast_hash": "f218056c4d3d7bfad1d0e45ee259669a",
     "semantic_hash": ""
   },
   "src/data/site.ts": {
-    "mtime": 1794591952.9186034,
-    "ast_hash": "f12f850e67fac1d180eb782e1296df8a",
+    "mtime": 1795165764.176389,
+    "ast_hash": "92918c2c065c034ba0c2cce734839468",
     "semantic_hash": ""
   },
   "src/layouts/Base.astro": {
@@ -240,13 +240,13 @@
     "semantic_hash": ""
   },
   "src/lib/catalog.ts": {
-    "mtime": 1794773807.219698,
-    "ast_hash": "2a6e86817554c75e90b6220bde4e63ec",
+    "mtime": 1795165764.1766155,
+    "ast_hash": "aac487a78d6285a93ebda990ffc7b817",
     "semantic_hash": ""
   },
   "src/lib/cms.ts": {
-    "mtime": 1794773807.2198462,
-    "ast_hash": "ab2ba80f5d800d900f83837787b68fd5",
+    "mtime": 1795165764.1768835,
+    "ast_hash": "38c0f3cee69929c0909760b33acfb8bb",
     "semantic_hash": ""
   },
   "src/lib/crm.ts": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "src/lib/store.ts": {
-    "mtime": 1794773807.2201388,
-    "ast_hash": "ef44a187d682b6f274400a9a57dd5b04",
+    "mtime": 1795165764.1770868,
+    "ast_hash": "a7447c08ed6a4aeb2d0d2c01125f17e4",
     "semantic_hash": ""
   },
   "src/pages/404.astro": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "src/pages/index.astro": {
-    "mtime": 1794952126.0435162,
-    "ast_hash": "bb9725437cb73d72ce389d22843627af",
+    "mtime": 1795027495.346803,
+    "ast_hash": "13435a987ec78d4a63bca38c1f76ca12",
     "semantic_hash": ""
   },
   "src/pages/produit/[slug].astro": {
@@ -340,8 +340,8 @@
     "semantic_hash": ""
   },
   "src/scripts/pdp.ts": {
-    "mtime": 1794773807.2214103,
-    "ast_hash": "469c79bfc5aa7ad1b3fc96a163f847fe",
+    "mtime": 1795166253.9514225,
+    "ast_hash": "b4955f4d599cfae4fa1e338762afc3c4",
     "semantic_hash": ""
   },
   "src/scripts/reveal.ts": {
@@ -1447,6 +1447,91 @@
   "public/zmancollection/lp/assets/videos/zman-ugc-3.mp4": {
     "mtime": 1792950513.540172,
     "ast_hash": "fbc1f4b5db92d6a8b1338aeb4d89cbb2",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/brand-story.jpg": {
+    "mtime": 1795032873.7201715,
+    "ast_hash": "8318591cfc382b1504840b906af21abe",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/maisonsabra-craft.jpg": {
+    "mtime": 1795121587.2086613,
+    "ast_hash": "9f7e68e4ce268830c78f844aebef1ec9",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/maisonsabra-event.jpg": {
+    "mtime": 1795115144.7742474,
+    "ast_hash": "3074d0617c598b21d631777ee4afa284",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/maisonsabra-video.jpg": {
+    "mtime": 1795121562.4794981,
+    "ast_hash": "fc50df5ef7d43e3acd877af1f8ff895f",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/post-video-1.jpg": {
+    "mtime": 1795027820.4858491,
+    "ast_hash": "00150edf523fcca6b5c16657a1bae204",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/post-video-2.jpg": {
+    "mtime": 1795027820.517775,
+    "ast_hash": "1911d015357a3c3e06941aecdb866f0f",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/post-video-3.jpg": {
+    "mtime": 1795027820.555446,
+    "ast_hash": "6bacd77b2272a7a413c69af929dbd90a",
+    "semantic_hash": ""
+  },
+  "public/img/atelier-workshop.webp": {
+    "mtime": 1795038719.5733333,
+    "ast_hash": "c5eea4f841702c2a5417acef58615cc9",
+    "semantic_hash": ""
+  },
+  "src/assets/icons/star.svg": {
+    "mtime": 1795123941.4361436,
+    "ast_hash": "b11918a050cc84396cb57d05ff06f1b6",
+    "semantic_hash": ""
+  },
+  "src/assets/icons/verified-check.svg": {
+    "mtime": 1795122567.821488,
+    "ast_hash": "f3a861b255bf94ba54f0f77d4e444f33",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/brand-story.mp4": {
+    "mtime": 1795032873.6555579,
+    "ast_hash": "4849b18df5068869c3ed46df74a7a717",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/maisonsabra-craft.mp4": {
+    "mtime": 1795121587.1641343,
+    "ast_hash": "26f974ad9cd830e18fed16f59b5e3272",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/maisonsabra-event.mp4": {
+    "mtime": 1795115144.716776,
+    "ast_hash": "12fd5d7d2c215b6324569d6eb44fb264",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/maisonsabra-video.mp4": {
+    "mtime": 1795121562.4095473,
+    "ast_hash": "46681aed8d4c6a2ce76fdfe14b9d278b",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/post-video-1.mp4": {
+    "mtime": 1795027818.684375,
+    "ast_hash": "7e56771e306b0f1d08c7c68b87ae736c",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/post-video-2.mp4": {
+    "mtime": 1795027819.4937615,
+    "ast_hash": "45805ffd647ce7a184effa04f9c1f8ef",
+    "semantic_hash": ""
+  },
+  "public/assets/videos/post-video-3.mp4": {
+    "mtime": 1795027820.4454167,
+    "ast_hash": "c8febfb8ee7e07a34172e72223123da1",
     "semantic_hash": ""
   }
 }

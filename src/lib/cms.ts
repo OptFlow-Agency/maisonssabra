@@ -28,6 +28,10 @@ export type CmsProduct = {
   stock_status: StockStatus; purchasable: boolean; stock_left: number | null;
   variants: CmsVariant[];
   featured: boolean; related: string[];
+  /** Proposed, optional: structured specifications (« Largeur », « Matière »…). Absent until the CMS ships them. */
+  specs?: { label: string; value: string }[] | null;
+  /** Proposed, optional: care instructions. */
+  care?: string | null;
 };
 
 export type CmsOffer = {
@@ -113,3 +117,17 @@ const post = <T>(path: string, body: unknown) => request<T>(path, { method: "POS
 /** What the CMS says this code is worth for these items. null: not valid for them. Throws when unreachable. */
 export const checkPromo = (code: string, items: CartItem[]) => post<PromoVerdict | null>("promo", { code, items });
 export const placeOrder = (body: object) => post<OrderResult>("orders", body);
+
+/* ---------- Testimonials (store-level customer quotes, CRM collection "testimonials") ---------- */
+export type CmsTestimonial = { author: string; role: string | null; address?: string | null; quote: string; rating: number | null; photo: CmsMedia | null; link: string | null; featured: boolean; date?: string | null };
+
+// Reads the same CRM as lib/crm.ts (PUBLIC_CRM_*), or the CMS variables above when those are set instead.
+const T_BASE = (BASE ?? (import.meta.env.PUBLIC_CRM_URL as string | undefined))?.replace(/\/$/, "");
+const T_TENANT = (import.meta.env.PUBLIC_CMS_TENANT as string | undefined) || (import.meta.env.PUBLIC_CRM_TENANT as string | undefined) || "maisonsabra";
+export const testimonialsEnabled = !!T_BASE;
+export const fetchTestimonials = () => cached("testimonials", TTL, async () => {
+  if (!T_BASE) throw new CmsError("cms_disabled", 0);
+  const res = await fetch(`${T_BASE}/api/store/${T_TENANT}/testimonials`, { signal: AbortSignal.timeout(4000) });
+  if (!res.ok) throw new CmsError("server_error", res.status);
+  return (await res.json()) as CmsTestimonial[];
+});

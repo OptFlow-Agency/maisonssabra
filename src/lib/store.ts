@@ -19,12 +19,15 @@ export type StoreConfig = {
   payments: string[];
   deliveryPolicyUrl: string | null;
   returnsPolicyUrl: string | null;
+  /** Returns window (days) and summary, as written in the CMS. */
+  returnsDays: number | null;
+  returnsSummary: string | null;
   whatsapp: string | null;
   instagram: string | null;
 };
 
 /** Nothing is claimed while the CMS can't be read: no threshold, no announcement, no trust messages. */
-export const emptyConfig: StoreConfig = { freeFrom: null, shippingCost: 0, zoned: false, zones: [], deliveryDelay: null, announcement: null, trust: [], payments: [], deliveryPolicyUrl: null, returnsPolicyUrl: null, whatsapp: null, instagram: null };
+export const emptyConfig: StoreConfig = { freeFrom: null, shippingCost: 0, zoned: false, zones: [], deliveryDelay: null, announcement: null, trust: [], payments: [], deliveryPolicyUrl: null, returnsPolicyUrl: null, returnsDays: null, returnsSummary: null, whatsapp: null, instagram: null };
 
 const mad = (n: number) => n.toLocaleString("fr-FR");
 /** « Livraison offerte dès 1 000 MAD d’achat », built from the CMS threshold. */
@@ -49,6 +52,8 @@ export async function loadStoreConfig(): Promise<StoreConfig> {
     payments: s.payment_methods.map((m) => m.label),
     deliveryPolicyUrl: url(s.policies.delivery),
     returnsPolicyUrl: url(s.policies.returns),
+    returnsDays: s.returns?.window_days ?? null,
+    returnsSummary: s.returns?.summary || null,
     whatsapp: s.contact.whatsapp,
     instagram: s.contact.instagram,
   };

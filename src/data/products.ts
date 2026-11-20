@@ -38,6 +38,11 @@ export type Product = {
   /** Name of a live scheduled promotion, when the CMS has one. */
   promoLabel?: string;
   shortDescription?: string;
+  /** CMS-curated related products (slugs, in order). */
+  related?: string[];
+  /** Specifications as the CMS holds them (dimensions, materials, closure…). Empty: no panel. */
+  specs?: { label: string; value: string }[];
+  care?: string;
 };
 
 type Seed = Omit<Product, "collection">;

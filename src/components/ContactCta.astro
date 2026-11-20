@@ -1,18 +1,29 @@
 ---
-import { whatsappLink } from '../data/site';
-const whatsapp = whatsappLink('Bonjour Maison Sabra, j’aimerais une vidéo personnalisée ou un conseil pour choisir mon sac.');
+import { BadgeCheck, Headset, MessageSquareText } from "lucide-static";
+import { site, whatsappLink } from '../data/site';
+const message = 'Bonjour Maison Sabra, j’aimerais une vidéo personnalisée ou un conseil pour choisir mon sac.';
+const whatsapp = whatsappLink(message);
+// "(+212)": the country code of the configured number, when there is one.
+const code = site.whatsapp ? `(+${site.whatsapp.slice(0, 3)})` : "";
+const icon = (svg: string, px: number) => svg.replace(/width="\d+"/, `width="${px}"`).replace(/height="\d+"/, `height="${px}"`).replace("<svg", '<svg aria-hidden="true"');
+const points = ["Réponse moyenne en 3 minutes", "Vidéo HD haute définition du modèle", "Suivi de livraison en direct"];
 ---
 <section class="bg-ivory px-(--gutter) py-12 md:pb-24" aria-labelledby="contact-cta-title">
-  <div class="relative isolate mx-auto grid max-w-(--max) items-center gap-8 overflow-hidden rounded-2xl bg-linear-to-br from-burgundy to-burgundy-deep p-7 text-white md:p-12 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
-    <div class="pointer-events-none absolute -right-16 -bottom-24 -z-10 size-80 rounded-full border border-gold/25" aria-hidden="true"></div>
+  <div class="relative isolate mx-auto grid max-w-(--max) items-center gap-8 overflow-hidden rounded-2xl bg-[radial-gradient(120%_140%_at_0%_0%,var(--color-burgundy)_0%,var(--color-burgundy-deep)_100%)] p-7 text-white shadow-[0_24px_48px_-28px_rgb(77_2_6/0.6)] md:p-12 lg:grid-cols-[1.9fr_1fr] lg:gap-24 lg:px-16 lg:py-14">
+    <!-- Two faint rings behind the buttons. -->
+    <div class="pointer-events-none absolute -right-16 -bottom-24 -z-10 size-80 rounded-full border border-white/10" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -right-4 -bottom-12 -z-10 size-60 rounded-full border border-white/10" aria-hidden="true"></div>
     <div>
-      <p class="mb-5 inline-flex rounded-full bg-white/10 px-3 py-2 text-[.625rem] font-semibold uppercase tracking-[.12em] text-rose">Un conseil personnalisé</p>
-      <h2 id="contact-cta-title" class="max-w-[28ch] text-step-2 text-white">Besoin d’une vidéo personnalisée ou d’un conseil en direct ?</h2>
-      <p class="mt-5 max-w-[60ch] text-sm leading-7 text-white/90">Découvrez nos sacs sous tous les angles et trouvez la pièce qui accompagnera votre tenue. Notre équipe vous accompagne dans votre choix.</p>
+      <p class="mb-5 inline-flex items-center gap-2 rounded-full border border-rose/40 bg-white/5 px-3 py-1.5 text-[.625rem] font-semibold uppercase tracking-[.1em] text-rose"><span class="inline-flex" set:html={icon(Headset, 12)}></span>Conciergerie dédiée 7/7</p>
+      <h2 id="contact-cta-title" class="max-w-[34ch] text-step-2 leading-[1.15] text-white">Besoin d’une vidéo personnalisée ou d’un conseil en direct ?</h2>
+      <p class="mt-5 max-w-[56ch] text-sm leading-7 text-white/90">Notre équipe d’atelier est disponible sur WhatsApp pour vous montrer les sacs sous tous les angles, vérifier la concordance avec la teinte de votre caftan et enregistrer votre commande sans formulaire.</p>
+      <ul class="m-0 mt-6 flex list-none flex-wrap gap-x-5 gap-y-2 p-0 text-[.6875rem] text-rose">
+        {points.map((p) => <li class="inline-flex items-center gap-1.5"><span class="inline-flex" set:html={icon(BadgeCheck, 13)}></span>{p}</li>)}
+      </ul>
     </div>
     <div class="flex flex-col gap-3">
-      {whatsapp ? <a href={whatsapp} target="_blank" rel="noopener" class="flex min-h-12 items-center justify-center gap-2 bg-rose px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-burgundy-deep no-underline hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Écrire sur WhatsApp <span aria-hidden="true">↗</span></a> : <span class="flex min-h-12 items-center justify-center border border-white/30 px-5 py-4 text-center text-xs text-white/80">Contact WhatsApp bientôt disponible</span>}
-      <a href="/boutique" class="flex min-h-12 items-center justify-center bg-white px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-burgundy no-underline hover:bg-rose focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Commander en ligne</a>
+      <a href={whatsapp || `https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener" class="flex min-h-12 items-center justify-center gap-2 rounded-[2px] bg-[#1ea952] px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-white no-underline transition-colors hover:bg-[#178a42] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"><span class="inline-flex" set:html={icon(MessageSquareText, 16)}></span>Écrire sur WhatsApp {code}</a>
+      <a href="/boutique" class="flex min-h-12 items-center justify-center rounded-[2px] bg-white px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-burgundy-deep no-underline transition-colors hover:bg-rose focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Commander en ligne</a>
     </div>
   </div>
 </section>

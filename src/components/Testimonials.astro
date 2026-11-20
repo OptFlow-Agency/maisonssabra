@@ -1,16 +1,37 @@
 ---
-// Customer words. Approved reviews from the CMS win; until there are some, the quotes the brand already published stay.
+// Customer words. The CRM's testimonials win, then approved product reviews; with neither, the quotes the brand already published stay.
 // (The brand films have their own section, so no videos here.)
-import { cmsEnabled, fetchReviews } from "../lib/cms";
-type Quote = { name: string; quote: string; arabic?: boolean; verified?: boolean };
+import starIcon from "../assets/icons/star.svg?raw";
+import verified from "../assets/icons/verified-check.svg?raw";
+import { cmsEnabled, fetchReviews, fetchTestimonials, testimonialsEnabled } from "../lib/cms";
+type Quote = { name: string; quote: string; arabic?: boolean; verified?: boolean; rating?: number; when?: string; city?: string };
+// `when` ("Il y a 2 semaines") and `city` ("Casablanca") are optional: shown only when known. CMS reviews get `when` from their date.
 const published: Quote[] = [
   { name: "Salma R.", quote: "Maison Sabra, c’est bien plus qu’un sac… c’est une œuvre d’art. Dès que je le porte, on me demande d’où il vient. La finition est impeccable, et on sent le travail fait main derrière chaque détail." },
   { name: "Karima", quote: "J’ai été touchée par l’authenticité des produits. Mon sac Maison Sabra m’accompagne partout, il allie tradition et élégance avec une touche marocaine que j’adore. Je recommande à 100 %." },
   { name: "@eddahabitouria", quote: "أحييك مدام بهيجة على ابتكاراتك الرائعة التقيت بك يوم الأحد الماضى كل عروضك كانت تعبر عن اللمسة المغربية مزيد من التألق وبالطبع كنت محضوضة باقتناء قطعتين أفتخر بهما", arabic: true },
 ];
-const cms = cmsEnabled ? await fetchReviews().catch(() => null) : null;
-const fromCms: Quote[] = (cms?.reviews ?? []).slice(0, 12).map((r) => ({ name: r.author, quote: r.text, arabic: /[؀-ۿ]/.test(r.text), verified: r.verified }));
-const quotes = fromCms.length ? fromCms : published;
+// "Il y a 2 semaines": only for CMS reviews, which carry a real date.
+const ago = (iso?: string) => {
+  const t = iso ? Date.parse(iso) : NaN;
+  if (Number.isNaN(t)) return undefined;
+  const d = Math.max(0, Math.floor((Date.now() - t) / 864e5));
+  if (d < 1) return "Aujourd’hui";
+  const [n, u] = d < 7 ? [d, d > 1 ? "jours" : "jour"] : d < 30 ? [Math.floor(d / 7), Math.floor(d / 7) > 1 ? "semaines" : "semaine"] : d < 365 ? [Math.floor(d / 30), "mois"] : [Math.floor(d / 365), Math.floor(d / 365) > 1 ? "ans" : "an"];
+  return `Il y a ${n} ${u}`;
+};
+const initials = (name: string) => name.replace(/^@/, "").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+// Rating star: the supplied icon, filled and sized by its wrapper (class "size-4").
+const star = starIcon.trim().replace("<svg", '<svg class="size-4 shrink-0"');
+const crm = testimonialsEnabled ? await fetchTestimonials().catch(() => null) : null;
+const fromCrm: Quote[] = (crm ?? []).slice(0, 12).map((t) => ({ name: t.author, quote: t.quote, arabic: /[؀-ۿ]/.test(t.quote), rating: t.rating ?? 5, city: t.address || t.role || undefined, when: ago(t.date ?? undefined) }));
+const cms = !fromCrm.length && cmsEnabled ? await fetchReviews().catch(() => null) : null;
+const fromCms: Quote[] = (cms?.reviews ?? []).slice(0, 12).map((r) => ({ name: r.author, quote: r.text, arabic: /[؀-ۿ]/.test(r.text), verified: r.verified, rating: r.rating ?? 5, when: ago(r.date) }));
+const quotes = fromCrm.length ? fromCrm : fromCms.length ? fromCms : published;
+// Total: the CMS's own average and count when it has reviews; otherwise only the count (the published quotes carry no ratings, so no score is made up).
+const rated = (crm ?? []).map((t) => t.rating).filter((r): r is number => !!r);
+const total = fromCrm.length ? { avg: rated.length ? rated.reduce((a, b) => a + b, 0) / rated.length : null, count: fromCrm.length } : fromCms.length ? { avg: cms?.average ?? null, count: cms?.count ?? fromCms.length } : { avg: null, count: published.length };
+const fmt = (n: number) => n.toFixed(2).replace(/\.?0+$/, "").replace(".", ",");
 // Infinite loop: the list is rendered three times; visitors start on the middle copy and the script silently re-centres.
 // The outer copies are hidden from assistive tech and focus.
 const loop = quotes.length > 1 ? [0, 1, 2].flatMap((set) => quotes.map((q, i) => ({ q, i, clone: set !== 1 }))) : quotes.map((q, i) => ({ q, i, clone: false }));
@@ -24,20 +45,36 @@ const nav = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-ful
         <p class="eyebrow m-0"><span class="h-px w-8 bg-gold" aria-hidden="true"></span>Elles en parlent</p>
         <h2 id="temoignages-title" class="m-0 text-step-2 lg:text-[2.75rem]">Les mots de nos clientes</h2>
       </div>
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <p class="m-0 inline-flex items-center gap-3 rounded-full border border-gold/40 bg-white px-5 py-2.5 text-sm text-burgundy" data-reveal>
+          <span class="flex gap-0.5 text-gold" aria-hidden="true" set:html={star.repeat(5)}></span>
+          {total.avg !== null ? <span><strong class="font-semibold">Note globale {fmt(total.avg)} / 5</strong> <span class="text-ink-soft">· {total.count} avis</span></span> : <strong class="font-semibold">{total.count} avis clientes</strong>}
+        </p>
       <div class="flex items-center gap-3" role="group" aria-label="Parcourir les avis">
         <button class={nav} type="button" data-quotes-prev aria-label="Avis précédents" set:html={arrow("M15 5l-7 7 7 7")}></button>
         <button class={nav} type="button" data-quotes-next aria-label="Avis suivants" set:html={arrow("M9 5l7 7-7 7")}></button>
+      </div>
       </div>
     </div>
 
     <!-- Manual, infinite carousel: native horizontal scroll with snap (swipe, trackpad, keyboard), plus the arrows above. Nothing moves on its own. -->
     <ul class="-mx-(--gutter) m-0 flex list-none snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-(--gutter) px-(--gutter) py-2 [scrollbar-width:none] focus-visible:outline-offset-4 md:gap-5 [&::-webkit-scrollbar]:hidden" data-quotes-track role="region" aria-roledescription="carrousel" aria-label="Avis clientes" tabindex="0">
       {loop.map(({ q, i, clone }) => (
-        <li class="flex w-[85%] shrink-0 snap-start md:w-[46%] lg:w-[36%]" data-reveal style={`--d:${0.08 * i}s`} aria-label={clone ? undefined : `${i + 1} sur ${quotes.length}`} aria-hidden={clone ? "true" : undefined} inert={clone} data-set-start={i === 0 ? "" : undefined}>
-          <figure class="m-0 flex w-full flex-col gap-5 rounded-2xl bg-white p-7 shadow-[0_20px_40px_-30px_rgb(77_2_6/0.35)] ring-1 ring-gold/20 lg:p-9">
-            <span class="font-display text-5xl leading-[0.5] text-gold" aria-hidden="true">“</span>
-            <blockquote class="m-0 font-display text-[1.25rem] leading-[1.45] text-burgundy" lang={q.arabic ? "ar" : "fr"} dir={q.arabic ? "rtl" : undefined}>{q.quote}</blockquote>
-            <figcaption class="mt-auto border-t border-gold/25 pt-4 text-[0.75rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">{q.name}{q.verified && <span class="font-medium normal-case tracking-normal"> · Achat vérifié</span>}</figcaption>
+        <li class="flex w-[85%] shrink-0 snap-start md:w-[44%] lg:w-[29%]" data-reveal style={`--d:${0.08 * i}s`} aria-label={clone ? undefined : `${i + 1} sur ${quotes.length}`} aria-hidden={clone ? "true" : undefined} inert={clone} data-set-start={i === 0 ? "" : undefined}>
+          <figure class="m-0 flex w-full flex-col gap-4 rounded-xl bg-white p-5 ring-1 ring-gold/20 lg:p-6">
+            <div class="flex items-center justify-between gap-3">
+              <span class="flex gap-0.5 text-gold" role="img" aria-label={`${q.rating ?? 5} étoiles sur 5`} set:html={star.repeat(q.rating ?? 5)}></span>
+              {q.when && <span class="text-xs text-ink-soft">{q.when}</span>}
+            </div>
+            <blockquote class:list={["m-0 text-[0.9375rem] leading-[1.6] text-ink", q.arabic ? "not-italic" : "italic"]} lang={q.arabic ? "ar" : "fr"} dir={q.arabic ? "rtl" : undefined}>«&nbsp;{q.quote}&nbsp;»</blockquote>
+            <figcaption class="mt-auto flex items-center justify-start gap-3 border-t border-gold/20 pt-3.5" dir="ltr">
+              <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-burgundy text-xs leading-none font-semibold tracking-wide text-cream-soft" aria-hidden="true">{initials(q.name)}</span>
+              <span class="grid min-w-0 gap-0.5 text-sm leading-tight">
+                <span class="font-semibold text-burgundy">{q.name}</span>
+                {(q.city || q.verified) && <span class="text-xs text-ink-soft">{[q.city, q.verified && "Achat vérifié"].filter(Boolean).join(" · ")}</span>}
+              </span>
+              <span class="ml-auto inline-flex size-6 shrink-0 text-gold" role="img" aria-label="Avis vérifié" set:html={verified}></span>
+            </figcaption>
           </figure>
         </li>
       ))}

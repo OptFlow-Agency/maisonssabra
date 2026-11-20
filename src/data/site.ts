@@ -7,7 +7,7 @@ export const site = {
   ogImage: "/img/hero-zman-beige.webp",
   instagram: "https://www.instagram.com/maison_sabra",
   // Fallback WhatsApp number (international format, no "+"). The CMS value (settings → contact) wins when set.
-  whatsapp: "",
+  whatsapp: "212697180195",
   freeShippingFrom: 1000,
   // Shipping thresholds, low-stock limits, offers and discounts are managed in the CMS: see lib/store.ts and lib/offer.ts.
 } as const;

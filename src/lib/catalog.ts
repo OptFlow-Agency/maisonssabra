@@ -34,6 +34,9 @@ export function fromCms(r: CmsProduct): Product | null {
     benefits: r.benefits.map((b) => ({ icon: b.icon, title: b.title, text: b.description ?? undefined })),
     variants: variants.length ? variants : undefined,
     promoLabel: r.promotion?.label ?? undefined,
+    related: r.related?.length ? r.related : undefined,
+    specs: r.specs?.filter((s) => s?.label && s?.value).length ? r.specs!.filter((s) => s?.label && s?.value) : undefined,
+    care: r.care || undefined,
   };
 }
 

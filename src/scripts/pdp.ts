@@ -5,11 +5,13 @@ import { fmtMad, loadBags, loadOffer, qualifies, verify, type Offer, type Verdic
 import { fetchReviews, type CmsReviews } from "../lib/cms";
 import { tone } from "../data/products";
 import type { Product } from "../data/products";
+import { whatsappLink } from "../data/site";
 
 type Pic = { src: string; w480: string; w800: string };
 type Var = { name: string; color: string | null; price: number; was: number | null; img: Pic | null; buyable: boolean; left: number | null };
 type V = {
-  slug: string; name: string; short: string; price: number; was: number | null; save: number; pct: number; alt: string; copy: string;
+  slug: string; name: string; short: string; price: number; was: number | null; save: number; pct: number; alt: string;
+  copy: string; long: string[]; specs: { label: string; value: string }[]; care: string | null;
   imgs: Pic[]; thumb: string; perks: { title: string; text: string | null; icon: string }[]; left: number | null; buyable: boolean; promo: string | null; variants: Var[];
 };
 type PageData = { family: V[]; reviews: Record<string, CmsReviews | null> };
@@ -38,6 +40,7 @@ function init(root: HTMLElement) {
   let bags: Product[] = [];
   let eligible: Product[] = [];
   let seq = 0;
+  let busy = false; // a purchase action is in flight: blocks repeated clicks
 
   const sel = (): Var | undefined => cur.variants[vi];
   const unitPrice = () => sel()?.price ?? cur.price;
@@ -56,20 +59,28 @@ function init(root: HTMLElement) {
 
   const slideW = () => track.clientWidth || 1;
   const index = () => Math.round(track.scrollLeft / slideW());
+  const prev = $<HTMLButtonElement>("[data-prev]"), next = $<HTMLButtonElement>("[data-next]"), galleryNav = $("[data-nav]");
+  const galleryStatus = $("[data-gallery-status]");
+  let lastAnnounced = 0;
   const syncIndex = () => {
-    const i = index(), n = track.children.length;
+    const i = Math.min(Math.max(0, index()), track.children.length - 1), n = track.children.length;
     counter.textContent = `${i + 1} / ${n}`;
+    prev.disabled = i <= 0; next.disabled = i >= n - 1;
+    if (n > 1 && i !== lastAnnounced) { lastAnnounced = i; galleryStatus.textContent = `Photo ${i + 1} sur ${n}`; }
     dots.querySelectorAll<HTMLElement>("[data-dot]").forEach((d, k) => (d.dataset.on = String(k === i)));
     thumbs.querySelectorAll<HTMLElement>("[data-thumb]").forEach((b, k) => b.setAttribute("aria-current", String(k === i)));
   };
   track.addEventListener("scroll", () => requestAnimationFrame(syncIndex), { passive: true });
+  const go = (to: number) => track.scrollTo({ left: Math.min(Math.max(0, to), track.children.length - 1) * slideW(), behavior: reduce ? "auto" : "smooth" });
+  prev.addEventListener("click", () => go(index() - 1));
+  next.addEventListener("click", () => go(index() + 1));
   thumbs.addEventListener("click", (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>("[data-thumb]");
     if (b) track.scrollTo({ left: Number(b.dataset.thumb) * slideW(), behavior: reduce ? "auto" : "smooth" });
   });
 
   // Desktop zoom: hover magnifies the area under the pointer, for embroidery and fabric.
-  if (finePointer) {
+  if (finePointer && !reduce) {
     track.addEventListener("pointermove", (e) => {
       const img = (e.target as HTMLElement).closest("[data-slide]")?.querySelector("img");
       if (!img || e.pointerType !== "mouse") return;
@@ -84,9 +95,10 @@ function init(root: HTMLElement) {
   const img = (pic: Pic, i: number, v: V) => {
     const el = document.createElement("img");
     el.src = i === 0 ? pic.w800 : pic.w480;
-    el.alt = i === 0 ? v.alt : `${v.name}, autre vue`;
+    el.alt = i === 0 ? v.alt : `${v.name}, vue ${i + 1}`;
     el.width = 1000; el.height = 988;
     el.decoding = "async";
+    if (i > 0) el.loading = "lazy";
     el.sizes = "(min-width: 60rem) 48vw, 100vw";
     el.className = "aspect-[1000/988] w-full object-cover mix-blend-multiply transition-transform duration-500 ease-(--ease-out)";
     return el;
@@ -97,7 +109,7 @@ function init(root: HTMLElement) {
       const s = document.createElement("div");
       s.className = "group/slide relative w-full shrink-0 snap-center overflow-hidden min-[60rem]:cursor-zoom-in";
       s.dataset.slide = "";
-      s.setAttribute("aria-label", `${i + 1} sur ${imgs.length}`);
+      s.setAttribute("aria-roledescription", "diapositive"); s.setAttribute("aria-label", `${i + 1} sur ${imgs.length}`);
       s.append(img(src, i, v));
       return s;
     }));
@@ -125,6 +137,8 @@ function init(root: HTMLElement) {
       return d;
     }) : []));
     show(counter, many); show(dots, many);
+    galleryNav.classList.toggle("min-[60rem]:flex", many); galleryNav.classList.toggle("min-[60rem]:hidden", !many);
+    lastAnnounced = 0;
     syncIndex();
     if (!reduce) track.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 420, easing: "cubic-bezier(.16,1,.3,1)" });
   }
@@ -156,14 +170,22 @@ function init(root: HTMLElement) {
     if (low) $("[data-stock-text]").textContent = `Plus que ${left} ${left! > 1 ? "pièces disponibles" : "pièce disponible"}`;
     show($("[data-soldout]"), !ok);
     $$<HTMLButtonElement>("[data-pdp-buy], [data-pdp-add]").forEach((b) => {
-      b.disabled = !ok;
-      if (b.hasAttribute("data-pdp-add")) b.textContent = ok ? "Ajouter au panier" : "Indisponible";
+      b.disabled = !ok || busy;
+      if (!busy && b.hasAttribute("data-pdp-add")) b.textContent = ok ? "Ajouter au panier" : "Indisponible";
     });
   }
+  const waHref = root.querySelector<HTMLAnchorElement>("[data-wa]");
   function paint() {
     const t = fmtMad(total());
+    // The visible variant is always the one that gets bought, sent by WhatsApp and shown on the sticky bar.
+    set("[data-sticky-name]", sel() ? `${cur.short} · ${sel()!.name}` : cur.name);
+    if (waHref) {
+      const link = whatsappLink(`Bonjour, je souhaite commander : ${cur.name}${sel() ? ` (${sel()!.name})` : ""} (${unitPrice()} MAD).`, waHref.dataset.number || null);
+      if (link) waHref.href = link;
+    }
     set("[data-total]", t); set("[data-total-mirror]", t);
     set("[data-total-label]", qty === 2 ? "Total des deux sacs" : "Total");
+    const row = $("[data-total-row]"); show(row, qty === 2); row.classList.toggle("flex", qty === 2);
     set("[data-one-total]", fmtMad(unitPrice()));
     const d = pair ?? one;
     if (d && offerCfg) {
@@ -177,17 +199,31 @@ function init(root: HTMLElement) {
 
   /* ---------- Benefits (CMS: active, ordered; none → section hidden) ---------- */
   function paintPerks() {
-    const ul = $("[data-perks]");
-    show($("[data-perks-wrap]"), cur.perks.length > 0);
+    const ul = root.querySelector<HTMLElement>("[data-perks]");
+    if (!ul) return; // no product of the family has benefits: the section was not rendered
+    show(ul, cur.perks.length > 0);
     ul.replaceChildren(...cur.perks.map((b) => {
       const li = mk("li", "flex items-start gap-3");
-      const ic = mk("span", "mt-[0.0625rem] shrink-0 text-burgundy [&_svg]:block");
+      const ic = mk("span", "mt-px shrink-0 text-burgundy [&_svg]:block");
       ic.innerHTML = b.icon; // trusted: static SVG from data/icons.ts, chosen by key
       const txt = mk("span");
       txt.append(mk("span", "font-semibold", b.title));
       if (b.text) txt.append(mk("span", "text-ink-soft", ` : ${b.text}`));
       li.append(ic, txt);
       return li;
+    }));
+  }
+  // Long description and specifications follow the selected colourway (CMS fields only).
+  function paintDetails() {
+    const specsBox = root.querySelector<HTMLElement>("[data-specs]");
+    if (!specsBox) return;
+    $("[data-long]")?.replaceChildren(...cur.long.map((t) => mk("p", "m-0 whitespace-pre-line", t)));
+    const rows = [...cur.specs, ...(cur.care ? [{ label: "Entretien", value: cur.care }] : [])];
+    show($("[data-specs-wrap]"), rows.length > 0);
+    specsBox.replaceChildren(...rows.map((r) => {
+      const d = mk("div", "grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 border-b border-gold/40 py-3 text-sm");
+      d.append(mk("dt", "text-ink-soft", r.label), mk("dd", "m-0 text-ink", r.value));
+      return d;
     }));
   }
 
@@ -238,8 +274,9 @@ function init(root: HTMLElement) {
     vi = Math.max(0, cur.variants.findIndex((x) => x.buyable));
     $("[data-title]").textContent = v.name;
     $("[data-copy]").textContent = v.copy;
-    paintPerks(); paintVariants();
-    set("[data-variant-name]", v.short); set("[data-sticky-name]", v.name);
+    paintPerks(); paintDetails(); paintVariants();
+    set("[data-variant-name]", v.short);
+    const crumb = root.querySelector<HTMLElement>('nav [aria-current="page"]'); if (crumb) crumb.textContent = v.name;
     buildGallery(v);
     paint();
     if (push) { history.replaceState(null, "", `/produit/${v.slug}`); document.title = `${v.name} | Maison Sabra`; }
@@ -363,22 +400,52 @@ function init(root: HTMLElement) {
     }
     return true;
   };
+  const announce = $("[data-announce]");
+  const labelOf = (b: HTMLElement) => (b.hasAttribute("data-pdp-add") ? "Ajouter au panier" : b.closest("[data-sticky]") ? "Commander" : "Commander maintenant");
+  function lock(clicked: HTMLElement, text: string) {
+    busy = true;
+    $$<HTMLButtonElement>("[data-pdp-buy], [data-pdp-add]").forEach((b) => { b.disabled = true; });
+    clicked.setAttribute("aria-busy", "true");
+    clicked.textContent = text;
+  }
+  function unlock(clicked: HTMLElement) {
+    busy = false;
+    clicked.setAttribute("aria-busy", "false");
+    $$("[data-pdp-buy], [data-pdp-add]").forEach((b) => { b.textContent = labelOf(b); });
+    paintStock();
+  }
   root.addEventListener("click", (e) => {
+    if (busy) return;
     const t = e.target as HTMLElement;
-    if (t.closest("[data-pdp-buy]")) { if (add()) location.assign("/commande"); }
-    else if (t.closest("[data-pdp-add]")) { if (add()) document.querySelector<HTMLElement>("[data-cart-link]")?.click(); }
+    const buy = t.closest<HTMLElement>("[data-pdp-buy]"), addBtn = t.closest<HTMLElement>("[data-pdp-add]");
+    if (buy) {
+      if (!add()) return;
+      lock(buy, "Redirection…");
+      announce.textContent = "Redirection vers la commande.";
+      location.assign("/commande");
+      // Back/forward cache can restore this page with the lock still on.
+      addEventListener("pageshow", () => unlock(buy), { once: true });
+    } else if (addBtn) {
+      if (!add()) return;
+      lock(addBtn, "Ajouté ✓");
+      announce.textContent = `${cur.name}${sel() ? `, ${sel()!.name},` : ""} ajouté au panier.`;
+      document.querySelector<HTMLElement>("[data-cart-link]")?.click();
+      setTimeout(() => unlock(addBtn), 1200);
+    }
   });
 
   /* ---------- Sticky bar ---------- */
   const sticky = $("[data-sticky]");
   const cta = $("[data-primary-cta]");
-  new IntersectionObserver(([en]) => {
+  new IntersectionObserver((entries) => {
+    const en = entries[entries.length - 1]; // latest state wins when callbacks batch
     const on = !en.isIntersecting && en.boundingClientRect.top < 0;
     sticky.dataset.show = String(on);
     sticky.toggleAttribute("inert", !on);
   }).observe(cta);
 
   paintVariants();
+  paintDetails();
   paint();
   refreshReviews();
   refreshOffer();

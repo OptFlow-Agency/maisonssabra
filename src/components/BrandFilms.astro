@@ -31,7 +31,7 @@ const ctl = "grid size-11 shrink-0 cursor-pointer place-items-center rounded-ful
           <figure class="group/f relative m-0 w-[min(64vw,18rem)] transition-[transform,opacity,filter] duration-700 ease-(--ease-out) will-change-transform motion-reduce:transition-none lg:w-[20rem]" data-film={n} data-active={i === 0 ? "true" : "false"} aria-label={`${n + 1} sur ${films.length} : ${f.title}`}>
             <div class="relative">
               <div class="group/frame relative aspect-[9/16] overflow-hidden rounded-xl bg-burgundy-deep shadow-[0_30px_50px_-30px_rgb(77_2_6/0.55)]" data-state="idle" data-frame>
-                <video class="size-full object-cover" src={f.src} poster={f.poster} preload="none" playsinline loop width="540" height="960" aria-label={f.label}></video>
+                <video class="size-full object-contain" src={f.src} poster={f.poster} preload="none" playsinline loop width="540" height="960" aria-label={f.label}></video>
                 <button class="absolute inset-0 grid cursor-pointer place-items-center border-0 bg-transparent p-0 text-burgundy" type="button" data-play aria-label={`Lire la vidéo : ${f.title}`}>
                   <span class="grid size-16 place-items-center rounded-full bg-cream-soft/92 pl-0.5 transition-[scale,opacity] duration-300 group-data-[state=playing]/frame:scale-90 group-data-[state=playing]/frame:opacity-0 group-data-[state=loading]/frame:opacity-0 group-data-[active=false]/f:opacity-0 can-hover:group-hover/f:scale-105" aria-hidden="true" set:html={icons.play}></span>
                 </button>

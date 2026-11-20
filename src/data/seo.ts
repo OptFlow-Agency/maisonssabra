@@ -26,7 +26,7 @@ export const websiteLd = () => ({
   publisher: { "@id": abs("/#organization") },
 });
 
-export const productLd = (p: Product, description: string, collection: string, rating?: { average: number; count: number } | null) => ({
+export const productLd = (p: Product, description: string, collection: string, rating?: { average: number; count: number } | null, inStock = true) => ({
   "@type": "Product",
   name: p.name,
   description,
@@ -39,7 +39,7 @@ export const productLd = (p: Product, description: string, collection: string, r
     url: abs(`/produit/${p.slug}`),
     priceCurrency: "MAD",
     price: p.price,
-    availability: p.purchasable === false ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+    availability: inStock && p.purchasable !== false ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     itemCondition: "https://schema.org/NewCondition",
     seller: { "@id": abs("/#organization") },
   },
