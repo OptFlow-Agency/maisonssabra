@@ -12,7 +12,7 @@ import { money, shipLong, shipShort, shipMicro, waHref, cities, faqItems } from 
           <img src={p.thumb} alt={p.images[0].alt} loading="lazy" width="400" height="400" />
           <div class="cc-body">
             <p class="cc-name">{p.name}</p>
-            <p class="cc-tag">{p.tagline}</p>
+            {p.tagline && <p class="cc-tag">{p.tagline}</p>}
             <p class="cc-price" set:html={money(p.price)} />
             <button type="button" class="cc-btn" data-id={p.id} aria-label={`Choisir : ${p.name}`}>Choisir ce modèle</button>
           </div>

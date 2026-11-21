@@ -40,6 +40,7 @@ export async function placeOrder(customer, ids, promo, signal) {
     phone: customer.phone,
     address: customer.address,
     city: customer.city,
+    notes: customer.notes || undefined,
     items: toItems(ids),
     source: "landing-page",
     attribution: attribution(),

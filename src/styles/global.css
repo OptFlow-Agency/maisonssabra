@@ -1,6 +1,6 @@
-@import "@fontsource/cormorant-garamond/latin-500.css";
-@import "@fontsource/cormorant-garamond/latin-600.css";
-@import "@fontsource/cormorant-garamond/latin-500-italic.css";
+@import "@fontsource-variable/playfair-display/wght.css";
+@import "@fontsource-variable/playfair-display/wght-italic.css";
+@import "@fontsource-variable/inter/wght.css";
 @import "@fontsource-variable/montserrat/index.css";
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
@@ -50,7 +50,7 @@
     @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-none border-0 bg-burgundy-deep px-5 font-body text-xs leading-none font-semibold tracking-[0.18em] text-cream uppercase transition-colors duration-200 hover:bg-burgundy disabled:cursor-wait disabled:opacity-60;
   }
   .field-label { @apply text-sm font-semibold tracking-[0.08em] text-burgundy-deep uppercase; }
-  .field {
+  :where(input, select, textarea).field {
     @apply min-h-13 w-full rounded-none border border-burgundy/45 bg-white px-4 font-body text-base text-ink placeholder:text-ink-soft/70 transition-[border-color,box-shadow] duration-200 hover:border-burgundy focus-visible:border-burgundy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy aria-invalid:border-2 aria-invalid:border-burgundy-deep disabled:opacity-60;
   }
   .grain {
@@ -120,3 +120,6 @@ html.js [data-clip]:not(.is-in) { clip-path: inset(100% 0 0 0); }
   html.js [data-clip]:not(.is-in) { clip-path: inset(0); }
   .hero-img { animation: none; }
 }
+
+/* Étiquettes et boutons : Montserrat (titres Playfair Display, texte Inter) */
+.eyebrow,.btn,.btn-ghost{font-family:var(--font-label)}

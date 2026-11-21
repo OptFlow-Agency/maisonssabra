@@ -1,11 +1,15 @@
+import { crmUrl } from "../../lib/crm";
 import { config as C } from "../data/config.js";
-import { products as P } from "../data/products.js";
+import { products as defaultModels } from "../data/products.js";
 import * as L from "../lib/logic.js";
 import { analytics as A } from "../lib/events.js";
 import { crmReady, placeOrder, checkPromo } from "../lib/crm.js";
 import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
 
 (function () {
+  if (!document.querySelector("#order-form") || !document.querySelector("#g-track")) return;
+  const catalog = document.getElementById("catalog-models");
+  const P = catalog ? JSON.parse(catalog.textContent) : defaultModels;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -15,23 +19,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   var state = { modelId: "rouge", offerId: "", bags: ["rouge", null], slide: 0, checkoutStarted: false, submitting: false, clientOrderId: A.newId(), done: false };
 
   /* ---------- 0. Valeurs issues de la config ---------- */
-  /** Note + ventes + pastille « meilleure vente » : uniquement ce qui est renseigné dans ZMAN_CONFIG.trust. */
-  function renderTrust() {
-    var T = C.trust || {};
-    var on = !!T.enabled, hasRating = on && T.rating > 0 && T.count > 0;
-    var fr = function (n) { return Number(n).toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); };
-    var badge = $("#best-badge"); badge.hidden = !(on && T.badge); $("#best-badge-text").textContent = T.badge || "";
-    var box = $("#trust-proof"); box.hidden = !(hasRating || (on && T.soldThisWeek));
-    if (box.hidden) return;
-    $(".tp-stars", box).hidden = !hasRating; $("#tp-count").hidden = !hasRating; $("#tp-sold").hidden = !(on && T.soldThisWeek);
-    if (hasRating) { $("#tp-rating").textContent = fr(T.rating); $("#tp-count").textContent = "(" + T.count + " clients)"; }
-    if (on && T.soldThisWeek) $("#tp-sold").textContent = "🔥 " + T.soldThisWeek + " vendus cette semaine";
-    var label = (hasRating ? "Note " + fr(T.rating) + " sur 5 d’après " + T.count + " clients. " : "") + (T.soldThisWeek ? "Plus de " + String(T.soldThisWeek).replace("+", "") + " sacs vendus cette semaine." : "");
-    box.setAttribute("role", "group"); box.setAttribute("aria-label", label.trim());
-  }
-
   function applyStatic() {
-    renderTrust();
     $("#demo-ribbon").hidden = crmReady;
   }
 
@@ -41,8 +29,16 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     var m = byId(id); if (!m) return;
     var changed = state.modelId !== id;
     state.modelId = id; state.slide = 0;
-    state.bags[0] = id; renderHero(m); renderSpecs(m); syncSwatches(); syncColorCards(); syncForm();
-    $$(".js-price").forEach(function (e) { e.innerHTML = money(m.price); });
+    state.bags[0] = id; renderHero(m); syncSwatches(); syncForm();
+
+    if (changed && catalog && document.querySelector("#hero").dataset.model !== id) {
+      const path = new URL(location.href);
+      path.pathname = "/produit/" + m.slug;
+      path.searchParams.delete("model");
+      history.replaceState(null, "", path);
+      document.querySelector("#hero").dataset.model = id;
+      document.title = m.name + " | Maison Sabra";
+    }
     if (changed) {
       // ViewContent n'est émis qu'UNE fois à l'arrivée (voir init) : changer de coloris ne gonfle pas ce compteur.
       A.track("SelectVariant", { content_ids: [String(m.wooProductId)], content_name: m.name, content_type: "product", value: m.price, currency: C.currency }, { custom: true });
@@ -53,26 +49,100 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
 
   /* ---------- 2. Hero : galerie + infos ---------- */
   function renderHero(m) {
-    $("#p-name").textContent = m.name;
-    $("#p-tagline").textContent = m.tagline;
-    $("#p-blurb").textContent = m.blurb;
+    for (const product of P) {
+      const swatch = document.getElementById("sw-" + product.id);
+      if (swatch) swatch.parentElement.dataset.out = String(product.stockStatus === "out_of_stock");
+    }
+    const soldOut = m.stockStatus === "out_of_stock";
+    $("#stock-note").textContent = soldOut ? "Épuisée" : m.stock > 0 && m.stock <= 5 ? "Plus que " + m.stock + " en " + m.colorLabel : "";
+    $("#concierge").textContent = soldOut ? "Me prévenir sur WhatsApp" : "Conciergerie WhatsApp";
+    $("#concierge").href = waHref((soldOut ? "Prévenez-moi du retour de " : "Bonjour, j’ai une question sur ") + m.name + " · " + m.colorLabel);
+    updateDispatch();
+    loadReviews(m);
     $("#p-price").innerHTML = money(m.price);
     var ref = $("#p-ref");
     if (C.showReferencePrice && m.referencePrice > m.price) { ref.hidden = false; ref.innerHTML = money(m.referencePrice); ref.setAttribute("aria-label", "Ancien prix " + m.referencePrice + " dirhams"); }
     else ref.hidden = true;
+    $("#discount").hidden = ref.hidden;
+    const pct = Math.round(100 * (1 - m.price / m.referencePrice));
+    $("#discount").textContent = "−" + pct + " %";
+    const end = new Date(m.promoEnd);
+    $("#promo-end").hidden = ref.hidden || !(end > new Date());
+    if (!$("#promo-end").hidden) $("#promo-end").textContent = "Offre −" + pct + " % jusqu’au " + localDate(end);
     $("#swatch-current").textContent = m.colorLabel;
+    var ai = $("#artisan-img"), aim = m.images[1] || m.images[0];
+    if (ai && aim && !ai.dataset.fixed) { ai.src = aim.src; ai.alt = aim.alt; }
+    var parts = m.name.split(/\s+[–-]\s+/);
+    $("#h1-main").textContent = parts[0]; $("#h1-sub").textContent = parts.slice(1).join(" – ");
+    var lede = $("#lede"); lede.textContent = m.officialDescription || m.tagline || ""; lede.hidden = !lede.textContent;
+    var bl = $("#benefits");
+    bl.innerHTML = (m.benefits || []).map(function (b) { return "<li><span><strong>" + esc(b.title) + "</strong>" + (b.description ? '<span class="b-desc">' + esc(b.description) + "</span>" : "") + "</span></li>"; }).join("");
+    bl.hidden = !(m.benefits || []).length;
 
     var track = $("#g-track");
     track.innerHTML = m.images.map(function (im, i) {
+      if (im.video) return '<div class="g-slide"><video controls playsinline preload="none" width="' + im.w + '" height="' + im.h + '" poster="' + esc(im.src) + '" src="' + esc(im.video) + '" aria-label="' + esc(im.alt) + '"></video></div>';
       return '<div class="g-slide" role="group" aria-roledescription="diapositive" aria-label="Photo ' + (i + 1) + " sur " + m.images.length + '">' +
-        '<img src="' + im.src + '" alt="' + im.alt + '" width="' + im.w + '" height="' + im.h + '" ' +
+        '<img src="' + esc(im.src) + '" alt="' + esc(im.alt) + '" width="' + im.w + '" height="' + im.h + '" ' +
         (i === 0 ? 'fetchpriority="high"' : 'loading="lazy"') + ' decoding="async"></div>';
     }).join("");
     track.scrollLeft = 0;
     $("#g-thumbs").innerHTML = m.images.map(function (im, i) {
-      return '<button type="button" class="g-thumb" data-i="' + i + '" aria-label="Voir la photo ' + (i + 1) + '"><img src="' + im.src + '" alt="" width="64" height="64" loading="lazy"></button>';
+      return '<button type="button" class="g-thumb" data-i="' + i + '" aria-label="Voir la photo ' + (i + 1) + '"><img src="' + esc(im.src) + '" alt="" width="64" height="64" loading="lazy"></button>';
     }).join("");
     updateGalleryUI();
+  }
+  function localDate(date) {
+    return date.toLocaleDateString("fr-MA", {day:"numeric", month:"long", timeZone:"Africa/Casablanca"});
+  }
+  function dispatchText() {
+    const {shipsWithinHours, deliveryMinDays, deliveryMaxDays} = C.shipping;
+    let text = "Expédiée sous " + shipsWithinHours + "h";
+    if (Number.isInteger(deliveryMinDays) && deliveryMaxDays >= deliveryMinDays && Number.isInteger(deliveryMaxDays)) {
+      const dispatch = Date.now() + shipsWithinHours * 3600000;
+      text += " · Livraison estimée du " + localDate(new Date(dispatch + deliveryMinDays * 86400000)) + " au " + localDate(new Date(dispatch + deliveryMaxDays * 86400000));
+    }
+    return text;
+  }
+  const clock = new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"});
+  function updateDispatch() {
+    const [h,m,s] = clock.format(new Date()).split(":").map(Number);
+    const remaining = (C.shipping.sameDayCutoffHour - h) * 3600 - m * 60 - s;
+    $("#dispatch").textContent = Number.isInteger(C.shipping.sameDayCutoffHour) && remaining > 0
+      ? "Commandée avant " + C.shipping.sameDayCutoffHour + "h, expédiée aujourd’hui · " + Math.floor(remaining / 3600) + " h " + Math.floor(remaining % 3600 / 60) + " min"
+      : dispatchText();
+  }
+  if (Number.isInteger(C.shipping.sameDayCutoffHour)) setInterval(updateDispatch, 1000);
+  async function loadReviews(m) {
+    document.getElementById("review-schema")?.remove();
+    const section = $("#avis"), link = $("#rating-link");
+    section.hidden = link.hidden = true; $("#rating-fallback").hidden = false;
+    if (!crmReady) return;
+    try {
+      const response = await fetch(crmUrl("/reviews?product=" + encodeURIComponent(m.slug)), {signal:AbortSignal.timeout(5000)});
+      if (!response.ok) return;
+      const data = await response.json();
+      if (state.modelId !== m.id) return;
+      const reviews = data.reviews.filter(r => r.verified && r.author && r.text);
+      if (!reviews.length) return;
+      const rated = reviews.filter(r => r.rating >= 1 && r.rating <= 5);
+      const average = Number(data.average) || (rated.length && rated.reduce((sum,r) => sum + r.rating, 0) / rated.length);
+      const total = Math.max(Number(data.count) || 0, reviews.length);
+      const summary = (average ? "★ " + average.toLocaleString("fr-FR",{maximumFractionDigits:1}) + " · " : "") + total + (total === 1 ? " avis vérifié" : " avis vérifiés");
+      $("#review-summary").textContent = summary; link.innerHTML = (average ? '<span class="rl-stars" aria-hidden="true">★★★★★</span> ' : "") + summary.replace("★ ", ""); $("#rating-fallback").hidden = true;
+      $("#review-list").innerHTML = reviews.map(r => '<article><strong>' + esc(r.author) + '</strong> · ' + esc(m.colorLabel) + ' · ' + localDate(new Date(r.date)) + '<p>Achat vérifié</p><blockquote>' + esc(r.text) + '</blockquote>' + (r.photo?.url ? '<img loading="lazy" width="160" height="160" src="' + esc(r.photo.url) + '" alt="Photo du sac partagée par la cliente">' : '') + '</article>').join("");
+      if (average) {
+        const graph = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)["@graph"];
+        const product = graph.find(p => p.url === m.url);
+        if (product) {
+          const schema = document.createElement("script");
+          schema.type = "application/ld+json"; schema.id = "review-schema";
+          schema.textContent = JSON.stringify({"@context":"https://schema.org", "@id":product.url, "@type":"Product",name:m.name,aggregateRating:{"@type":"AggregateRating",ratingValue:Number(average.toFixed(1)),reviewCount:rated.length}});
+          document.head.append(schema);
+        }
+      }
+      section.hidden = link.hidden = false;
+    } catch { /* Missing public reviews leave both surfaces hidden. */ }
   }
   function updateGalleryUI() {
     var m = byId(state.modelId);
@@ -87,10 +157,14 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     state.slide = i; updateGalleryUI();
   }
   function initGallery() {
+    $("#g-track").addEventListener("click", e => {
+      if (e.target.matches("img")) e.target.closest(".g-slide").classList.toggle("zoomed");
+    });
     $("#g-thumbs").addEventListener("click", function (e) { var b = e.target.closest(".g-thumb"); if (b) goSlide(+b.dataset.i); });
     $("#g-prev").addEventListener("click", function () { goSlide(state.slide - 1); });
     $("#g-next").addEventListener("click", function () { goSlide(state.slide + 1); });
     $("#g-track").addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { if (e.target === e.currentTarget) { e.preventDefault(); e.currentTarget.children[state.slide]?.classList.toggle("zoomed"); } }
       if (e.key === "ArrowRight") { e.preventDefault(); goSlide(state.slide + 1); }
       if (e.key === "ArrowLeft") { e.preventDefault(); goSlide(state.slide - 1); }
     });
@@ -104,34 +178,16 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
 
   /* ---------- 3. Swatches (vrais boutons radio) ---------- */
   function initSwatches() {
+    $("#duo-toggle").addEventListener("change", () => {
+      const target = $("#duo-toggle").checked ? "duo" : defaultOfferId();
+      document.getElementById("offer-" + target)?.click();
+    });
+    $("#duo-colors").addEventListener("change", e => {
+      if (e.target.name === "duo-color") document.getElementById("b2-" + e.target.value)?.click();
+    });
     $("#swatch-list").addEventListener("change", function (e) { if (e.target.name === "swatch") setModel(e.target.value); });
   }
   function syncSwatches() { var r = $("#sw-" + state.modelId); if (r) r.checked = true; }
-
-  /* ---------- 4. Specs ---------- */
-  function renderSpecs(m) {
-    $("#d-model").textContent = m.name;
-    var rows = [
-      ["Dimensions", m.dimensions], ["Poids", m.weight], ["Matières", m.materials], ["Couleurs", m.color],
-      ["Fermeture", m.closure], ["Chaîne", m.chain], ["Intérieur", m.lining], ["Port", m.carry || "Avec la chaîne dorée détachable"], ["Fabrication", m.origin],
-    ];
-    $("#specs").innerHTML = rows.filter(function (r) { return r[1]; }).map(function (r) { return "<div><dt>" + r[0] + "</dt><dd>" + r[1] + "</dd></div>"; }).join("");
-    $("#d-official").textContent = m.officialDescription;
-  }
-
-  /* ---------- 5. Cartes couleur ---------- */
-  function initColorCards() {
-    $("#color-grid").addEventListener("click", function (e) {
-      var b = e.target.closest(".cc-btn"); if (!b) return;
-      setModel(b.dataset.id, { scroll: "order" });
-    });
-  }
-  function syncColorCards() {
-    $$(".color-card").forEach(function (c) {
-      var sel = c.dataset.id === state.modelId; c.dataset.selected = sel;
-      $(".cc-btn", c).textContent = sel ? "✓ Sélectionné" : "Choisir ce modèle";
-    });
-  }
 
   function defaultOfferId() { var d = (C.offers || []).filter(function (o) { return o.defaultSelected; })[0] || C.offers[0]; return d.id; }
   function initOffer() { state.offerId = defaultOfferId(); renderOffers(); renderPickers(); syncForm(); }
@@ -167,15 +223,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   /** Un résultat serveur est arrivé : offre masquée si le code est refusé, textes et totaux recalculés. */
   function promosChanged() {
     if (!offerAvailable(curOffer())) state.offerId = defaultOfferId();
-    renderOffers(); syncForm(); syncFaqOffer();
-  }
-  function syncFaqOffer() {
-    var d = OFFERS.filter(function (o) { return o.code; })[0]; if (!d) return;
-    $$("#faq-list details").forEach(function (el) {
-      if (el.querySelector("summary").textContent.indexOf("Comment fonctionne l’offre") !== 0) return;
-      el.hidden = !offerAvailable(d); var t = offerTotal(d);
-      el.querySelector("p").innerHTML = "Vous choisissez " + d.qty + " sacs Z’man, dans la même couleur ou dans deux couleurs différentes. " + shipFrag + " et " + offerPercent(d) + "% de réduction automatique" + (d.code ? " (code " + esc(d.code) + " appliqué)" : "") + " : " + money(t.total) + " au lieu de " + money(t.subtotal) + ".";
-    });
+    renderOffers(); syncForm();
   }
   function offerTotal(o) {
     var r = promoOf(o), prices = bagPrices(o);
@@ -183,7 +231,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
       var sub = prices.reduce(function (a, b) { return a + b; }, 0), ship = Number(C.shipping.cost) || 0;
       return { quantity: prices.length, subtotal: sub, discountPercent: r.percent, discount: r.discount, shipping: ship, total: sub - r.discount + ship };
     }
-    return L.computeOrder(prices, o.discountPercent, C.shipping.cost);
+    return L.computeOrder(prices, o.discountPercent, C.shipping.cost, bagIds(o));
   }
 
   function renderOffers() {
@@ -248,6 +296,20 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     $("#t-ship").textContent = freeShip ? "0 MAD (offerte)" : "Selon la ville — à confirmer";
     $("#t-total").innerHTML = money(t.total);
     // Les cartes d'offre affichent aussi le total estimé : on les garde synchronisées avec le prix courant
+    const duo = offerById("duo"), note = $("#duo-copy");
+    if (duo && note) {
+      const deal = offerTotal(duo), prices = bagPrices(duo);
+      const selected = o.id === "duo";
+      note.hidden = !selected && (crmReady ? !promoOf(duo) || promoOf(duo) === "err" : false);
+      $("#duo-toggle").checked = selected;
+      $("#duo-colors").hidden = !selected;
+      const color = byId(state.bags[1]);
+      $("#duo-color-name").textContent = color ? "· " + color.colorLabel : "";
+      if (color) $("#duo-" + color.id).checked = true;
+      if (color || !selected) $("#duo-error").textContent = "";
+      $$(".js-price").forEach(el => { el.textContent = money(t.total); });
+      $("#duo-price").textContent = "Ajoutez une 2ᵉ nuance : " + money(prices[1] - deal.discount) + " au lieu de " + money(prices[1]) + ". Vous économisez " + money(deal.discount) + ".";
+    }
     $$(".offer-total").forEach(function (e) { e.innerHTML = money(offerTotal(offerById("duo") || o).total); });
   }
 
@@ -337,11 +399,11 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     alertBox("<strong>" + msg + "</strong> Réessayez, ou contactez-nous : <a href=\"" + waHref(orderText()) + "\" rel=\"noopener\">WhatsApp</a> · <a href=\"tel:" + C.contact.phoneTel + "\">" + C.contact.phoneDisplay + "</a>.");
   }
 
-  /** « Prénom Nom » → prénom + nom ; le repère de livraison facultatif est ajouté à l'adresse (la table `orders` n'a pas de colonne dédiée). */
+  /** « Prénom Nom » → prénom + nom ; le repère de livraison facultatif part dans `notes` (customerNotes côté CRM). */
   function customerOf(data) {
     var parts = String(data.fullName).trim().replace(/\s+/g, " ").split(" "), notes = String(data.notes || "").trim();
     return { firstName: parts[0], lastName: parts.slice(1).join(" "), phone: L.formatPhoneDisplay(data.phone),
-      address: data.address.trim() + (notes ? " — " + notes : ""), city: data.city.trim() };
+      address: data.address.trim(), city: data.city.trim(), notes: notes };
   }
 
   /** Mémorise la commande validée (rien n'est encore envoyé) et prépare l'upsell éventuel. */
@@ -407,8 +469,8 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   /* Événements propres au parcours post-commande : jamais de donnée personnelle, rien en mode démonstration. */
   function trackFlow(name, params) { if (!(session && session.simulated)) A.track(name, params || {}, { custom: true }); }
 
-  function hashFor(view) { return view === "main" ? location.pathname + location.search : HASHES[view]; }
-  function viewFromHash() { return location.hash === HASHES.upsell ? "upsell" : location.hash === HASHES.thanks ? "thanks" : "main"; }
+  function hashFor(view) { return view === "main" ? location.pathname + location.search : view === "checkout" ? "#commander" : HASHES[view]; }
+  function viewFromHash() { return location.hash === "#commander" ? "checkout" : location.hash === HASHES.upsell ? "upsell" : location.hash === HASHES.thanks ? "thanks" : "main"; }
   function clearTimers() { clearInterval(tickId); clearTimeout(expireId); tickId = expireId = null; }
 
   function go(view) {
@@ -430,12 +492,21 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
       if (up && up.status === "pending") view = "upsell";
       else { if (curView !== "thanks") finalize(finalError); return; }
     }
-    if (view === "main" && state.done) resetOrder(); // retour arrière après une commande : on repart d'un formulaire propre
+    if ((view === "main" || view === "checkout") && state.done) resetOrder(); // retour arrière après une commande : on repart d'un formulaire propre
     if (view !== (want || viewFromHash())) { try { history.replaceState(null, "", hashFor(view)); } catch (e) {} }
     if (view === curView && !force) return;
     clearTimers(); curView = view; document.body.dataset.view = view;
     $$(".view").forEach(function (v) { v.hidden = v.id !== "view-" + view; });
-    window.scrollTo(0, 0);
+    const dialog = $("#view-checkout");
+    if (view === "checkout") {
+      if (!dialog.open) dialog.showModal();
+      dialog.scrollTop = 0;
+      $("#f-name").focus({preventScroll:true});
+    } else if (dialog.open) {
+      dialog.close();
+    } else if (view !== "main") {
+      window.scrollTo(0, 0);
+    }
     if (view === "upsell") renderUpsell(); else if (view === "thanks") renderThanks();
   }
 
@@ -594,7 +665,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     return offerTotals(s, ship);
   }
   function offerTotals(s, ship) {
-    var t = L.computeOrder(s.bags.map(priceOf), s.offerPct, ship);
+    var t = L.computeOrder(s.bags.map(priceOf), s.offerPct, ship, s.bags);
     if (s.offerDiscount != null) { t.discount = s.offerDiscount; t.total = t.subtotal - s.offerDiscount + t.shipping; }
     return t;
   }
@@ -658,22 +729,12 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     route(null, true); // lien direct / rechargement : reprend l'upsell s'il court encore, sinon remerciement ou page principale
   }
 
-  /* ---------- 8. Avis (uniquement s'ils existent dans la config) ---------- */
-  function renderTestimonials() {
-    var t = (C.testimonials || []).filter(function (x) { return x && x.text && x.author; });
-    if (!t.length) return;
-    var box = $("#testimonials"); box.hidden = false;
-    box.innerHTML = t.map(function (x) { var e = function (s) { return String(s).replace(/[<>&"]/g, ""); };
-      return '<blockquote class="quote">« ' + e(x.text) + " »<cite>" + e(x.author) + (x.source ? " · " + e(x.source) : "") + "</cite></blockquote>"; }).join("");
-  }
-
   /* ---------- 9. CTA collant mobile ---------- */
   function initSticky() {
-    var bar = $("#sticky-cta"), heroCta = $("#hero-cta"), order = $("#order"), vis = { hero: true, order: false };
-    function upd() { bar.hidden = vis.hero || vis.order || state.done; }
-    if (!("IntersectionObserver" in window)) { bar.hidden = true; return; }
-    new IntersectionObserver(function (es) { vis.hero = es[0].isIntersecting || es[0].boundingClientRect.top > 0; upd(); }).observe(heroCta);
-    new IntersectionObserver(function (es) { vis.order = es[0].isIntersecting; upd(); }, { threshold: 0.05 }).observe(order);
+    if (!("IntersectionObserver" in window)) return;
+    new IntersectionObserver(([entry]) => {
+      $("#sticky-cta").hidden = entry.isIntersecting || state.done;
+    }).observe($("#hero-cta"));
   }
 
 
@@ -734,21 +795,59 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   });
   document.addEventListener("click", function (e) {
     var a = e.target.closest('a[href^="#"]'); if (!a || a.getAttribute("href") === "#") return;
+    if (a.hash === "#commander") {
+      e.preventDefault();
+      if (curOffer().qty === 2 && !state.bags[1]) {
+        $("#duo-error").textContent = "Choisissez la couleur de votre deuxième sac.";
+        $("#duo-colors input:not(:disabled)")?.focus();
+        return;
+      }
+      go("checkout");
+      return;
+    }
     var t = document.getElementById(a.getAttribute("href").slice(1)); if (!t) return;
     e.preventDefault(); t.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    if (t.id === "f-name") t.focus({preventScroll:true});
     if (t.id === "order") { var f = $("#offer-list input:checked") || $("#f-name"); setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (x) {} }, reduceMotion ? 0 : 450); }
   });
 
   /** Chaque étape d'initialisation est isolée : une erreur ailleurs ne doit jamais empêcher le formulaire de fonctionner. */
   function safe(fn) { try { fn(); } catch (e) { if (window.console) console.error("[zman] init", fn.name, e); } }
   function init() {
-    [applyStatic, initSwatches, initColorCards, initOffer, renderTestimonials, initGallery, initForm, initSticky, initReels, initMoments, initViews].forEach(safe);
+    [applyStatic, initSwatches, initOffer, initGallery, initForm, initSticky, initReels, initMoments, initViews].forEach(safe);
     var q = new URLSearchParams(location.search).get("model");
-    var start = q && byId(q) ? q : "rouge";
+    var start = q && byId(q) ? q : (byId($("#hero").dataset.model) || P[0]).id;
     state.modelId = ""; // force rendu initial
     A.init(); A.track("PageView"); // le Pixel doit être chargé AVANT tout événement
     setModel(start);
+    function closeCheckout() {
+      if (state.submitting) return;
+      history.replaceState(null, "", hashFor("main"));
+      route("main");
+    }
+    $("#close-checkout").addEventListener("click", closeCheckout);
+    $("#view-checkout").addEventListener("cancel", e => { e.preventDefault(); closeCheckout(); });
+    $("#catalog-add")?.addEventListener("click", async () => {
+      const bags = selectedProducts();
+      if (bags.some(bag => bag.stockStatus === "out_of_stock")) return;
+      if (bags.length !== curOffer().qty) {
+        $("#duo-error").textContent = "Choisissez la couleur de votre deuxième sac.";
+        $("#duo-colors input:not(:disabled)")?.focus();
+        return;
+      }
+      const { addToCart } = await import("../../scripts/cart");
+      for (const bag of bags) addToCart({ id: bag.slug, name: bag.name, price: bag.price, img: bag.thumb });
+      $(".cart-feedback").hidden = false;
+      $("#catalog-cart-status").textContent = "Ajouté au panier.";
+    });
     A.track("ViewContent", content(byId(start), 1)); // chaque visiteur qui arrive sur la page = ViewContent (une seule fois)
   }
   init();
+})();
+
+(() => {
+  const t = document.getElementById("tcar-track"); if (!t) return;
+  const go = d => t.scrollBy({left: d * t.clientWidth, behavior: "smooth"});
+  document.getElementById("tcar-prev")?.addEventListener("click", () => go(-1));
+  document.getElementById("tcar-next")?.addEventListener("click", () => go(1));
 })();

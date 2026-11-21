@@ -7,7 +7,7 @@ import { money, shipLong, shipShort, shipMicro, waHref, cities, faqItems } from 
       <h2 id="h-faq">Questions fréquentes.</h2>
       <div id="faq-list">
       {faqItems().map(([q, a]) => (
-        <details><summary>{q}</summary><p set:html={a} /></details>
+        <details name="questions-zman"><summary>{q}</summary><p set:html={a} /></details>
       ))}
     </div>
     </section>

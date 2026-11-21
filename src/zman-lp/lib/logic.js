@@ -46,14 +46,21 @@ export function computeTotal(unitPrice, qty, shippingCost) {
 
 /**
  * Total d'une offre : somme des prix des sacs choisis, moins la réduction en %, plus la livraison.
- * Arrondi au dirham sur le total remise (1 098 × 0,90 = 988,2 → 988 MAD) ; la remise = sous-total − total remisé.
+ * Avec des identifiants produit, appliquer les mêmes arrondis par ligne que le CRM.
  * prices : tableau des prix unitaires (un par sac) — jamais un prix saisi par le client.
  */
-export function computeOrder(prices, discountPercent, shippingCost) {
+export function computeOrder(prices, discountPercent, shippingCost, productIds) {
   var list = (prices || []).map(function (p) { return Number(p) || 0; });
   var subtotal = list.reduce(function (a, b) { return a + b; }, 0);
   var pct = Math.min(Math.max(Number(discountPercent) || 0, 0), 100);
-  var discounted = Math.round(subtotal * (100 - pct) / 100);
+  // BAG23 rounds down per product line after combining identical colours in the CRM.
+  const lines = new Map();
+  list.forEach((price, i) => {
+    const key = productIds?.[i] ?? i;
+    lines.set(key, (lines.get(key) || 0) + price);
+  });
+  const discount = Array.from(lines.values()).reduce((sum, line) => sum + Math.floor(line * pct / 100), 0);
+  var discounted = productIds ? subtotal - discount : Math.round(subtotal * (100 - pct) / 100);
   var shipping = Number(shippingCost) || 0;
   return { quantity: list.length, subtotal: subtotal, discountPercent: pct, discount: subtotal - discounted, shipping: shipping, total: discounted + shipping };
 }

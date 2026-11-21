@@ -24,19 +24,11 @@ export const config = {
   ],
 
   /* ------------------------------------------------------------------ *
-   * 1 ter. ÉLÉMENT DE CONFIANCE (note + ventes + pastille « Meilleure vente »)
-   *   ⚠ Ces chiffres sont affichés tels quels aux clientes : ils doivent être réels et vérifiables
-   *   (exports de commandes / avis). « soldThisWeek » est une affirmation datée : à mettre à jour
-   *   chaque semaine ou à retirer. enabled:false => aucun de ces éléments n'est affiché.
+   * Atelier — afficher uniquement les valeurs confirmées.
    * ------------------------------------------------------------------ */
-  trust: {
-    enabled: true,
-    badge: "Meilleure vente",
-    rating: 4.9,
-    count: 259,
-    soldThisWeek: "200+",
-  },
-
+  weeklyCapacity: null,
+  workHours: null,
+  artisanPhoto: null,
   /* ------------------------------------------------------------------ *
    * 1 quater. UPSELL après commande (2e sac à prix réduit, durée limitée)
    *   Déclenché UNIQUEMENT si la cliente a choisi l'offre `triggerOfferId` et validé le formulaire.
@@ -59,6 +51,10 @@ export const config = {
    *    Cette page applique la politique commerciale demandée : gratuite partout.
    * ------------------------------------------------------------------ */
   shipping: {
+    sameDayCutoffHour: null, // Enable only for a confirmed daily dispatch service.
+    shipsWithinHours: 48,
+    deliveryMinDays: null,
+    deliveryMaxDays: null,
     freeNationwide: true, // false => la page n'affiche plus "gratuite partout" (frais selon la ville)
     cost: 0,
   },
@@ -68,7 +64,7 @@ export const config = {
    * ------------------------------------------------------------------ */
   currency: "MAD",
   // Prix barré : affiché seulement si vous confirmez que ces prix de référence ont réellement été pratiqués.
-  showReferencePrice: false,
+  showReferencePrice: true,
 
   /* ------------------------------------------------------------------ *
    * 4. CONTACT (canaux publiés sur la page « Livraison » du site officiel)
