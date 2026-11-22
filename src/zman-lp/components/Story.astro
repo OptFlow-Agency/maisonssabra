@@ -1,10 +1,10 @@
 ---
 import { config } from "../data/config.js";
-const { initial } = Astro.props;
+const { initial, bladi } = Astro.props;
 const im = initial.images[1] || initial.images[0];
 ---
-<section class="editorial artisan"><div><h2>Faite à Casablanca, pas en série.</h2>
-<p>Chaque pochette passe entre les mains de nos maîtres artisans. Du dessin du motif au montage du fermoir, ils travaillent le velours et brodent au fil d’or.</p>
+<section class="editorial artisan"><div><h2>{bladi ? "Faite main au Maroc, pas en série." : "Faite à Casablanca, pas en série."}</h2>
+{bladi ? <p>Chaque sac passe entre les mains de nos maîtres artisans. Du choix du cuir au montage du fermoir, ils associent le cuir et le tissu berbère tissé à la main.</p> : <p>Chaque pochette passe entre les mains de nos maîtres artisans. Du dessin du motif au montage du fermoir, ils travaillent le velours et brodent au fil d’or.</p>}
 {config.weeklyCapacity && <p>Brodée à la main : {config.weeklyCapacity} pièces par semaine.</p>}
 {config.workHours && <p>Environ {config.workHours} heures de travail par pièce.</p>}
 <blockquote>« Une pièce qu’on garde, et qu’on transmet. »</blockquote></div>

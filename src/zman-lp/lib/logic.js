@@ -100,7 +100,7 @@ export const MSG = {
   phoneInvalid: "Numéro invalide. Exemple : 06 12 34 56 78 ou +212 6 12 34 56 78.",
   city: "Veuillez indiquer votre ville.",
   address: "Indiquez une adresse complète (rue, numéro, quartier) pour la livraison.",
-  model: "Veuillez choisir un modèle Z’man.",
+  model: "Veuillez choisir un modèle.",
   quantity: "Quantité invalide.",
   offer: "Veuillez choisir une offre.",
   bag1: "Choisissez la couleur de votre sac.",

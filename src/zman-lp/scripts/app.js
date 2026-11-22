@@ -1,6 +1,5 @@
 import { crmUrl } from "../../lib/crm";
 import { config as C } from "../data/config.js";
-import { products as defaultModels } from "../data/products.js";
 import * as L from "../lib/logic.js";
 import { analytics as A } from "../lib/events.js";
 import { crmReady, placeOrder, checkPromo } from "../lib/crm.js";
@@ -9,14 +8,17 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
 (function () {
   if (!document.querySelector("#order-form") || !document.querySelector("#g-track")) return;
   const catalog = document.getElementById("catalog-models");
-  const P = catalog ? JSON.parse(catalog.textContent) : defaultModels;
+  const P = catalog ? JSON.parse(catalog.textContent) : JSON.parse(document.getElementById("zman-models").textContent);
+  const BRAND = P[0] && P[0].collection === "bladi" ? "Bladi" : "Z’man";
+  window.ZMAN_SLUGS = Object.fromEntries(P.map(m => [m.id, m.slug])); // id de modèle → slug du catalogue (lib/crm.js)
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var money = function (n) { return L.formatMAD(n, C.currency); };
   var byId = function (id) { return P.filter(function (p) { return p.id === id; })[0]; };
 
-  var state = { modelId: "rouge", offerId: "", bags: ["rouge", null], slide: 0, checkoutStarted: false, submitting: false, clientOrderId: A.newId(), done: false };
+  var DEF = (P.find(function (m) { return m.id === "rouge"; }) || P[0]).id;
+  var state = { modelId: DEF, offerId: "", bags: [DEF, null], slide: 0, checkoutStarted: false, submitting: false, clientOrderId: A.newId(), done: false };
 
   /* ---------- 0. Valeurs issues de la config ---------- */
   function applyStatic() {
@@ -238,11 +240,11 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     $("#offer-list").innerHTML = OFFERS.filter(offerAvailable).map(function (o) {
       var t = offerTotal(o), unit = byId(state.modelId).price, id = "offer-" + o.id, lines;
       if (offerPercent(o) > 0) {
-        lines = '<span class="offer-line">' + o.qty + " Sacs Z’man au choix.</span>" +
+        lines = '<span class="offer-line">' + o.qty + " Sacs " + BRAND + " au choix.</span>" +
           '<span class="offer-line offer-adv"><b>Avantage :</b> ' + shipFrag + " + " + offerPercent(o) + "% de réduction automatique" + (o.code ? " (Code : " + esc(o.code) + " appliqué)" : "") + ".</span>" +
           '<span class="offer-line offer-est">Total estimé : <b class="offer-total">' + money(t.total) + '</b> au lieu de <s>' + money(t.subtotal) + "</s>.</span>";
       } else {
-        lines = '<span class="offer-line">' + o.qty + " Sac Z’man au choix : <b>" + money(unit * o.qty) + "</b> (+ " + shipFrag + ").</span>";
+        lines = '<span class="offer-line">' + o.qty + " Sac " + BRAND + " au choix : <b>" + money(unit * o.qty) + "</b> (+ " + shipFrag + ").</span>";
       }
       return '<div class="offer"><input class="offer-input" type="radio" name="offer" id="' + id + '" value="' + o.id + '"' + (o.id === state.offerId ? " checked" : "") + ">" +
         '<label class="offer-card' + (o.badge ? " is-reco" : "") + '" for="' + id + '"><span class="offer-dot" aria-hidden="true"></span><span class="offer-body">' +
@@ -451,7 +453,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   function finalError(msg) {
     var box = $("#up-live").hidden ? $("#up-final-err") : $("#up-alert");
     if (!box) { box = document.createElement("p"); box.id = "up-final-err"; box.className = "form-alert"; box.setAttribute("role", "alert"); box.tabIndex = -1; $("#up-expired").appendChild(box); }
-    box.innerHTML = "<strong>" + msg + "</strong> Réessayez, ou contactez-nous : <a href=\"" + waHref("Bonjour Maison Sabra, ma commande Z’man n’a pas pu être envoyée.") + "\" rel=\"noopener\">WhatsApp</a> · <a href=\"tel:" + C.contact.phoneTel + "\">" + C.contact.phoneDisplay + "</a>.";
+    box.innerHTML = "<strong>" + msg + "</strong> Réessayez, ou contactez-nous : <a href=\"" + waHref("Bonjour Maison Sabra, ma commande " + BRAND + " n’a pas pu être envoyée.") + "\" rel=\"noopener\">WhatsApp</a> · <a href=\"tel:" + C.contact.phoneTel + "\">" + C.contact.phoneDisplay + "</a>.";
     box.hidden = false; box.focus();
   }
   function toThanks() { if (!session || session.placed) return go("thanks"); finalize(finalError); }
@@ -564,7 +566,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     var s = session, first = byId(s.bags[0]);
     $("#up-sim").hidden = !s.simulated;
     var pctOf = upTotals(s.bags[0], upChoices(s.bags[0])[0]).discountPercent;
-    if (upLive()) $("#up-title").innerHTML = "Un 2<sup>e</sup> sac Z’man à <span id=\"up-pct\"></span>, rien que pour vous.";
+    if (upLive()) $("#up-title").innerHTML = "Un 2<sup>e</sup> sac " + BRAND + " à <span id=\"up-pct\"></span>, rien que pour vous.";
     $("#up-pct").textContent = "−" + pctOf + " %";
     $("#up-current").innerHTML = '<img src="' + first.thumb + '" alt="" width="52" height="52"><span><small>Votre commande</small>' + esc(first.name) + " · " + nb(money(first.price)) + "</span>";
     // Les couleurs proposées excluent TOUJOURS celle déjà commandée sur la page principale.
@@ -702,7 +704,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
         'Une fois la commande confirmée, elle est préparée et expédiée par Maison Sabra, selon la <a href="' + C.links.delivery + '" target="_blank" rel="noopener">politique de livraison</a>.') +
       step("Livraison partout au Maroc", freeShip ? "La livraison est offerte. Le livreur vous contacte pour convenir de la remise du colis." : "Les frais de livraison, qui dépendent de votre ville, vous sont confirmés lors de l’appel.") +
       step("Vous payez à la réception", "Le règlement se fait en espèces, à la livraison. Aucun paiement en ligne n’est demandé.");
-    $("#ty-help").innerHTML = 'Une question ? <a href="' + waHref("Bonjour Maison Sabra, j’ai une question sur ma commande Z’man.") + '" rel="noopener">WhatsApp</a> · <a href="tel:' + C.contact.phoneTel + '">' + C.contact.phoneDisplay + "</a>. Un souci à la réception ? Voir la " +
+    $("#ty-help").innerHTML = 'Une question ? <a href="' + waHref("Bonjour Maison Sabra, j’ai une question sur ma commande " + BRAND + ".") + '" rel="noopener">WhatsApp</a> · <a href="tel:' + C.contact.phoneTel + '">' + C.contact.phoneDisplay + "</a>. Un souci à la réception ? Voir la " +
       '<a href="' + C.links.returns + '" target="_blank" rel="noopener">politique de retours</a>.';
     $("#ty-back").href = C.links.collection;
     if (!s.thanksViewed) {
@@ -837,8 +839,12 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
       }
       const { addToCart } = await import("../../scripts/cart");
       for (const bag of bags) addToCart({ id: bag.slug, name: bag.name, price: bag.price, img: bag.thumb });
-      $(".cart-feedback").hidden = false;
-      $("#catalog-cart-status").textContent = "Ajouté au panier.";
+      // Pas d'ouverture du tiroir : le bouton flottant (compteur) confirme l'ajout, et le bouton affiche « Ajouté » un instant.
+      const btn = $("#catalog-add"), label = btn.dataset.label || btn.textContent;
+      btn.dataset.label = label;
+      btn.textContent = "Ajouté ✓";
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => { btn.textContent = label; }, 1800);
     });
     A.track("ViewContent", content(byId(start), 1)); // chaque visiteur qui arrive sur la page = ViewContent (une seule fois)
   }

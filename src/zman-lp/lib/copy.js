@@ -27,11 +27,11 @@ export function faqItems() {
 }
 
 /** JSON-LD Product/Offer (sans note, stock ni livraison inventés). */
-export function productJsonLd(origin) {
+export function productJsonLd(origin, list = P) {
   const abs = (src) => (/^https?:/.test(src) ? src : new URL(src, origin).href);
   return {
     "@context": "https://schema.org",
-    "@graph": P.map((p) => ({
+    "@graph": list.map((p) => ({
       "@type": "Product", "@id": p.url, name: p.name, url: p.url, brand: { "@type": "Brand", name: p.brand }, color: p.color, material: p.materials,
       description: p.officialDescription, image: p.images.map((i) => abs(i.src)),
       offers: { "@type": "Offer", price: String(p.price), priceCurrency: C.currency, availability: p.stockStatus && p.stockStatus !== "untracked" ? "https://schema.org/" + (p.stockStatus === "out_of_stock" ? "OutOfStock" : "InStock") : undefined, url: p.url },

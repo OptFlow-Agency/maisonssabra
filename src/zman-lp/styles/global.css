@@ -615,3 +615,20 @@ body{font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
 .big,.product-tagline,.moment-copy{font-weight:500}
 .moment-copy{font-size:1.3rem}
 em,blockquote{font-synthesis:none}
+
+/* Testimonials: more compact */
+.tcar{margin:12px 0}
+.tcar figure{padding:10px 14px;gap:4px}
+.tcar .rl-stars{font-size:13px;line-height:1}
+.tcar blockquote{font-size:13px;line-height:1.45}
+.tcar figcaption{font-size:10px}
+.tcar-nav{margin-top:6px}
+.tcar-nav button{width:30px;height:30px;font-size:17px}
+
+/* Benefits: clean list — check badge, title over description, hairline separators */
+.benefits{margin:14px 0 18px;border-top:1px solid rgba(176,130,49,.35)}
+.benefits li{display:grid;grid-template-columns:22px minmax(0,1fr);column-gap:12px;align-items:start;margin:0;padding:12px 0;border-bottom:1px solid rgba(176,130,49,.35)}
+.benefits li::before{content:"";flex:none;width:22px;height:22px;margin:1px 0 0;border-radius:50%;background:var(--burgundy);-webkit-mask:none;mask:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 12.5l3.2 3.2L17 9'/%3E%3C/svg%3E");background-size:14px;background-position:center;background-repeat:no-repeat}
+.benefits strong{display:block;font-size:15px;font-weight:600;line-height:1.35;color:var(--ink,inherit)}
+.benefits .b-desc{margin-top:3px;font-size:13.5px;line-height:1.5}

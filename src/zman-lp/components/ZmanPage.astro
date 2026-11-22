@@ -9,10 +9,13 @@ import StickyCta from "./StickyCta.astro";
 import UpsellView from "./UpsellView.astro";
 import ThanksView from "./ThanksView.astro";
 import { shipLong } from "../lib/copy.js";
-import { products } from "../data/products.js";
+import { loadCollection } from "../data/products.js";
 import type { Product } from "../../data/products";
-interface Props { modelId?: string; catalog?: Product[] }
-const { modelId, catalog } = Astro.props;
+interface Props { modelId?: string; catalog?: Product[]; collection?: string }
+const { modelId, catalog, collection = "zman" } = Astro.props;
+const products = await loadCollection(collection);
+const bladi = collection === "bladi";
+const brand = bladi ? "Bladi" : "Z’man";
 const models = catalog ? products.flatMap(model => {
   const product = catalog.find(item => item.slug === model.slug);
   if (!product || product.variants?.length) return [];
@@ -26,7 +29,7 @@ const models = catalog ? products.flatMap(model => {
 }) : products;
 const initial = models.find(p => p.id === (modelId ?? "rouge")) ?? models[0];
 ---
-<Layout initial={initial} productRoute={!!modelId}>
+<Layout initial={initial} models={models} productRoute={!!modelId}>
   <a class="skip" href="#hero">Aller au contenu</a>
 
   <div class="demo-ribbon" id="demo-ribbon" hidden role="note">
@@ -40,15 +43,16 @@ const initial = models.find(p => p.id === (modelId ?? "rouge")) ?? models[0];
       <img src="/assets/logo-ms.webp" width="36" height="36" alt="" class="brand-mark" />
       <span class="brand-word">Maison Sabra</span>
     </a>
-    <a class="collection-label" href="/collection-zman">Collection Z’man</a>
+    <a class="collection-label" href={bladi ? "/collection-bladi" : "/collection-zman"}>Collection {brand}</a>
     <a class="support-link" id="support-link" href="#faq">Aide</a>
   </header>
 
+  <script type="application/json" id="zman-models" set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />
   {catalog && <script type="application/json" id="catalog-models" set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />}
   <main id="main">
     <Hero models={models} initial={initial} />
-    <Story initial={initial} />
-    <section class="parcel editorial"><img src="/zmancollection/lp/assets/videos/zman-deballage-rouge.jpg" loading="lazy" width="540" height="960" alt="Déballage du sac Z’man rouge"/><div><h2>Dans votre colis</h2><p>Votre sac Z’man, sa chaîne détachable et son écrin satin, prêt à offrir.</p><p>Pochette de protection [À CONFIRMER]</p></div></section>
+    <Story initial={initial} bladi={bladi} />
+    <section class="parcel editorial">{!bladi && <img src="/zmancollection/lp/assets/videos/zman-deballage-rouge.jpg" loading="lazy" width="540" height="960" alt="Déballage du sac Z’man rouge"/>}<div><h2>Dans votre colis</h2>{bladi ? <p>Votre sac Maison Sabra, dans son emballage, prêt à offrir.</p> : <p>Votre sac Z’man, sa chaîne détachable et son écrin satin, prêt à offrir.</p>}</div></section>
     <section class="editorial" id="avis" hidden><h2>Avis de nos clientes</h2><p id="review-summary"></p><div id="review-list"></div></section>
     <section class="editorial steps"><h2>Commander en 3 étapes</h2><ol><li>Vous commandez</li><li>Nous confirmons sur WhatsApp</li><li>Vous payez à la livraison, après inspection</li></ol></section>
     <Faq />
@@ -57,7 +61,7 @@ const initial = models.find(p => p.id === (modelId ?? "rouge")) ?? models[0];
 
   <SiteFooter />
   <StickyCta />
-  <dialog id="view-checkout" class="checkout-step" aria-labelledby="h-order">
+  <dialog id="view-checkout" data-lenis-prevent class="checkout-step" aria-labelledby="h-order">
     <button type="button" id="close-checkout" aria-label="Fermer la commande">Fermer ×</button>
     <OrderForm />
   </dialog>

@@ -3,16 +3,22 @@ import "@fontsource-variable/montserrat/index.css";
 import "@fontsource-variable/inter/wght.css";
 import "@fontsource-variable/playfair-display/wght.css";
 import "@fontsource-variable/playfair-display/wght-italic.css";
+import "../styles/cart-embed.css";
 import "../styles/global.css";
+import CartDrawer from "../../components/CartDrawer.astro";
+import FloatingCart from "../../components/FloatingCart.astro";
 import { config as C } from "../data/config.js";
 import { productJsonLd } from "../lib/copy.js";
 
-const { initial, productRoute } = Astro.props;
+const { initial, productRoute, models } = Astro.props;
+const bladi = initial.collection === "bladi";
 const title = productRoute ? initial.name + " | Maison Sabra" : "Sac Z’man — Velours Royal & Broderies Dorées | Maison Sabra";
-const description = "Sac Z’man brodé à Casablanca, livré dans son écrin satin. Livraison offerte au Maroc. Vous inspectez votre sac avant de payer à la réception.";
+const description = bladi
+  ? "Sac en cuir et tissu berbère, fait main au Maroc, livré dans son emballage Maison Sabra. Livraison offerte au Maroc. Vous inspectez votre sac avant de payer à la réception."
+  : "Sac Z’man brodé à Casablanca, livré dans son écrin satin. Livraison offerte au Maroc. Vous inspectez votre sac avant de payer à la réception.";
 const ogImage = new URL(initial.images[0].src, Astro.site ?? Astro.url).href;
 const wa = `https://wa.me/${C.contact.whatsappNumber}`;
-const jsonLd = productJsonLd(Astro.site ?? Astro.url);
+const jsonLd = productJsonLd(Astro.site ?? Astro.url, models);
 ---
 <!doctype html>
 <html lang="fr">
@@ -40,6 +46,9 @@ const jsonLd = productJsonLd(Astro.site ?? Astro.url);
   </head>
   <body>
     <slot />
+    <FloatingCart />
+    <CartDrawer />
+    <script>import "../../scripts/cart";</script>
     <!-- Filet de sécurité : si le script de la page n'a pas démarré (bloqueur de contenu, réseau…), le formulaire l'explique au lieu de se recharger sans rien dire. -->
     <script is:inline define:vars={{ wa, tel: C.contact.phoneTel, phone: C.contact.phoneDisplay }}>
       window.zmanFormFallback = function () {

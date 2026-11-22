@@ -9,7 +9,7 @@ import { crmReady, crmPost, crmErrorCode } from "../../lib/crm";
 export { crmReady };
 
 /** id produit de la page (« rouge ») → slug du catalogue (« zman-rouge »). */
-export const slugOf = (id) => "zman-" + id;
+export const slugOf = (id) => (globalThis.ZMAN_SLUGS && globalThis.ZMAN_SLUGS[id]) || "zman-" + id; // ZMAN_SLUGS : id de modèle → slug (rempli par app.js)
 
 /** [ "rouge", "rouge", "vert" ] → [{ slug: "zman-rouge", qty: 1 }, …] — un élément par sac, l'ordre est conservé. */
 export function toItems(ids) {

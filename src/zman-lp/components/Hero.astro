@@ -16,7 +16,7 @@ const h1b = h1rest.join(" – ");
 <section class="hero" id="hero" data-model={initial.id} aria-labelledby="h1">
       <div class="hero-gallery" aria-label="Galerie photo du modèle sélectionné">
         <div class="g-main">
-          <span class="best-badge">Atelier de Casablanca</span>
+          <span class="best-badge">{initial.collection === "bladi" ? "Fait main au Maroc" : "Atelier de Casablanca"}</span>
           <div class="g-track" id="g-track" tabindex="0" aria-roledescription="carrousel" aria-label="Photos du sac" role="group"><div class="g-slide"><img src={first.src} alt={first.alt} width={first.w} height={first.h} fetchpriority="high" /></div></div>
           <button class="g-nav g-prev" id="g-prev" type="button" aria-label="Photo précédente">‹</button>
           <button class="g-nav g-next" id="g-next" type="button" aria-label="Photo suivante">›</button>
@@ -29,7 +29,7 @@ const h1b = h1rest.join(" – ");
       <div class="hero-panel">
         <a id="rating-link" class="rating-link" href="#avis" hidden></a>
         <p class="rating-fallback" id="rating-fallback"><span class="rl-stars" aria-hidden="true">{stars}</span> {quotes.length} témoignages de clientes</p>
-        <p class="eyebrow">Édition Prestige · Brodé main à Casablanca</p>
+        <p class="eyebrow">{initial.collection === "bladi" ? "Collection Bladi · Fait main au Maroc" : "Édition Prestige · Brodé main à Casablanca"}</p>
         <h1 id="h1"><span id="h1-main">{h1a}</span> <em id="h1-sub">{h1b}</em></h1>
         
         <p class="price-row"><strong class="price" id="p-price">{money(initial.price)}</strong><s id="p-ref" hidden={!(initial.referencePrice > initial.price)}>{money(initial.referencePrice)}</s><span id="discount" hidden={!(initial.referencePrice > initial.price)}>−{Math.round(100*(1-initial.price/initial.referencePrice))} %</span></p>
@@ -43,7 +43,7 @@ const h1b = h1rest.join(" – ");
         </div>
         <ul class="benefits" id="benefits" hidden={!initial.benefits.length}>{initial.benefits.map((b)=><li><span><strong>{b.title}</strong>{b.description ? <span class="b-desc">{b.description}</span> : null}</span></li>)}</ul>
         <fieldset class="swatches">
-          <legend>Couleur · <strong id="swatch-current"></strong></legend>
+          <legend>{initial.collection === "bladi" ? "Modèle" : "Couleur"} · <strong id="swatch-current"></strong></legend>
           <div class="swatch-list" id="swatch-list">
             {P.map((p) => (
               <div class="sw" data-out={p.stockStatus === "out_of_stock"}>
@@ -62,7 +62,7 @@ const h1b = h1rest.join(" – ");
             <span id="duo-price"></span>
           </label>
           <fieldset id="duo-colors" class="swatches" hidden>
-            <legend>Couleur du deuxième sac <strong id="duo-color-name"></strong></legend>
+            <legend>{initial.collection === "bladi" ? "Modèle" : "Couleur"} du deuxième sac <strong id="duo-color-name"></strong></legend>
             <div class="swatch-list">
               {P.map(p => <div class="sw" data-out={p.stockStatus === "out_of_stock"}>
                 <input type="radio" name="duo-color" id={`duo-${p.id}`} value={p.id} disabled={p.stockStatus === "out_of_stock"} />
@@ -76,7 +76,6 @@ const h1b = h1rest.join(" – ");
           <button type="button" class="btn btn-ghost" id="catalog-add">Ajouter au panier</button>
           <a class="btn btn-primary" id="hero-cta" href="#commander" data-cta="hero" aria-haspopup="dialog" aria-controls="view-checkout">Commander directement</a>
         </div>
-        <div class="cart-feedback" hidden><span role="status" id="catalog-cart-status"></span> <a href="/commande">Voir mon panier</a></div>
         <a class="concierge" id="concierge" href={waHref()}>Conciergerie WhatsApp</a>
         <aside class="pillars" aria-label="Garantie Maison Sabra">
         {[[ShieldCheck,"Payez après inspection","Ouvrez, vérifiez, puis payez. Zéro risque."],[Truck,"Livraison gratuite","Partout au Maroc, expédiée sous 48h."],[RefreshCcw,"Retour & échange sous 3 jours","Un souci ? Nous trouvons une solution simple."],[MessageCircle,"Conciergerie WhatsApp 7j/7","Une question avant de commander ? Une vraie personne vous répond."]].map(([icon,title,body])=><div class="pillar"><span class="pillar-icon" aria-hidden="true" set:html={icon}></span><strong>{title}</strong><p>{body}</p></div>)}</aside>

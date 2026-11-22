@@ -17,19 +17,21 @@ function image(im, name) {
 
 function toModel(row) {
   const id = row.slug.replace(/^zman-/, "");
+  const collection = row.collection || "zman";
   const d = row.details || {};
   const dim = d.dimensions;
   const images = (row.images || []).map((im) => image(im, row.name));
   const first = row.images?.[0];
   return {
     id,
+    collection,
     slug: row.slug,
     brand: "Maison Sabra",
     url: "https://maisonsabra.ma/produit/" + row.slug,
     wooProductId: row.slug,
     sku: row.sku,
     name: row.name,
-    colorLabel: extra(row, /couleur|color/i) || cap(id),
+    colorLabel: extra(row, /couleur|color/i) || (id.length > 14 ? row.name.split(" ").slice(0, 3).join(" ") : cap(id)),
     formLabel: row.name.replace(/^[^–-]*[–-]\s*/, "") || row.name,
     tagline: row.short_description || "",
     blurb: row.short_description || "",
@@ -51,14 +53,60 @@ function toModel(row) {
   };
 }
 
-async function fromDb() {
-  if (!crmReady) throw new Error("Catalogue Z'man : PUBLIC_CRM_URL et PUBLIC_CRM_TENANT sont requis (aucune donnée produit locale).");
-  const res = await fetch(crmUrl("/products?collection=zman"), { credentials: "omit", signal: AbortSignal.timeout(8000) });
-  if (!res.ok) throw new Error("Catalogue Z'man : le CRM a répondu " + res.status);
-  const rows = await res.json();
-  const out = rows.filter((r) => r.images?.length).map(toModel);
-  if (!out.length) throw new Error("Catalogue Z'man : aucun produit actif avec photo dans la collection « zman ».");
+async function fetchRows(url) {
+  let last;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(url, { credentials: "omit", signal: AbortSignal.timeout(25000) });
+      if (res.ok) return await res.json();
+      const body = (await res.text().catch(() => "")).slice(0, 300);
+      last = new Error("Catalogue Z'man : le CRM a répondu " + res.status + " sur " + url + (body ? " — " + body : ""));
+    } catch (e) {
+      last = e;
+    }
+    await new Promise((r) => setTimeout(r, 1500 * attempt));
+  }
+  throw last;
+}
+
+// Écarte les photos qui ne s'affichent pas (fichier absent en stockage : 4xx, ou erreur serveur 5xx, ou réponse qui n'est pas une image).
+// Un 5xx est retenté une fois ; une erreur réseau garde l'image (on ne retire que ce qui est prouvé cassé).
+async function exists(url, retry = true) {
+  try {
+    // GET (certaines routes média refusent HEAD) ; on n'en lit pas le corps.
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    res.body?.cancel().catch(() => {});
+    if (res.ok) return (res.headers.get("content-type") || "").startsWith("image/");
+    if (res.status >= 500 && retry) return exists(url, false);
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+async function dropBroken(rows) {
+  return Promise.all(
+    rows.map(async (r) => {
+      const ok = await Promise.all((r.images || []).map((im) => exists(im.sizes?.[800] || im.url)));
+      return { ...r, images: (r.images || []).filter((_, i) => ok[i]) };
+    })
+  );
+}
+
+async function fromDb(collection) {
+  if (!crmReady) throw new Error("Catalogue : PUBLIC_CRM_URL et PUBLIC_CRM_TENANT sont requis (aucune donnée produit locale).");
+  const rows = await fetchRows(crmUrl("/products?collection=" + collection));
+  const out = (await dropBroken(rows)).filter((r) => r.images?.length).map(toModel);
+  if (!out.length) throw new Error("Catalogue : aucun produit actif avec photo dans la collection « " + collection + " ».");
   return out;
 }
 
-export const products = await fromDb();
+const cache = new Map();
+/** Produits d'une collection du CRM (« zman », « bladi »…), chargés une fois par démarrage du serveur. Dans le navigateur : vide (le catalogue est dans la page). */
+export function loadCollection(collection) {
+  if (typeof window !== "undefined") return Promise.resolve([]);
+  if (!cache.has(collection)) cache.set(collection, fromDb(collection));
+  return cache.get(collection);
+}
+
+export const products = await loadCollection("zman");

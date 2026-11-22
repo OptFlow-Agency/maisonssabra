@@ -1,7 +1,7 @@
 ---
 import Page from "../../layouts/Page.astro";
 import ZmanPage from "../../zman-lp/components/ZmanPage.astro";
-import { products as zmanModels } from "../../zman-lp/data/products.js";
+import { loadCollection } from "../../zman-lp/data/products.js";
 import ProductView from "../../components/ProductView.astro";
 import NotFoundView from "../../components/NotFoundView.astro";
 import { getCatalog, cacheShort } from "../../lib/catalog";
@@ -10,8 +10,9 @@ export const prerender = false;
 
 const products = await getCatalog();
 const p = products.find((x) => x.slug === Astro.params.slug);
-const model = p?.collection === "zman" && !p.variants?.length && p.purchasable !== false ? zmanModels.find(m => m.slug === p.slug) : undefined;
+const landing = p && (p.collection === "zman" || p.collection === "bladi") && !p.variants?.length && p.purchasable !== false ? p.collection : undefined;
+const model = landing ? (await loadCollection(landing)).find(m => m.slug === p!.slug) : undefined;
 if (p) cacheShort(Astro.response);
 else Astro.response.status = 404;
 ---
-{model ? <ZmanPage modelId={model.id} catalog={products} /> : p ? <ProductView p={p} products={products} /> : <Page title="Page introuvable | Maison Sabra" description="Cette page n’existe pas ou a été déplacée." noindex><NotFoundView /></Page>}
+{model ? <ZmanPage modelId={model.id} catalog={products} collection={landing} /> : p ? <ProductView p={p} products={products} /> : <Page title="Page introuvable | Maison Sabra" description="Cette page n’existe pas ou a été déplacée." noindex><NotFoundView /></Page>}
