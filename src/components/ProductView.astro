@@ -153,7 +153,7 @@ const hasDetails = data.some((d) => d.long.length > 0 || d.specs.length > 0 || !
             <p class="m-0 hidden items-center gap-2 text-sm text-ink-soft" data-rating></p>
             <div class="grid gap-1.5">
               <p class="m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1 tabular-nums">
-                <span class="sr-only">Prix actuel :</span><span class="text-[1.75rem] leading-none font-semibold text-burgundy min-[60rem]:text-[2rem]" data-price-now>{fmtMad(p.price)}</span>
+                <span class="sr-only">Prix actuel :</span><span class="text-base leading-none font-normal text-burgundy" data-price-now>{fmtMad(p.price)}</span>
                 <s class:list={["text-base text-ink-soft", !discount(p) && "hidden"]} data-was><span class="sr-only">Prix initial :</span>{fmtMad(p.was ?? 0)}</s>
               </p>
               <p class:list={["m-0 text-sm font-semibold text-rose-dusty tabular-nums", !saving(p) && "hidden"]} data-save>Vous économisez {fmtMad(saving(p))} (−{discount(p)} %)</p>

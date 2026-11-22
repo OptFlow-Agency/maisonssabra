@@ -42,7 +42,21 @@ const h1b = h1rest.join(" – ");
           <div class="tcar-nav"><button type="button" id="tcar-prev" aria-label="Témoignage précédent">‹</button><button type="button" id="tcar-next" aria-label="Témoignage suivant">›</button></div>
         </div>
         <ul class="benefits" id="benefits" hidden={!initial.benefits.length}>{initial.benefits.map((b)=><li><span><strong>{b.title}</strong>{b.description ? <span class="b-desc">{b.description}</span> : null}</span></li>)}</ul>
-        <fieldset class="swatches">
+        <section class="vcards" aria-labelledby="vcards-h">
+          <h3 id="vcards-h">Le sac en mouvement</h3>
+          <div class="vcards-list">
+            {[["zman-ugc-1","Sur 2M","Vidéo : Maison Sabra sur 2M"],["zman-deballage-rouge","Déballage","Vidéo de déballage du coffret Maison Sabra"],["zman-ugc-3","Porté","Vidéo : le sac porté avec des caftans"]].map(([f,t,a])=>(
+              <figure class="vcard">
+                <div class="vcard-frame">
+                  <video src={`/zmancollection/lp/assets/videos/${f}.mp4`} poster={`assets/videos/${f}.jpg`} preload="none" playsinline muted loop width="540" height="960" aria-label={a}></video>
+                  <button class="vcard-play" type="button" aria-label={`Lire : ${t}`} aria-pressed="false"><span aria-hidden="true"></span></button>
+                </div>
+                <figcaption>{t}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+        <fieldset class="swatches" hidden>
           <legend>{initial.collection === "bladi" ? "Modèle" : "Couleur"} · <strong id="swatch-current"></strong></legend>
           <div class="swatch-list" id="swatch-list">
             {P.map((p) => (
@@ -81,3 +95,18 @@ const h1b = h1rest.join(" – ");
         {[[ShieldCheck,"Payez après inspection","Ouvrez, vérifiez, puis payez. Zéro risque."],[Truck,"Livraison gratuite","Partout au Maroc, expédiée sous 48h."],[RefreshCcw,"Retour & échange sous 3 jours","Un souci ? Nous trouvons une solution simple."],[MessageCircle,"Conciergerie WhatsApp 7j/7","Une question avant de commander ? Une vraie personne vous répond."]].map(([icon,title,body])=><div class="pillar"><span class="pillar-icon" aria-hidden="true" set:html={icon}></span><strong>{title}</strong><p>{body}</p></div>)}</aside>
       </div>
 </section>
+<script>
+  document.querySelectorAll<HTMLElement>(".vcard").forEach((card) => {
+    const v = card.querySelector("video")!, b = card.querySelector("button")!;
+    const sync = () => { const on = !v.paused; card.classList.toggle("is-playing", on); b.setAttribute("aria-pressed", String(on)); };
+    const toggle = () => {
+      if (v.paused) {
+        document.querySelectorAll<HTMLVideoElement>(".vcard video").forEach((o) => { if (o !== v) o.pause(); });
+        v.play().catch(() => {});
+      } else v.pause();
+    };
+    b.addEventListener("click", toggle);
+    v.addEventListener("click", toggle);
+    v.addEventListener("play", sync); v.addEventListener("pause", sync);
+  });
+</script>

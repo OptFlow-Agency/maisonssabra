@@ -1,6 +1,6 @@
-@import "@fontsource-variable/playfair-display/wght.css";
-@import "@fontsource-variable/playfair-display/wght-italic.css";
-@import "@fontsource-variable/inter/wght.css";
+@import "@fontsource/cormorant-garamond/latin-500.css";
+@import "@fontsource/cormorant-garamond/latin-600.css";
+@import "@fontsource/cormorant-garamond/latin-500-italic.css";
 @import "@fontsource-variable/montserrat/index.css";
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
@@ -121,5 +121,3 @@ html.js [data-clip]:not(.is-in) { clip-path: inset(100% 0 0 0); }
   .hero-img { animation: none; }
 }
 
-/* Étiquettes et boutons : Montserrat (titres Playfair Display, texte Inter) */
-.eyebrow,.btn,.btn-ghost{font-family:var(--font-label)}

@@ -23,9 +23,8 @@
   --color-gold: #b08231; /* antique gold: monograms, rules, small details */
 
   /* Type */
-  --font-display: "Playfair Display Variable", "Playfair Display", Georgia, serif;
-  --font-body: "Inter Variable", "Inter", system-ui, sans-serif;
-  --font-label: "Montserrat Variable", "Montserrat", system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-body: "Montserrat Variable", "Montserrat", system-ui, sans-serif;
   --text-step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
   --text-step-0: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
   --text-step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
