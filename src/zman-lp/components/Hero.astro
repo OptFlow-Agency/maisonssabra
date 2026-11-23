@@ -35,29 +35,8 @@ const h1b = h1rest.join(" – ");
         <p class="price-row"><strong class="price" id="p-price">{money(initial.price)}</strong><s id="p-ref" hidden={!(initial.referencePrice > initial.price)}>{money(initial.referencePrice)}</s><span id="discount" hidden={!(initial.referencePrice > initial.price)}>−{Math.round(100*(1-initial.price/initial.referencePrice))} %</span></p>
         <p class="assurance">Livraison gratuite · Payez à la réception, après inspection</p>
         <p class="lede" id="lede" hidden={!(initial.tagline || initial.officialDescription)}>{initial.officialDescription || initial.tagline}</p>
-        <div class="tcar" aria-roledescription="carrousel" aria-label="Témoignages clientes">
-          <ul class="tcar-track" id="tcar-track" tabindex="0">
-            {quotes.map((q)=><li><figure><span class="rl-stars" aria-hidden="true">{stars}</span><blockquote lang={q.arabic?"ar":"fr"} dir={q.arabic?"rtl":undefined}>«&nbsp;{q.quote}&nbsp;»</blockquote><figcaption>{q.name}</figcaption></figure></li>)}
-          </ul>
-          <div class="tcar-nav"><button type="button" id="tcar-prev" aria-label="Témoignage précédent">‹</button><button type="button" id="tcar-next" aria-label="Témoignage suivant">›</button></div>
-        </div>
-        <ul class="benefits" id="benefits" hidden={!initial.benefits.length}>{initial.benefits.map((b)=><li><span><strong>{b.title}</strong>{b.description ? <span class="b-desc">{b.description}</span> : null}</span></li>)}</ul>
-        <section class="vcards" aria-labelledby="vcards-h">
-          <h3 id="vcards-h">Le sac en mouvement</h3>
-          <div class="vcards-list">
-            {[["zman-ugc-1","Sur 2M","Vidéo : Maison Sabra sur 2M"],["zman-deballage-rouge","Déballage","Vidéo de déballage du coffret Maison Sabra"],["zman-ugc-3","Porté","Vidéo : le sac porté avec des caftans"]].map(([f,t,a])=>(
-              <figure class="vcard">
-                <div class="vcard-frame">
-                  <video src={`/zmancollection/lp/assets/videos/${f}.mp4`} poster={`/zmancollection/lp/assets/videos/${f}.jpg`} preload="none" playsinline muted loop width="540" height="960" aria-label={a}></video>
-                  <button class="vcard-play" type="button" aria-label={`Lire : ${t}`} aria-pressed="false"><span aria-hidden="true"></span></button>
-                </div>
-                <figcaption>{t}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </section>
-        <fieldset class="swatches" hidden>
-          <legend>{initial.collection === "bladi" ? "Modèle" : "Couleur"} · <strong id="swatch-current"></strong></legend>
+        <fieldset class="swatches">
+          <legend>Choisir le {initial.collection === "bladi" ? "modèle" : "coloris"} : <strong id="swatch-current"></strong></legend>
           <div class="swatch-list" id="swatch-list">
             {P.map((p) => (
               <div class="sw" data-out={p.stockStatus === "out_of_stock"}>
@@ -67,6 +46,13 @@ const h1b = h1rest.join(" – ");
             ))}
           </div>
         </fieldset>
+        <ul class="benefits" id="benefits" hidden={!initial.benefits.length}>{initial.benefits.map((b)=><li><span><strong>{b.title}</strong>{b.description ? <span class="b-desc">{b.description}</span> : null}</span></li>)}</ul>
+        <div class="tcar" aria-roledescription="carrousel" aria-label="Témoignages clientes">
+          <ul class="tcar-track" id="tcar-track" tabindex="0">
+            {quotes.map((q)=><li><figure><span class="rl-stars" aria-hidden="true">{stars}</span><blockquote lang={q.arabic?"ar":"fr"} dir={q.arabic?"rtl":undefined}>«&nbsp;{q.quote}&nbsp;»</blockquote><figcaption>{q.name}</figcaption></figure></li>)}
+          </ul>
+          <div class="tcar-nav"><button type="button" id="tcar-prev" aria-label="Témoignage précédent">‹</button><button type="button" id="tcar-next" aria-label="Témoignage suivant">›</button></div>
+        </div>
         <p id="stock-note" role="status"></p>
         <p id="dispatch"></p><p id="promo-end" hidden></p>
         <div id="duo-copy" hidden>
