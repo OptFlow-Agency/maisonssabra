@@ -1,4 +1,6 @@
 ---
 import ZmanPage from "../../zman-lp/components/ZmanPage.astro";
+// Catalogue comes from the CRM: render per request so the build never needs the CRM to be reachable.
+export const prerender = false;
 ---
 <ZmanPage />
