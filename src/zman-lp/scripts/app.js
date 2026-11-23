@@ -11,6 +11,17 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   const P = catalog ? JSON.parse(catalog.textContent) : JSON.parse(document.getElementById("zman-models").textContent);
   const BRAND = P[0] && P[0].collection === "bladi" ? "Bladi" : "Z’man";
   window.ZMAN_SLUGS = Object.fromEntries(P.map(m => [m.id, m.slug])); // id de modèle → slug du catalogue (lib/crm.js)
+  // Offre « duo » pilotée par le CRM (Ventes → Offres) : sans offre active à 2 sacs, la section est masquée.
+  // Sans CRM (dev local), la config reste la référence.
+  var DUO_ELIGIBLE = null; // slugs éligibles, null = tous
+  if (crmReady) {
+    var crmOffer = JSON.parse((document.getElementById("crm-offer") || {}).textContent || "null");
+    C.offers = crmOffer
+      ? C.offers.map(function (o) { return o.id === "duo" ? Object.assign({}, o, { discountPercent: crmOffer.percent, code: crmOffer.code, badge: crmOffer.badge || "" }) : o; })
+      : C.offers.filter(function (o) { return o.id !== "duo"; });
+    if (crmOffer && crmOffer.products.length) DUO_ELIGIBLE = crmOffer.products;
+  }
+  var duoEligible = function (m) { return !!m && (!DUO_ELIGIBLE || DUO_ELIGIBLE.indexOf(m.slug) !== -1); };
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -57,8 +68,9 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     }
     const soldOut = m.stockStatus === "out_of_stock";
     $("#stock-note").textContent = soldOut ? "Épuisée" : m.stock > 0 && m.stock <= 5 ? "Plus que " + m.stock + " en " + m.colorLabel : "";
-    $("#concierge").textContent = soldOut ? "Me prévenir sur WhatsApp" : "Conciergerie WhatsApp";
-    $("#concierge").href = waHref((soldOut ? "Prévenez-moi du retour de " : "Bonjour, j’ai une question sur ") + m.name + " · " + m.colorLabel);
+    // Le bouton WhatsApp flottant suit le modèle affiché (et propose d'être prévenue s'il est épuisé).
+    const wa = $("[data-whatsapp-float]");
+    if (wa) wa.href = waHref((soldOut ? "Prévenez-moi du retour de " : "Bonjour, j’ai une question sur ") + m.name + " · " + m.colorLabel);
     updateDispatch();
     loadReviews(m);
     $("#p-price").innerHTML = money(m.price);
@@ -68,6 +80,8 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     $("#discount").hidden = ref.hidden;
     const pct = Math.round(100 * (1 - m.price / m.referencePrice));
     $("#discount").textContent = "−" + pct + " %";
+    $("#saving").hidden = ref.hidden;
+    $("#saving-amount").innerHTML = money(m.referencePrice - m.price);
     const end = new Date(m.promoEnd);
     $("#promo-end").hidden = ref.hidden || !(end > new Date());
     if (!$("#promo-end").hidden) $("#promo-end").textContent = "Offre −" + pct + " % jusqu’au " + localDate(end);
@@ -108,6 +122,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   }
   const clock = new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"});
   function updateDispatch() {
+    if (!$("#dispatch")) return; // ligne d'expédition retirée de la fiche produit
     const [h,m,s] = clock.format(new Date()).split(":").map(Number);
     const remaining = (C.shipping.sameDayCutoffHour - h) * 3600 - m * 60 - s;
     $("#dispatch").textContent = Number.isInteger(C.shipping.sameDayCutoffHour) && remaining > 0
@@ -302,7 +317,8 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     if (duo && note) {
       const deal = offerTotal(duo), prices = bagPrices(duo);
       const selected = o.id === "duo";
-      note.hidden = !selected && (crmReady ? !promoOf(duo) || promoOf(duo) === "err" : false);
+      note.hidden = !duoEligible(byId(state.modelId)) || (!selected && (crmReady ? !promoOf(duo) || promoOf(duo) === "err" : false));
+      $$("#duo-colors input").forEach(function (i) { var m = byId(i.value); i.disabled = !m || m.stockStatus === "out_of_stock" || !duoEligible(m); });
       $("#duo-toggle").checked = selected;
       $("#duo-colors").hidden = !selected;
       const color = byId(state.bags[1]);

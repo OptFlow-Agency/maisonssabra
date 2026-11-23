@@ -15,6 +15,7 @@
 
 /* Le CSS Z'man (a, h2, h3, p, .btn…) ne doit pas déteindre sur le panier de la boutique. */
 [data-floating-cart], [data-floating-cart]:hover { color: #fff; text-decoration: none; }
+[data-whatsapp-float], [data-whatsapp-float]:hover { color: #fff; text-decoration: none; }
 [data-cart-dialog] { font-family: var(--font-body); font-size: 1rem; line-height: 1.6; color: var(--color-ink); }
 [data-cart-dialog] a { color: inherit; }
 [data-cart-dialog] h2 { font-family: var(--font-display); font-size: var(--text-step-1); font-weight: 500; line-height: 1.05; letter-spacing: 0; margin: 0; color: var(--color-burgundy); }

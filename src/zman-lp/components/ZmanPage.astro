@@ -10,6 +10,7 @@ import UpsellView from "./UpsellView.astro";
 import ThanksView from "./ThanksView.astro";
 import { shipLong } from "../lib/copy.js";
 import { loadCollection } from "../data/products.js";
+import { loadOffer } from "../../lib/offer";
 import type { Product } from "../../data/products";
 interface Props { modelId?: string; catalog?: Product[]; collection?: string }
 const { modelId, catalog, collection = "zman" } = Astro.props;
@@ -28,6 +29,9 @@ const models = catalog ? products.flatMap(model => {
   }];
 }) : products;
 const initial = models.find(p => p.id === (modelId ?? "rouge")) ?? models[0];
+// "Offrez-en un, gardez-en un" is driven by the CRM (Sales → Offers): an active 2-bag bundle shows it, none hides it.
+const crmOffer = await loadOffer();
+const duoOffer = crmOffer?.quantity === 2 ? crmOffer : null;
 ---
 <Layout initial={initial} models={models} productRoute={!!modelId}>
   <a class="skip" href="#hero">Aller au contenu</a>
@@ -47,7 +51,8 @@ const initial = models.find(p => p.id === (modelId ?? "rouge")) ?? models[0];
     <a class="support-link" id="support-link" href="#faq">Aide</a>
   </header>
 
-  <script type="application/json" id="zman-models" set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />
+  <script type="application/json" id="crm-offer" set:html={JSON.stringify(duoOffer).replace(/</g, "\\u003c")} />
+  <script type="application/json" id="zman-models"set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />
   {catalog && <script type="application/json" id="catalog-models" set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />}
   <main id="main">
     <Hero models={models} initial={initial} />

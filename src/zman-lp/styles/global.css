@@ -61,8 +61,7 @@ section{padding:clamp(44px,9vw,104px) var(--gut)}
 .sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;width:100%;height:100%;z-index:2}
 .sw label{display:flex;flex-direction:column;align-items:center;gap:4px;padding:5px 3px 6px;border:2px solid var(--line);border-radius:12px;background:#fff;font-size:.7rem;text-align:center;line-height:1.15;min-height:44px}
 .sw img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px}
-.sw input:checked+label{border-color:var(--burgundy);box-shadow:0 0 0 1px var(--burgundy)}
-.sw input:checked+label::after{content:"✓ Sélectionné";font-weight:700;color:var(--burgundy);font-size:.62rem}
+.sw input:checked+label{border-color:var(--burgundy)}
 .sw input:focus-visible+label{outline:3px solid var(--gold);outline-offset:2px}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border-radius:99px;font:700 .9rem/1 var(--sans);letter-spacing:.08em;text-decoration:none;border:2px solid transparent;cursor:pointer;text-align:center}
@@ -270,7 +269,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--burgundy);outline:2px
   .hero{padding-top:12px}
   .swatch-list{gap:6px}
   .sw label{font-size:.68rem;min-height:0}
-  .sw input:checked+label::after{content:"✓";font-size:.8rem}
 }
 @media (min-width:960px){
   .hero-gallery{display:grid;grid-template-columns:76px 1fr;grid-template-areas:"thumbs main" ". swatches";align-items:start}
@@ -427,7 +425,7 @@ body[data-view="thanks"]>*:not(#view-thanks):not(script){display:none!important}
 .hero-panel,.hero-gallery,.g-main{min-width:0}
 .hero-panel h1{font-size:clamp(38px,4.3vw,64px);line-height:.99}
 .hero-panel h1 em{display:block;font-size:.68em;font-weight:500;margin-top:8px}
-.hero-panel .price{font:400 22px/1.3 var(--serif);color:var(--burgundy)}
+.hero-panel .price{font:600 22px/1.3 var(--label);font-variant-numeric:lining-nums tabular-nums;color:var(--burgundy)}
 .hero-panel .eyebrow,.collection-label,.best-badge{font-size:12px;color:var(--burgundy)}
 #discount{border-radius:99px;background:var(--gold-l);color:var(--espresso);padding:4px 12px;font-weight:700}
 .assurance{font-size:15px;color:var(--burgundy);font-weight:600;margin-bottom:24px}
@@ -435,7 +433,6 @@ body[data-view="thanks"]>*:not(#view-thanks):not(script){display:none!important}
 .benefits li{display:flex;gap:8px;margin:8px 0}
 .benefits li::before{content:"";flex:0 0 5px;height:5px;margin-top:calc(.5lh - 2.5px);border-radius:50%;background:var(--burgundy)}
 .hero-panel .sw label{font-size:12px}
-.hero-panel .sw input:checked+label::after{content:"✓ Sélectionné"}
 #stock-note:empty{display:none}
 #dispatch,#stock-note,.concierge{font-size:15px;margin:16px 0}
 .concierge{display:flex;justify-content:center;align-items:center;min-height:44px}
@@ -496,13 +493,13 @@ body[data-view="thanks"]>*:not(#view-thanks):not(script){display:none!important}
 
 .purchase-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
 .checkout-step #submit-btn{border-radius:8px}
-.purchase-actions .btn,.sticky-cta .btn{border-radius:0}
+.purchase-actions .btn,.sticky-cta .btn{border-radius:0;font-weight:500}
 .purchase-actions .btn{padding:8px;min-height:54px;font-size:15px;line-height:1.25;letter-spacing:0}
-/* Product actions: deeper burgundy than the rest of the page so they stand out. */
-.purchase-actions .btn-primary,.sticky-cta .btn-primary{background:#4a0f26;color:#fff7ee}
-.purchase-actions .btn-primary:hover,.sticky-cta .btn-primary:hover{background:#350a1b}
-.purchase-actions .btn-ghost{border-color:#4a0f26;color:#4a0f26}
-.purchase-actions .btn-ghost:hover{background:#4a0f26;color:#fff7ee}
+/* Product actions: same burgundy as the home hero button (site tokens --color-burgundy / --color-burgundy-deep). */
+.purchase-actions .btn-primary,.sticky-cta .btn-primary{background:#78143a;color:#fff}
+.purchase-actions .btn-primary:hover,.sticky-cta .btn-primary:hover{background:#4d0206}
+.purchase-actions .btn-ghost{border-color:#78143a;color:#78143a}
+.purchase-actions .btn-ghost:hover{background:#78143a;color:#fff}
 .cart-feedback{margin:12px 0;font-size:14px}
 .checkout-step{box-sizing:border-box;width:min(540px,calc(100% - 24px));max-height:88dvh;margin:auto;padding:16px 24px 24px;border:1px solid var(--line);border-radius:12px;background:var(--ivory);color:var(--espresso);overscroll-behavior:contain}
 .checkout-step::backdrop{background:rgba(42,29,24,.52)}
@@ -649,4 +646,23 @@ em,blockquote{font-synthesis:none}
 .vcard.is-playing .vcard-play{display:none}
 .vcard-play:focus-visible span{outline:3px solid var(--gold);outline-offset:3px}
 .vcard figcaption{font-size:.8rem;margin-top:6px;color:var(--espresso)}
+/* Product title: same display face as the main site's headings (Cormorant Garamond). It runs smaller than Playfair, hence the size bump. */
+.hero-panel h1{font-family:"Cormorant Garamond",var(--serif);font-weight:600;font-size:clamp(36px,4.3vw,60px);letter-spacing:0;line-height:1.02}
+.hero-panel h1 em{font-weight:500;font-size:.62em;line-height:1.15}
+/* Amount saved, right under the price. */
+/* Price + saving framed like the duo card so the deal reads as one block. */
+.price-box{margin:14px 0 12px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--cream)}
+.hero-panel .price-box .price-row{margin:0}
+.hero-panel .saving{margin:8px 0 0;padding-top:8px;border-top:1px dashed var(--line);font:500 15px/1.4 var(--label);color:#000}
+.hero-panel .saving strong{font-weight:700;color:var(--burgundy)}
+.hero-panel .saving[hidden]{display:none}
+/* Mobile: colour cards right under the photo slider (the panel is display:contents there, so order places it). */
+@media (max-width:767px){
+  .hero-panel>.swatches{order:2;margin:14px 0 4px}
+}
+/* Mobile: floating WhatsApp and cart buttons sit above the sticky "Commander" bar while it is shown. */
+@media (max-width:719px){
+  body:has(#sticky-cta:not([hidden])) [data-whatsapp-float],
+  body:has(#sticky-cta:not([hidden])) [data-floating-cart]{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
 

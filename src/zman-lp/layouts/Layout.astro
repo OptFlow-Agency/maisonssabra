@@ -3,10 +3,14 @@ import "@fontsource-variable/montserrat/index.css";
 import "@fontsource-variable/inter/wght.css";
 import "@fontsource-variable/playfair-display/wght.css";
 import "@fontsource-variable/playfair-display/wght-italic.css";
+import "@fontsource/cormorant-garamond/latin-500.css";
+import "@fontsource/cormorant-garamond/latin-600.css";
+import "@fontsource/cormorant-garamond/latin-500-italic.css";
 import "../styles/cart-embed.css";
 import "../styles/global.css";
 import CartDrawer from "../../components/CartDrawer.astro";
 import FloatingCart from "../../components/FloatingCart.astro";
+import WhatsAppButton from "../../components/WhatsAppButton.astro";
 import { config as C } from "../data/config.js";
 import { productJsonLd } from "../lib/copy.js";
 
@@ -47,6 +51,7 @@ const jsonLd = productJsonLd(Astro.site ?? Astro.url, models);
   <body>
     <slot />
     <FloatingCart />
+    <WhatsAppButton number={C.contact.whatsappNumber} text={`Bonjour, j’ai une question sur ${initial.name}`} />
     <CartDrawer />
     <script>import "../../scripts/cart";</script>
     <!-- Filet de sécurité : si le script de la page n'a pas démarré (bloqueur de contenu, réseau…), le formulaire l'explique au lieu de se recharger sans rien dire. -->
