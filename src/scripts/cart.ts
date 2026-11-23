@@ -124,6 +124,8 @@ function open() {
   lockScroll(true);
   requestAnimationFrame(() => (dlg.dataset.open = "true"));
 }
+/** Opens the cart drawer; a no-op if it is already open or the page has none. */
+export const openCart = () => open();
 function close() {
   if (!dlg || !dlg.open) return;
   dlg.dataset.open = "false";

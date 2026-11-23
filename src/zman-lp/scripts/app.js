@@ -837,9 +837,10 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
         $("#duo-colors input:not(:disabled)")?.focus();
         return;
       }
-      const { addToCart } = await import("../../scripts/cart");
+      const { addToCart, openCart } = await import("../../scripts/cart");
       for (const bag of bags) addToCart({ id: bag.slug, name: bag.name, price: bag.price, img: bag.thumb });
-      // Pas d'ouverture du tiroir : le bouton flottant (compteur) confirme l'ajout, et le bouton affiche « Ajouté » un instant.
+      // Le tiroir du panier s'ouvre pour confirmer l'ajout ; le bouton affiche aussi « Ajouté » un instant.
+      openCart();
       const btn = $("#catalog-add"), label = btn.dataset.label || btn.textContent;
       btn.dataset.label = label;
       btn.textContent = "Ajouté ✓";

@@ -76,6 +76,20 @@ const h1b = h1rest.join(" – ");
           <button type="button" class="btn btn-ghost" id="catalog-add">Ajouter au panier</button>
           <a class="btn btn-primary" id="hero-cta" href="#commander" data-cta="hero" aria-haspopup="dialog" aria-controls="view-checkout">Commander directement</a>
         </div>
+        <section class="vcards" aria-labelledby="vcards-h">
+          <h3 id="vcards-h">Le sac en mouvement</h3>
+          <div class="vcards-list">
+            {[["zman-ugc-1", "Sur 2M", "Vidéo : Maison Sabra sur 2M"], ["zman-deballage-rouge", "Déballage", "Vidéo de déballage du coffret Maison Sabra"], ["zman-ugc-3", "Porté", "Vidéo : le sac porté avec des caftans"]].map(([f, t, a]) => (
+              <figure class="vcard">
+                <div class="vcard-frame">
+                  <video src={`/zmancollection/lp/assets/videos/${f}.mp4`} poster={`/zmancollection/lp/assets/videos/${f}.jpg`} preload="none" playsinline loop width="540" height="960" aria-label={a}></video>
+                  <button class="vcard-play" type="button" aria-label={`Lire : ${t}`} aria-pressed="false"><span aria-hidden="true"></span></button>
+                </div>
+                <figcaption>{t}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
         <a class="concierge" id="concierge" href={waHref()}>Conciergerie WhatsApp</a>
         <aside class="pillars" aria-label="Garantie Maison Sabra">
         {[[ShieldCheck,"Payez après inspection","Ouvrez, vérifiez, puis payez. Zéro risque."],[Truck,"Livraison gratuite","Partout au Maroc, expédiée sous 48h."],[RefreshCcw,"Retour & échange sous 3 jours","Un souci ? Nous trouvons une solution simple."],[MessageCircle,"Conciergerie WhatsApp 7j/7","Une question avant de commander ? Une vraie personne vous répond."]].map(([icon,title,body])=><div class="pillar"><span class="pillar-icon" aria-hidden="true" set:html={icon}></span><strong>{title}</strong><p>{body}</p></div>)}</aside>

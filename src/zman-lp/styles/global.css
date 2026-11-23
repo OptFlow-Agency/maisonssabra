@@ -495,8 +495,14 @@ body[data-view="thanks"]>*:not(#view-thanks):not(script){display:none!important}
 .checkout-step .offer-set,.checkout-step .bag-pickers,.checkout-step .order-head p{display:none}
 
 .purchase-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
-.purchase-actions .btn,.sticky-cta .btn,.checkout-step #submit-btn{border-radius:8px}
+.checkout-step #submit-btn{border-radius:8px}
+.purchase-actions .btn,.sticky-cta .btn{border-radius:0}
 .purchase-actions .btn{padding:8px;min-height:54px;font-size:15px;line-height:1.25;letter-spacing:0}
+/* Product actions: deeper burgundy than the rest of the page so they stand out. */
+.purchase-actions .btn-primary,.sticky-cta .btn-primary{background:#4a0f26;color:#fff7ee}
+.purchase-actions .btn-primary:hover,.sticky-cta .btn-primary:hover{background:#350a1b}
+.purchase-actions .btn-ghost{border-color:#4a0f26;color:#4a0f26}
+.purchase-actions .btn-ghost:hover{background:#4a0f26;color:#fff7ee}
 .cart-feedback{margin:12px 0;font-size:14px}
 .checkout-step{box-sizing:border-box;width:min(540px,calc(100% - 24px));max-height:88dvh;margin:auto;padding:16px 24px 24px;border:1px solid var(--line);border-radius:12px;background:var(--ivory);color:var(--espresso);overscroll-behavior:contain}
 .checkout-step::backdrop{background:rgba(42,29,24,.52)}
@@ -643,5 +649,4 @@ em,blockquote{font-synthesis:none}
 .vcard.is-playing .vcard-play{display:none}
 .vcard-play:focus-visible span{outline:3px solid var(--gold);outline-offset:3px}
 .vcard figcaption{font-size:.8rem;margin-top:6px;color:var(--espresso)}
-@media(max-width:767px){.hero-panel>.vcards{order:2;margin:0}}
 
