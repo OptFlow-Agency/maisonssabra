@@ -17,31 +17,10 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   if (crmReady) {
     var crmOffer = JSON.parse((document.getElementById("crm-offer") || {}).textContent || "null");
     C.offers = crmOffer
-      ? C.offers.map(function (o) { return o.id === "duo" ? Object.assign({}, o, { discountPercent: crmOffer.percent, code: crmOffer.code, badge: crmOffer.badge || "" }) : o; })
+      ? C.offers.map(function (o) { return o.id === "duo" ? Object.assign({}, o, { discountPercent: crmOffer.percent, code: crmOffer.code, badge: crmOffer.badge || "", secondOnly: !!crmOffer.second_item_only }) : o; })
       : C.offers.filter(function (o) { return o.id !== "duo"; });
     if (crmOffer && crmOffer.products.length) DUO_ELIGIBLE = crmOffer.products;
   }
-  // Codes promo affichés (CRM → Codes promo → « Show on product page ») : ceux qui couvrent le sac sélectionné.
-  var PROMOS = JSON.parse((document.getElementById("crm-promos") || {}).textContent || "[]");
-  function renderPromoCodes(m) {
-    var box = document.getElementById("promo-codes");
-    if (!box) return;
-    var list = PROMOS.filter(function (p) { return !p.products.length || p.products.indexOf(m.slug) !== -1; });
-    box.hidden = !list.length || m.stockStatus === "out_of_stock";
-    box.innerHTML = list.map(function (p) {
-      var note = "à saisir à la commande" + (p.min_subtotal ? ", dès " + money(p.min_subtotal) : "");
-      return '<li><span class="pc-info"><span class="pc-line">Code <strong>' + esc(p.code) + '</strong> <b>−' + Number(p.percent) + " %" + (p.second_item_only ? " sur le 2ᵉ article" : "") + '</b></span>' +
-        '<span class="pc-note">' + esc(note) + '</span></span><button type="button" class="pc-copy" data-code="' + esc(p.code) + '" aria-label="Copier le code ' + esc(p.code) + '">Copier</button></li>';
-    }).join("");
-  }
-  document.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest(".pc-copy");
-    if (!b || !navigator.clipboard) return;
-    navigator.clipboard.writeText(b.dataset.code).then(function () {
-      b.textContent = "Copié ✓"; var st = document.getElementById("promo-status"); if (st) st.textContent = "Code " + b.dataset.code + " copié.";
-      setTimeout(function () { b.textContent = "Copier"; }, 1600);
-    }, function () {});
-  });
   var duoEligible = function (m) { return !!m && (!DUO_ELIGIBLE || DUO_ELIGIBLE.indexOf(m.slug) !== -1); };
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -107,7 +86,6 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     $("#promo-end").hidden = ref.hidden || !(end > new Date());
     if (!$("#promo-end").hidden) $("#promo-end").textContent = "Offre −" + pct + " % jusqu’au " + localDate(end);
     $("#swatch-current").textContent = m.colorLabel;
-    renderPromoCodes(m);
     var ai = $("#artisan-img"), aim = m.images[1] || m.images[0];
     if (ai && aim && !ai.dataset.fixed) { ai.src = aim.src; ai.alt = aim.alt; }
     var parts = m.name.split(/\s+[–-]\s+/);
@@ -219,9 +197,8 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
 
   /* ---------- 3. Swatches (vrais boutons radio) ---------- */
   function initSwatches() {
-    $("#duo-toggle").addEventListener("change", () => {
-      const target = $("#duo-toggle").checked ? "duo" : defaultOfferId();
-      document.getElementById("offer-" + target)?.click();
+    $("#hero-offer-list").addEventListener("change", e => {
+      if (e.target.name === "hero-offer") document.getElementById("offer-" + e.target.value)?.click();
     });
     $("#duo-colors").addEventListener("change", e => {
       if (e.target.name === "duo-color") document.getElementById("b2-" + e.target.value)?.click();
@@ -275,20 +252,26 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     return L.computeOrder(prices, o.discountPercent, C.shipping.cost, bagIds(o));
   }
 
-  function renderOffers() {
-    $("#offer-list").innerHTML = OFFERS.filter(offerAvailable).map(function (o) {
-      var t = offerTotal(o), unit = byId(state.modelId).price, id = "offer-" + o.id, lines;
+  /** Cartes d'offre (formulaire et hero). Le code promo de l'offre est appliqué sans être montré à la cliente. */
+  function offerCards(name, prefix) {
+    return OFFERS.filter(offerAvailable).map(function (o) {
+      var t = offerTotal(o), unit = byId(state.modelId).price, id = prefix + o.id, lines;
       if (offerPercent(o) > 0) {
+        var adv = o.secondOnly ? "−" + offerPercent(o) + " % sur le 2ᵉ sac" : offerPercent(o) + " % de réduction automatique";
         lines = '<span class="offer-line">' + o.qty + " Sacs " + BRAND + " au choix.</span>" +
-          '<span class="offer-line offer-adv"><b>Avantage :</b> ' + shipFrag + " + " + offerPercent(o) + "% de réduction automatique" + (o.code ? " (Code : " + esc(o.code) + " appliqué)" : "") + ".</span>" +
-          '<span class="offer-line offer-est">Total estimé : <b class="offer-total">' + money(t.total) + '</b> au lieu de <s>' + money(t.subtotal) + "</s>.</span>";
+          '<span class="offer-line offer-adv"><b>Avantage :</b> ' + shipFrag + " + " + adv + ".</span>" +
+          '<span class="offer-line offer-est">Total : <b class="offer-total">' + money(t.total) + '</b> au lieu de <s class="offer-sub">' + money(t.subtotal) + "</s>.</span>";
       } else {
-        lines = '<span class="offer-line">' + o.qty + " Sac " + BRAND + " au choix : <b>" + money(unit * o.qty) + "</b> (+ " + shipFrag + ").</span>";
+        lines = '<span class="offer-line">' + o.qty + " Sac " + BRAND + " au choix : <b class=\"offer-unit\">" + money(unit * o.qty) + "</b> (+ " + shipFrag + ").</span>";
       }
-      return '<div class="offer"><input class="offer-input" type="radio" name="offer" id="' + id + '" value="' + o.id + '"' + (o.id === state.offerId ? " checked" : "") + ">" +
+      return '<div class="offer"><input class="offer-input" type="radio" name="' + name + '" id="' + id + '" value="' + o.id + '"' + (o.id === state.offerId ? " checked" : "") + ">" +
         '<label class="offer-card' + (o.badge ? " is-reco" : "") + '" for="' + id + '"><span class="offer-dot" aria-hidden="true"></span><span class="offer-body">' +
         '<span class="offer-top"><strong class="offer-title">' + esc(o.title) + "</strong>" + (o.badge ? '<span class="offer-badge">' + esc(o.badge) + "</span>" : "") + "</span>" + lines + "</span></label></div>";
     }).join("");
+  }
+  function renderOffers() {
+    $("#offer-list").innerHTML = offerCards("offer", "offer-");
+    var hero = $("#hero-offer-list"); if (hero) hero.innerHTML = offerCards("hero-offer", "hero-offer-");
   }
 
   function renderPickers() {
@@ -308,7 +291,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
   function syncForm() {
     ensurePromos();
     var o = curOffer();
-    $$('input[name="offer"]').forEach(function (i) { i.checked = i.value === o.id; });
+    $$('input[name="offer"], input[name="hero-offer"]').forEach(function (i) { i.checked = i.value === o.id; });
     $("#bag-set-2").hidden = o.qty < 2;
     $("#bag-legend-1").textContent = o.qty > 1 ? "2. Sac 1 : choisissez sa couleur" : "2. Choisissez la couleur de votre sac";
     $("#bag-legend-2").textContent = "Sac 2 : choisissez sa couleur";
@@ -332,27 +315,30 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     var disc = t.discount > 0;
     $("#t-sub-row").hidden = !disc; $("#t-disc-row").hidden = !disc;
     $("#t-sub").innerHTML = money(t.subtotal);
-    $("#t-disc-label").textContent = "Réduction " + offerPercent(o) + "%" + (o.code ? " (" + o.code + " appliqué)" : "");
+    $("#t-disc-label").textContent = "Réduction " + (o.secondOnly ? "2ᵉ sac −" + offerPercent(o) + " %" : offerPercent(o) + " %");
     $("#t-disc").innerHTML = "−" + money(t.discount);
     $("#t-ship").textContent = freeShip ? "0 MAD (offerte)" : "Selon la ville — à confirmer";
     $("#t-total").innerHTML = money(t.total);
     // Les cartes d'offre affichent aussi le total estimé : on les garde synchronisées avec le prix courant
     const duo = offerById("duo"), note = $("#duo-copy");
     if (duo && note) {
-      const deal = offerTotal(duo), prices = bagPrices(duo);
       const selected = o.id === "duo";
-      note.hidden = !duoEligible(byId(state.modelId)) || (!selected && (crmReady ? !promoOf(duo) || promoOf(duo) === "err" : false));
+      // The server already confirmed the offer when it rendered the page: only an explicit refusal of the code (null) hides it.
+      // A browser that cannot reach the CRM (CORS, network) keeps the offer, priced with the CRM percent.
+      note.hidden = !duoEligible(byId(state.modelId)) || (!selected && promoOf(duo) === null);
       $$("#duo-colors input").forEach(function (i) { var m = byId(i.value); i.disabled = !m || m.stockStatus === "out_of_stock" || !duoEligible(m); });
-      $("#duo-toggle").checked = selected;
       $("#duo-colors").hidden = !selected;
       const color = byId(state.bags[1]);
       $("#duo-color-name").textContent = color ? "· " + color.colorLabel : "";
       if (color) $("#duo-" + color.id).checked = true;
       if (color || !selected) $("#duo-error").textContent = "";
       $$(".js-price").forEach(el => { el.textContent = money(t.total); });
-      $("#duo-price").textContent = "Ajoutez une 2ᵉ nuance : " + money(prices[1] - deal.discount) + " au lieu de " + money(prices[1]) + ". Vous économisez " + money(deal.discount) + ".";
     }
-    $$(".offer-total").forEach(function (e) { e.innerHTML = money(offerTotal(offerById("duo") || o).total); });
+    // Les cartes d'offre suivent le prix du modèle et les couleurs choisies.
+    var duoT = offerTotal(offerById("duo") || o);
+    $$(".offer-total").forEach(function (e) { e.innerHTML = money(duoT.total); });
+    $$(".offer-sub").forEach(function (e) { e.innerHTML = money(duoT.subtotal); });
+    $$(".offer-unit").forEach(function (e) { e.innerHTML = money(byId(state.modelId).price); });
   }
 
   function selectedIds() { var o = curOffer(); return state.bags.slice(0, o.qty).filter(Boolean); }

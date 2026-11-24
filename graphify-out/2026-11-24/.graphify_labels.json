@@ -3,7 +3,7 @@
   "1": "cart.ts",
   "2": "cms.ts",
   "3": "copy.js",
-  "4": "../../layouts/Page.astro",
+  "4": "Layout.astro",
   "5": "dependencies",
   "6": "../../components/ProductView.astro",
   "7": "index.astro",
@@ -14,7 +14,7 @@
   "12": "Maison Sabra design reference",
   "13": "Product",
   "14": "store.ts",
-  "15": "events.js",
+  "15": "lucide-static",
   "16": "Astro Starter Kit: Minimal",
   "17": "tsconfig.json",
   "18": "AGENTS.md",
@@ -27,10 +27,7 @@
   "25": "Skirts.astro",
   "26": "Story.astro",
   "27": "Trust.astro",
-  "28": "fmtMad",
   "29": "Finish.astro",
   "30": "Moments.astro",
-  "31": "Reels.astro",
-  "32": "catalog.ts",
-  "33": "../components/CollectionsShowcase.astro"
+  "31": "Reels.astro"
 }

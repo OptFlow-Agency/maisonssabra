@@ -36,8 +36,6 @@ const h1b = h1rest.join(" – ");
         <p class="price-row"><strong class="price" id="p-price">{money(initial.price)}</strong><s id="p-ref" hidden={!(initial.referencePrice > initial.price)}>{money(initial.referencePrice)}</s><span id="discount" hidden={!(initial.referencePrice > initial.price)}>−{Math.round(100*(1-initial.price/initial.referencePrice))} %</span></p>
         <p class="saving" id="saving" hidden={!(initial.referencePrice > initial.price)}>Vous économisez <strong id="saving-amount">{money(initial.referencePrice - initial.price)}</strong></p>
         </div>
-        <ul class="promo-codes" id="promo-codes" aria-label="Codes promo" hidden></ul>
-        <p class="visually-hidden" id="promo-status" role="status"></p>
         <p class="assurance">Livraison gratuite · Payez à la réception, après inspection</p>
         <p class="lede" id="lede" hidden={!(initial.tagline || initial.officialDescription)}>{initial.officialDescription || initial.tagline}</p>
         <fieldset class="swatches">
@@ -51,23 +49,14 @@ const h1b = h1rest.join(" – ");
             ))}
           </div>
         </fieldset>
-        <ul class="benefits" id="benefits" hidden={!initial.benefits.length}>{initial.benefits.map((b)=><li><span><strong>{b.title}</strong>{b.description ? <span class="b-desc">{b.description}</span> : null}</span></li>)}</ul>
-        <div class="tcar" aria-roledescription="carrousel" aria-label="Témoignages clientes">
-          <ul class="tcar-track" id="tcar-track" tabindex="0">
-            {quotes.map((q)=><li><figure><span class="rl-stars" aria-hidden="true">{stars}</span><blockquote lang={q.arabic?"ar":"fr"} dir={q.arabic?"rtl":undefined}>«&nbsp;{q.quote}&nbsp;»</blockquote><figcaption>{q.name}</figcaption></figure></li>)}
-          </ul>
-          <div class="tcar-nav"><button type="button" id="tcar-prev" aria-label="Témoignage précédent">‹</button><button type="button" id="tcar-next" aria-label="Témoignage suivant">›</button></div>
-        </div>
-        <p id="stock-note" role="status"></p>
-        <p id="promo-end" hidden></p>
         <div id="duo-copy" hidden>
-          <label class="duo-heading">
-            <strong id="duo-title">Offrez-en un, gardez-en un</strong>
-            <input id="duo-toggle" type="checkbox" role="switch" aria-labelledby="duo-title" aria-controls="duo-colors" aria-describedby="duo-price" />
-            <span id="duo-price"></span>
-          </label>
+          <!-- Offer cards (rendered by app.js, mirrored with the order form's offer radios). The duo's code is applied silently. -->
+          <fieldset class="offer-set hero-offers">
+            <legend>Choisissez votre offre</legend>
+            <div class="offer-list" id="hero-offer-list"></div>
+          </fieldset>
           <fieldset id="duo-colors" class="swatches" hidden>
-            <legend>{initial.collection === "bladi" ? "Modèle" : "Couleur"} du deuxième sac <strong id="duo-color-name"></strong></legend>
+            <legend>Sac 2 : choisissez {initial.collection === "bladi" ? "son modèle" : "sa couleur"} <strong id="duo-color-name"></strong></legend>
             <div class="swatch-list">
               {P.map(p => <div class="sw" data-out={p.stockStatus === "out_of_stock"}>
                 <input type="radio" name="duo-color" id={`duo-${p.id}`} value={p.id} disabled={p.stockStatus === "out_of_stock"} />
@@ -77,6 +66,15 @@ const h1b = h1rest.join(" – ");
             <p id="duo-error" role="status"></p>
           </fieldset>
         </div>
+        <ul class="benefits" id="benefits" hidden={!initial.benefits.length}>{initial.benefits.map((b)=><li><span><strong>{b.title}</strong>{b.description ? <span class="b-desc">{b.description}</span> : null}</span></li>)}</ul>
+        <div class="tcar" aria-roledescription="carrousel" aria-label="Témoignages clientes">
+          <ul class="tcar-track" id="tcar-track" tabindex="0">
+            {quotes.map((q)=><li><figure><span class="rl-stars" aria-hidden="true">{stars}</span><blockquote lang={q.arabic?"ar":"fr"} dir={q.arabic?"rtl":undefined}>«&nbsp;{q.quote}&nbsp;»</blockquote><figcaption>{q.name}</figcaption></figure></li>)}
+          </ul>
+          <div class="tcar-nav"><button type="button" id="tcar-prev" aria-label="Témoignage précédent">‹</button><button type="button" id="tcar-next" aria-label="Témoignage suivant">›</button></div>
+        </div>
+        <p id="stock-note" role="status"></p>
+        <p id="promo-end" hidden></p>
         <div class="purchase-actions">
           <button type="button" class="btn btn-ghost" id="catalog-add">Ajouter au panier</button>
           <a class="btn btn-primary" id="hero-cta" href="#commander" data-cta="hero" aria-haspopup="dialog" aria-controls="view-checkout">Commander directement</a>

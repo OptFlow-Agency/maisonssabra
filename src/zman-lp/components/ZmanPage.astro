@@ -12,7 +12,6 @@ import { shipLong } from "../lib/copy.js";
 import { loadCollection } from "../data/products.js";
 import { loadOffer, minUnits } from "../../lib/offer";
 import { variant } from "../../data/products";
-import { cmsEnabled, fetchPromos, type CmsPromo } from "../../lib/cms";
 import type { Product } from "../../data/products";
 interface Props { modelId?: string; catalog?: Product[]; collection?: string }
 const { modelId, catalog, collection = "zman" } = Astro.props;
@@ -36,11 +35,6 @@ const initial = models.find(p => p.id === (modelId ?? "rouge")) ?? models[0];
 // "Offrez-en un, gardez-en un" is driven by the CRM (Sales → Offers): an active 2-bag bundle or "2nd item −X %" code shows it, none hides it.
 const crmOffer = await loadOffer();
 const duoOffer = crmOffer && minUnits(crmOffer) === 2 ? crmOffer : null;
-// Promo codes the CRM advertises (Promo codes → "Show on product page") for this collection's bags; the script picks the selected bag's.
-const slugs = models.map((m) => m.slug);
-const promos: CmsPromo[] = cmsEnabled
-  ? (await fetchPromos().catch(() => [] as CmsPromo[])).filter((p) => p.percent > 0 && p.code !== duoOffer?.code && (!p.products.length || p.products.some((s) => slugs.includes(s))))
-  : [];
 ---
 <Layout initial={initial} models={models} productRoute={!!modelId}>
   <a class="skip" href="#hero">Aller au contenu</a>
@@ -60,7 +54,6 @@ const promos: CmsPromo[] = cmsEnabled
     <a class="support-link" id="support-link" href="#faq">Aide</a>
   </header>
 
-  <script type="application/json" id="crm-promos" set:html={JSON.stringify(promos).replace(/</g, "\\u003c")} />
   <script type="application/json" id="crm-offer" set:html={JSON.stringify(duoOffer).replace(/</g, "\\u003c")} />
   <script type="application/json" id="zman-models"set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />
   {catalog && <script type="application/json" id="catalog-models" set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />}

@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1795470581.6869566,
-    "ast_hash": "9791fa1b656e5651e77cc3965f96aabc",
+    "mtime": 1795541314.6271253,
+    "ast_hash": "5d5f541dbe0f1557820deec52cbe90fe",
     "semantic_hash": ""
   },
   ".vscode/extensions.json": {
@@ -25,8 +25,8 @@
     "semantic_hash": ""
   },
   "astro.config.mjs": {
-    "mtime": 1794904623.622117,
-    "ast_hash": "82b75b6eb7896a1051443d50112da043",
+    "mtime": 1795511602.2184606,
+    "ast_hash": "6cc7d2daf273393f94424d531844eca4",
     "semantic_hash": ""
   },
   "package.json": {
@@ -65,8 +65,8 @@
     "semantic_hash": ""
   },
   "src/components/CollectionsShowcase.astro": {
-    "mtime": 1794773807.2162519,
-    "ast_hash": "9747d5db9eccfe4f183037cbd8eb3117",
+    "mtime": 1795511602.2180407,
+    "ast_hash": "3becef220d91f8ba9484acaca3ab81d7",
     "semantic_hash": ""
   },
   "src/components/ContactCta.astro": {
@@ -245,8 +245,8 @@
     "semantic_hash": ""
   },
   "src/lib/cms.ts": {
-    "mtime": 1795510986.518609,
-    "ast_hash": "453757e87c715e9817b93b5d8e669ae4",
+    "mtime": 1795511614.2848032,
+    "ast_hash": "832fff729ea59a680612bc460b4792d1",
     "semantic_hash": ""
   },
   "src/lib/crm.ts": {
@@ -335,8 +335,8 @@
     "semantic_hash": ""
   },
   "src/scripts/motion.ts": {
-    "mtime": 1794591708.5437882,
-    "ast_hash": "98ace762e10c21abd1500da3ae7d7bf5",
+    "mtime": 1795511602.2166681,
+    "ast_hash": "b17d12c36c8c875744977383c33c9a4f",
     "semantic_hash": ""
   },
   "src/scripts/pdp.ts": {
@@ -350,8 +350,8 @@
     "semantic_hash": ""
   },
   "src/scripts/smooth.ts": {
-    "mtime": 1792667186.1609297,
-    "ast_hash": "3098965966b1bf5cf2f2b5d10cd610a4",
+    "mtime": 1795511602.2163448,
+    "ast_hash": "b061077954de1bfa9b659d0a4bb14c29",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Closing.astro": {
@@ -380,8 +380,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/Hero.astro": {
-    "mtime": 1795511301.8404188,
-    "ast_hash": "bf530f2a1f9d3a927bb4e2d2844eacf4",
+    "mtime": 1795541448.8116143,
+    "ast_hash": "b60f3e889f6ac2539214a83f37c4c386",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Moments.astro": {
@@ -430,8 +430,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/data/products.js": {
-    "mtime": 1795311295.2965186,
-    "ast_hash": "c47607be6f05271c67f7f4d0a2269215",
+    "mtime": 1795511602.2172365,
+    "ast_hash": "7f71fc4d5652b602746214f7ea7e0910",
     "semantic_hash": ""
   },
   "src/zman-lp/layouts/Layout.astro": {
@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/scripts/app.js": {
-    "mtime": 1795511301.840706,
-    "ast_hash": "b1cfd951294b13456e29e5151714c7e8",
+    "mtime": 1795541222.3748472,
+    "ast_hash": "fd74efd7dcb5ad08997dbd19e06d0b92",
     "semantic_hash": ""
   },
   "tsconfig.json": {
@@ -1535,8 +1535,18 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/ZmanPage.astro": {
-    "mtime": 1795510953.2291598,
-    "ast_hash": "7de3ece387b81104a3fa61193c2d6172",
+    "mtime": 1795541230.33332,
+    "ast_hash": "bea88d0a6c5df4c2a4206290b7b7c3ae",
+    "semantic_hash": ""
+  },
+  "docs/GUIDE.md": {
+    "mtime": 1795520103.3880076,
+    "ast_hash": "6ee662c805fce5888c7ad8c345cb4eca",
+    "semantic_hash": ""
+  },
+  "docs/STYLE.md": {
+    "mtime": 1795520103.4889686,
+    "ast_hash": "c6df43250cd715bb72048335f8c058e2",
     "semantic_hash": ""
   }
 }

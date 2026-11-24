@@ -476,27 +476,11 @@ body[data-view="thanks"]>*:not(#view-thanks):not(script){display:none!important}
 .hero-panel .price-row{flex-wrap:wrap;column-gap:12px}
 @media(min-width:768px) and (max-width:959px){.hero-panel .price{font-size:22px}}
 
-.promo-codes{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px;justify-items:start}
-.promo-codes[hidden]{display:none}
-.promo-codes li{display:flex;align-items:center;gap:10px;max-width:100%;padding:5px 6px 5px 12px;border:1px dashed var(--gold);border-radius:999px;background:var(--ivory)}
-.pc-info{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;min-width:0}
-.pc-line{font-size:13px;color:var(--espresso)}
-.pc-line strong{letter-spacing:.1em;color:var(--burgundy);margin:0 3px}
-.pc-line b{color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums}
-.pc-note{font-size:12px;color:var(--muted)}
-.pc-copy{min-height:32px;padding:0 10px;border-radius:999px;border:0;background:none;color:var(--burgundy);font:600 11px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:.4em;cursor:pointer}
-.pc-copy:focus-visible{outline:2px solid var(--burgundy);outline-offset:2px}
-#duo-copy{border:1px solid var(--line);border-radius:var(--r);background:var(--cream);margin:16px 0}
-#duo-copy:has(:checked#duo-toggle){border-color:var(--burgundy)}
-.duo-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:16px;cursor:pointer}
-#duo-toggle{appearance:none;display:grid;align-items:center;width:44px;height:26px;margin:0;padding:2px;border:1px solid var(--muted);border-radius:99px;background:var(--muted);cursor:pointer}
-#duo-toggle::before{content:"";width:20px;height:20px;border-radius:50%;background:white;transition:transform 150ms ease}
-#duo-toggle:checked{background:var(--burgundy);border-color:var(--burgundy)}
-#duo-toggle:checked::before{transform:translateX(18px)}
-#duo-toggle:focus-visible{outline:2px solid var(--burgundy);outline-offset:3px}
-.duo-heading strong{font:600 26px/1.15 var(--serif)}
-#duo-price{grid-column:1/-1;font-size:15px}
-#duo-colors{margin:0 16px 16px}
+#duo-copy{margin:16px 0}
+.hero-offers{margin:0 0 14px}
+.hero-offers legend{font-size:.95rem}
+.hero-offers .offer-title{font-size:1.1rem}
+#duo-colors{margin:0}
 #duo-error:empty{display:none}
 #duo-error{font-size:14px;color:var(--burgundy);margin:8px 0 0}
 .checkout-step .offer-set,.checkout-step .bag-pickers,.checkout-step .order-head p{display:none}
@@ -588,9 +572,6 @@ body:has(.checkout-step[open]){overflow:hidden}
 .tcar-nav button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(176,130,49,.5);background:transparent;color:var(--burgundy);font-size:20px;line-height:1;cursor:pointer}
 .tcar-nav button:hover{background:var(--burgundy);color:#fff}
 
-/* Duo offer: lighter, smaller */
-.duo-heading strong{font-size:21px;font-weight:500}
-#duo-price{font-size:13px;font-weight:400;line-height:1.5;color:var(--muted)}
 .pillars{width:100%;box-sizing:border-box;margin:20px 0 0;gap:12px}
 
 /* Mobile : photo → modèles liés → avis → titre/prix… */
@@ -623,7 +604,6 @@ body{font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
 .hero-panel h1{font-size:clamp(32px,3.8vw,54px);line-height:1.08}
 .hero-panel h1 em{font-size:.6em;font-weight:400;line-height:1.2}
 .checkout-step .order-head h2{font-size:clamp(23px,3.4vw,28px);font-weight:500}
-.duo-heading strong{font-size:19px;font-weight:500}
 .big,.product-tagline,.moment-copy{font-weight:500}
 .moment-copy{font-size:1.3rem}
 em,blockquote{font-synthesis:none}
@@ -670,6 +650,7 @@ em,blockquote{font-synthesis:none}
 /* Mobile: colour cards right under the photo slider (the panel is display:contents there, so order places it). */
 @media (max-width:767px){
   .hero-panel>.swatches{order:2;margin:14px 0 4px}
+  .hero-panel>#duo-copy{order:2}
 }
 /* Mobile: floating WhatsApp and cart buttons sit above the sticky "Commander" bar while it is shown. */
 @media (max-width:719px){
