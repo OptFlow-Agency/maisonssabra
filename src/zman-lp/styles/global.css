@@ -476,6 +476,16 @@ body[data-view="thanks"]>*:not(#view-thanks):not(script){display:none!important}
 .hero-panel .price-row{flex-wrap:wrap;column-gap:12px}
 @media(min-width:768px) and (max-width:959px){.hero-panel .price{font-size:22px}}
 
+.promo-codes{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px;justify-items:start}
+.promo-codes[hidden]{display:none}
+.promo-codes li{display:flex;align-items:center;gap:10px;max-width:100%;padding:5px 6px 5px 12px;border:1px dashed var(--gold);border-radius:999px;background:var(--ivory)}
+.pc-info{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;min-width:0}
+.pc-line{font-size:13px;color:var(--espresso)}
+.pc-line strong{letter-spacing:.1em;color:var(--burgundy);margin:0 3px}
+.pc-line b{color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums}
+.pc-note{font-size:12px;color:var(--muted)}
+.pc-copy{min-height:32px;padding:0 10px;border-radius:999px;border:0;background:none;color:var(--burgundy);font:600 11px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:.4em;cursor:pointer}
+.pc-copy:focus-visible{outline:2px solid var(--burgundy);outline-offset:2px}
 #duo-copy{border:1px solid var(--line);border-radius:var(--r);background:var(--cream);margin:16px 0}
 #duo-copy:has(:checked#duo-toggle){border-color:var(--burgundy)}
 .duo-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:16px;cursor:pointer}
@@ -646,9 +656,10 @@ em,blockquote{font-synthesis:none}
 .vcard.is-playing .vcard-play{display:none}
 .vcard-play:focus-visible span{outline:3px solid var(--gold);outline-offset:3px}
 .vcard figcaption{font-size:.8rem;margin-top:6px;color:var(--espresso)}
-/* Product title: same display face as the main site's headings (Cormorant Garamond). It runs smaller than Playfair, hence the size bump. */
-.hero-panel h1{font-family:"Cormorant Garamond",var(--serif);font-weight:600;font-size:clamp(36px,4.3vw,60px);letter-spacing:0;line-height:1.02}
-.hero-panel h1 em{font-weight:500;font-size:.62em;line-height:1.15}
+/* Product title: Playfair Display (the page's display face) reads better than Cormorant's thin italic at these sizes. */
+.hero-panel h1{font-family:var(--serif);font-weight:600;font-size:clamp(32px,3.6vw,50px);letter-spacing:-.005em;line-height:1.08}
+.hero-panel h1 em{font-weight:400;font-size:.56em;line-height:1.25;letter-spacing:0;margin-top:6px}
+.hero-panel h1 .amp{font-family:var(--sans);font-style:normal;font-weight:400;font-size:.88em}
 /* Amount saved, right under the price. */
 /* Price + saving framed like the duo card so the deal reads as one block. */
 .price-box{margin:14px 0 12px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--cream)}
@@ -666,3 +677,4 @@ em,blockquote{font-synthesis:none}
   body:has(#sticky-cta:not([hidden])) [data-floating-cart]{bottom:calc(84px + env(safe-area-inset-bottom))}
 }
 
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}

@@ -1,7 +1,7 @@
 // Product page: gallery, colourway switch, CMS variants, stock, benefits, reviews, quantity offer, sticky buy bar.
 // Everything shown comes from the CMS (via the page data or the store API); nothing commercial is hardcoded here.
 import { addToCart } from "./cart";
-import { fmtMad, loadBags, loadOffer, qualifies, verify, type Offer, type Verdict } from "../lib/offer";
+import { fmtMad, loadBags, loadOffer, loadPromos, minUnits, qualifies, verify, type Offer, type Promo, type Verdict } from "../lib/offer";
 import { fetchReviews, type CmsReviews } from "../lib/cms";
 import { tone } from "../data/products";
 import type { Product } from "../data/products";
@@ -186,13 +186,14 @@ function init(root: HTMLElement) {
     set("[data-total]", t); set("[data-total-mirror]", t);
     set("[data-total-label]", qty === 2 ? "Total des deux sacs" : "Total");
     const row = $("[data-total-row]"); show(row, qty === 2); row.classList.toggle("flex", qty === 2);
-    set("[data-one-total]", fmtMad(unitPrice()));
     const d = pair ?? one;
     if (d && offerCfg) {
-      set("[data-two-pct]", `−${d.percent} %`);
-      set("[data-two-total]", fmtMad(unitPrice() + secondPrice() - d.discount));
-      set("[data-two-save]", `Vous économisez ${fmtMad(d.discount)}`);
-      set("[data-one-hint]", `Encore un sac pour profiter de −${d.percent} %.`);
+      // Wording follows the CMS code: "2nd item −X %" discounts the second bag only, a bundle discounts both.
+      set("[data-toggle-title]", offerCfg.second_item_only ? `Ajoutez un deuxième sac à −${d.percent} %` : `Deux sacs : −${d.percent} % sur les deux`);
+      set("[data-toggle-hint]", qty === 2
+        ? `Total des deux sacs : ${fmtMad(unitPrice() + secondPrice() - d.discount)}`
+        : `Prenez-en un deuxième au choix et économisez ${fmtMad(d.discount)}.`);
+      set("[data-second-save]", qty === 2 ? `Vous économisez ${fmtMad(d.discount)}` : "");
     }
     paintPrice(); paintStock();
   }
@@ -352,41 +353,75 @@ function init(root: HTMLElement) {
   }
   secondList.addEventListener("change", (e) => pickSecond((e.target as HTMLInputElement).value));
 
-  offer.addEventListener("change", async (e) => {
-    const t = e.target as HTMLInputElement;
-    if (t.name !== "qty") return;
-    qty = t.value === "2" ? 2 : 1;
+  const toggle = $<HTMLInputElement>("[data-second-toggle]");
+  toggle.addEventListener("change", async () => {
+    qty = toggle.checked ? 2 : 1;
     show(secondBox, qty === 2); secondBox.classList.toggle("grid", qty === 2);
     if (qty === 2) {
       second ??= eligible.find((b) => b.slug !== cur.slug) ?? eligible.find((b) => b.slug === cur.slug);
       if (second) await pickSecond(second.slug);
+      else paint();
     } else { pair = null; seq++; paint(); }
   });
 
   async function refreshOffer() {
     const my = ++seq;
     pair = null; second = undefined; qty = 1;
-    offer.querySelector<HTMLInputElement>('input[name="qty"][value="1"]')!.checked = true;
+    toggle.checked = false;
     show(secondBox, false); secondBox.classList.remove("grid");
     const cfg = await loadOffer();
     if (my !== seq) return;
-    offerCfg = cfg && buyable() && qualifies(cfg, cur.slug) ? cfg : null;
-    one = offerCfg ? await verify(offerCfg, [itemOf(cur.slug, offerCfg.quantity, sel()?.name)]) : null;
+    // The toggle is built for a second bag: offers needing more units aren't shown here (the cart drawer still pushes them).
+    offerCfg = cfg && buyable() && minUnits(cfg) === 2 && qualifies(cfg, cur.slug) ? cfg : null;
+    // What a second identical bag earns: the CMS prices it (for a second-item code, the last unit sent is the one discounted).
+    one = offerCfg ? await verify(offerCfg, [itemOf(cur.slug, 2, sel()?.name)]) : null;
     if (my !== seq) return;
-    // Hidden unless the CMS offer is live AND the CMS confirms it for this product.
     const live = !!offerCfg && !!one;
-    offer.classList.toggle("hidden", !live); offer.classList.toggle("grid", live);
-    const pickable = live && offerCfg!.quantity === 2; // the picker is built for « 2 bags »; other quantities get a note
-    show($("[data-offer-choices]"), pickable);
-    show($("[data-offer-note]"), live && !pickable);
-    if (live && !pickable) $("[data-offer-note]").textContent = `${offerCfg!.title} : −${one!.percent} % dès ${offerCfg!.quantity} sacs. ${offerCfg!.quantity} sacs à ${fmtMad(unitPrice())} : vous économisez ${fmtMad(one!.discount)}.`;
-    if (live) $("[data-offer-legend]").textContent = offerCfg!.badge ?? "Votre sélection";
+    if (live) {
+      bags = await loadBags();
+      if (my !== seq) return;
+      eligible = bags.filter((b) => qualifies(offerCfg!, b.slug) && b.purchasable !== false && (!b.variants?.length || b.slug === cur.slug));
+    } else eligible = [];
+    // Hidden unless the CMS offer is live, the CMS confirms it for this bag, and there is a second bag to pick.
+    const on = live && eligible.length > 0;
+    offer.classList.toggle("hidden", !on); offer.classList.toggle("grid", on);
+    const badge = $("[data-offer-badge]");
+    badge.textContent = on ? offerCfg!.badge ?? "" : ""; show(badge, on && !!offerCfg!.badge);
+    if (on) paintSecond();
     paint();
-    if (!pickable) return;
-    bags = await loadBags();
-    if (my !== seq) return;
-    eligible = bags.filter((b) => qualifies(offerCfg!, b.slug) && b.purchasable !== false && (!b.variants?.length || b.slug === cur.slug));
-    paint();
+    refreshPromos();
+  }
+
+  /* ---------- Promo codes the CMS advertises for this product (showOnProduct) ---------- */
+  const promoList = $("[data-promos]");
+  const promoStatus = $("[data-promo-status]");
+  let promoSeq = 0;
+  const promoText = (p: Promo) => (p.second_item_only ? `−${p.percent} % sur le 2e article` : `−${p.percent} %`);
+  function paintPromos(list: Promo[]) {
+    show(promoList, list.length > 0); promoList.classList.toggle("grid", list.length > 0);
+    promoList.replaceChildren(...list.map((p) => {
+      const li = mk("li", "flex flex-wrap items-center gap-x-3 gap-y-1.5 border border-dashed border-gold/70 bg-white/60 px-3.5 py-2.5 text-sm");
+      const info = mk("span", "grid min-w-0 flex-1 gap-0.5");
+      const line = mk("span", "flex flex-wrap items-baseline gap-x-2 text-ink");
+      line.append(mk("span", "text-ink-soft", "Code"), mk("strong", "font-semibold tracking-[0.12em] text-burgundy", p.code), mk("span", "font-semibold text-rose-dusty tabular-nums", promoText(p)));
+      const note = ["À saisir lors de la commande", p.min_subtotal ? `dès ${fmtMad(p.min_subtotal)} d’achat` : ""].filter(Boolean).join(", ");
+      info.append(line, mk("span", "text-xs text-ink-soft", `${note}.`));
+      const copy = mk("button", "min-h-10 cursor-pointer border-0 bg-transparent px-1 text-xs font-semibold tracking-[0.12em] text-burgundy uppercase underline decoration-gold underline-offset-[0.4em] hover:text-rose-dusty focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy", "Copier") as HTMLButtonElement;
+      copy.type = "button"; copy.setAttribute("aria-label", `Copier le code ${p.code}`);
+      copy.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(p.code); } catch { return; }
+        copy.textContent = "Copié ✓"; promoStatus.textContent = `Code ${p.code} copié.`;
+        setTimeout(() => { copy.textContent = "Copier"; }, 1600);
+      });
+      li.append(info, copy);
+      return li;
+    }));
+  }
+  async function refreshPromos() {
+    const my = ++promoSeq;
+    // The code behind the second-bag toggle is already shown there: not repeated.
+    const list = buyable() ? await loadPromos(cur.slug, offerCfg?.code) : [];
+    if (my === promoSeq) paintPromos(list);
   }
 
   /* ---------- Purchase ---------- */

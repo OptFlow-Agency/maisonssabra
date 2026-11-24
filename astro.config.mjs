@@ -7,6 +7,8 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   site: 'https://maisonsabra.ma',
   adapter: vercel(),
+  // Instant-feeling navigation: a link's page is fetched on hover/focus (touchstart on phones) before the click lands.
+  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   vite: {
     plugins: [tailwindcss()],
     // Dev server only: allow ngrok tunnels (any subdomain) for previewing on real phones.

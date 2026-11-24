@@ -5,7 +5,9 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // One shared instance. Null under reduced motion, so native scrolling is untouched.
 export const lenis: Lenis | null = reduce
   ? null
-  : new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), anchors: true });
+  // lerp: each frame closes 14 % of the gap to the wheel target. Smooth, but it tracks the hand instead of gliding
+  // for over a second after it (the old duration: 1.15 felt like lag). Touch keeps native scrolling (Lenis default).
+  : new Lenis({ lerp: 0.14, wheelMultiplier: 1, anchors: true });
 
 if (lenis) {
   const raf = (time: number) => { lenis.raf(time); requestAnimationFrame(raf); };

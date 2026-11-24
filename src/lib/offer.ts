@@ -1,7 +1,7 @@
 // Shared by the product page, the cart drawer and the checkout: one source for the quantity offer (from the CMS),
 // its server check (POST /promo) and money formatting. The CMS decides what the offer is; it also prices it.
 import { fallback, type Product } from "../data/products";
-import { checkPromo, cmsEnabled, fetchOffers, fetchProducts, type CartItem, type CmsOffer } from "./cms";
+import { checkPromo, cmsEnabled, fetchOffers, fetchProducts, fetchPromos, type CartItem, type CmsOffer, type CmsPromo } from "./cms";
 import { fromCms } from "./catalog";
 
 export type Offer = CmsOffer;
@@ -13,14 +13,35 @@ export const fmtMad = (n: number) =>
   `${n.toLocaleString("fr-FR", Number.isInteger(n) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MAD`;
 
 /**
- * The live "buy N, save X %" offer, or null when the CMS has none (disabled, expired, exhausted code…).
- * Only plain multi-unit bundles qualify here; "second item only" upsells belong to other flows.
+ * The live « second bag » offer, or null when the CMS has none (disabled, expired, exhausted code…).
+ * A "2nd item −X %" code (second_item_only) wins; otherwise a plain "buy N, save X %" bundle.
+ * The product page toggle, the cart drawer and the checkout all read this one offer, so they always agree.
  */
 export async function loadOffer(): Promise<Offer | null> {
   if (!cmsEnabled) return null;
   try {
-    return (await fetchOffers()).find((o) => o.type === "bundle" && o.quantity >= 2 && !o.second_item_only && o.percent > 0) ?? null;
+    const all = (await fetchOffers()).filter((o) => o.percent > 0);
+    return all.find((o) => o.second_item_only) ?? all.find((o) => o.type === "bundle" && o.quantity >= 2) ?? null;
   } catch { return null; }
+}
+
+/** Units the cart needs before the offer applies: a second-item code always needs two. */
+export const minUnits = (offer: Offer) => (offer.second_item_only ? 2 : offer.quantity);
+
+/**
+ * The CMS discounts the LAST item it receives for a second-item code: put the offer's eligible lines last
+ * (stable otherwise), so an out-of-scope line at the end of the cart can't cancel the offer. Harmless for other codes.
+ */
+export const offerOrder = <T extends { slug: string }>(items: T[], offer: Offer | null): T[] =>
+  offer?.second_item_only ? [...items.filter((i) => !qualifies(offer, i.slug)), ...items.filter((i) => qualifies(offer, i.slug))] : items;
+
+export type Promo = CmsPromo;
+/** Codes the CMS advertises for this product, minus `except` (the code already shown as the second-bag offer). */
+export async function loadPromos(slug: string, except?: string): Promise<Promo[]> {
+  if (!cmsEnabled) return [];
+  try {
+    return (await fetchPromos()).filter((p) => p.percent > 0 && p.code !== except && (!p.products.length || p.products.includes(slug)));
+  } catch { return []; }
 }
 
 export const qualifies = (offer: Offer, slug: string) => !offer.products.length || offer.products.includes(slug);

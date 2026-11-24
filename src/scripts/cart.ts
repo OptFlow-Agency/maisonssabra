@@ -1,5 +1,5 @@
 import { lockScroll } from "./smooth";
-import { countBags, fmtMad, loadBags, loadOffer, qualifies, verify, type Offer, type Verdict } from "../lib/offer";
+import { countBags, fmtMad, loadBags, loadOffer, minUnits, offerOrder, qualifies, verify, type Offer, type Verdict } from "../lib/offer";
 import { emptyConfig, getStoreConfig, loadStoreConfig, shippingQuote, type StoreConfig } from "../lib/store";
 import { invalidateCms } from "../lib/cms";
 import { buildOffer, buildRecs } from "./cart-offer";
@@ -81,12 +81,12 @@ async function refreshOffer() {
   offer.eligible = new Map(cfg ? bags.map((b) => [b.slug, qualifies(cfg, b.slug) ? { percent: cfg.percent, discount: 0 } : null] as const) : []);
   if (!cfg) { offer.verdict = null; offer.example = null; render(); if (wasUnlocked) live("Votre réduction n’est plus appliquée."); return; }
 
-  const items = buyable().map((l) => ({ slug: l.id, qty: l.qty, ...(l.variant ? { variant: l.variant } : {}) }));
+  const items = offerOrder(buyable().map((l) => ({ slug: l.id, qty: l.qty, ...(l.variant ? { variant: l.variant } : {}) })), cfg);
   const n = countBags(buyable(), cfg);
-  const v = n >= cfg.quantity ? await verify(cfg, items) : null;
+  const v = n >= minUnits(cfg) ? await verify(cfg, items) : null;
   // An example of what the next unit earns, taken from the CMS pricing of the first qualifying line.
   const first = buyable().find((l) => qualifies(cfg, l.id));
-  const ex = !v && first ? await verify(cfg, [{ slug: first.id, qty: cfg.quantity, ...(first.variant ? { variant: first.variant } : {}) }]) : null;
+  const ex = !v && first ? await verify(cfg, [{ slug: first.id, qty: minUnits(cfg), ...(first.variant ? { variant: first.variant } : {}) }]) : null;
   if (my !== offerSeq) return;
   offer.verdict = v;
   offer.example = ex;
@@ -203,7 +203,7 @@ function render() {
 
   // Offer + recommendations (rebuilt, then focus is restored if a button inside was the active element)
   const cfg = offer.cfg;
-  const view = { lines: buyable(), bags: offer.bags, eligible: offer.eligible, count: cfg ? countBags(buyable(), cfg) : 0, min: cfg?.quantity ?? 0, verdict: offer.verdict, example: offer.example, title: cfg?.title ?? "", badge: cfg?.badge ?? null, showAll: offer.showAll };
+  const view = { lines: buyable(), bags: offer.bags, eligible: offer.eligible, count: cfg ? countBags(buyable(), cfg) : 0, min: cfg ? minUnits(cfg) : 0, secondOnly: !!cfg?.second_item_only, verdict: offer.verdict, example: offer.example, title: cfg?.title ?? "", badge: cfg?.badge ?? null, showAll: offer.showAll };
   const active = document.activeElement as HTMLElement | null;
   const keep = active?.dataset.recMore ? "[data-rec-more]" : active?.dataset.recAdd ? `[data-rec-add="${active.dataset.recAdd}"]` : "";
   dlg.querySelector<HTMLElement>("[data-cart-offer]")!.replaceChildren(...[cfg ? buildOffer(view) : null].filter(Boolean) as Node[]);

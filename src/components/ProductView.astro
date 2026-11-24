@@ -158,6 +158,9 @@ const hasDetails = data.some((d) => d.long.length > 0 || d.specs.length > 0 || !
               </p>
               <p class:list={["m-0 text-sm font-semibold text-rose-dusty tabular-nums", !saving(p) && "hidden"]} data-save>Vous économisez {fmtMad(saving(p))} (−{discount(p)} %)</p>
             </div>
+            <!-- Promo codes the CMS advertises for this product (showOnProduct). Filled by the page script; hidden when none. -->
+            <ul class="m-0 hidden list-none gap-2 p-0" data-promos aria-label="Codes promo"></ul>
+            <p class="sr-only" role="status" data-promo-status></p>
           </header>
 
           <p class="m-0 max-w-[52ch] whitespace-pre-line text-ink-soft" data-copy>{cur.copy}</p>
@@ -200,32 +203,25 @@ const hasDetails = data.some((d) => d.long.length > 0 || d.specs.length > 0 || !
             <span class="size-2 shrink-0 rounded-full bg-burgundy-deep"></span>Momentanément indisponible
           </p>
 
-          <!-- Two-bag offer: revealed only once the server confirms the code covers this bag. -->
-          <fieldset class="m-0 hidden min-w-0 gap-3 border-0 p-0" data-offer>
-            <legend class="mb-3 p-0 text-sm font-semibold tracking-[0.08em] text-burgundy-deep uppercase" data-offer-legend>Votre sélection</legend>
-            <p class="m-0 hidden text-sm text-ink" data-offer-note></p>
-            <div class="grid grid-cols-2 gap-3" data-offer-choices>
-              <label class="block cursor-pointer">
-                <input class="peer sr-only" type="radio" name="qty" value="1" checked />
-                <span class="grid h-full content-start gap-1 bg-white/60 p-3.5 ring-1 ring-burgundy/25 transition-[box-shadow,background-color] duration-300 peer-checked:bg-white peer-checked:ring-[1.5px] peer-checked:ring-burgundy peer-checked:ring-offset-2 peer-checked:ring-offset-ivory peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy">
-                  <span class="text-sm font-semibold text-burgundy-deep">Un sac</span>
-                  <span class="text-sm text-ink tabular-nums" data-one-total>{fmtMad(p.price)}</span>
-                  <span class="text-xs leading-snug text-ink-soft" data-one-hint></span>
+          <!-- Second-bag offer: a toggle, revealed only once the server confirms the CMS offer covers this bag. -->
+          <fieldset class="m-0 hidden min-w-0 gap-4 border-0 p-0" data-offer>
+            <legend class="sr-only" data-offer-legend>Offre deuxième sac</legend>
+            <label class="flex cursor-pointer items-center gap-4 bg-white/60 p-4 ring-1 ring-burgundy/25 transition-[box-shadow,background-color] duration-300 has-checked:bg-white has-checked:ring-[1.5px] has-checked:ring-burgundy">
+              <span class="grid min-w-0 flex-1 gap-1">
+                <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span class="hidden bg-burgundy px-2 py-0.5 text-[0.625rem] leading-none font-semibold tracking-[0.18em] text-cream-soft uppercase" data-offer-badge></span>
+                  <span class="text-sm font-semibold text-burgundy-deep" data-toggle-title></span>
                 </span>
-              </label>
-              <label class="block cursor-pointer">
-                <input class="peer sr-only" type="radio" name="qty" value="2" />
-                <span class="grid h-full content-start gap-1 bg-white/60 p-3.5 ring-1 ring-burgundy/25 transition-[box-shadow,background-color] duration-300 peer-checked:bg-white peer-checked:ring-[1.5px] peer-checked:ring-burgundy peer-checked:ring-offset-2 peer-checked:ring-offset-ivory peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy">
-                  <span class="text-sm font-semibold text-burgundy-deep">Deux sacs <span class="text-rose-dusty" data-two-pct></span></span>
-                  <span class="text-sm text-ink tabular-nums" data-two-total></span>
-                  <span class="text-xs leading-snug font-semibold text-rose-dusty tabular-nums" data-two-save></span>
-                </span>
-              </label>
-            </div>
+                <span class="text-xs leading-snug text-ink-soft tabular-nums" data-toggle-hint></span>
+              </span>
+              <input class="peer sr-only" type="checkbox" role="switch" data-second-toggle />
+              <span class="relative h-7 w-12 shrink-0 rounded-full bg-burgundy/20 transition-colors duration-300 peer-checked:bg-burgundy peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-burgundy after:absolute after:top-1 after:left-1 after:size-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-300 after:ease-(--ease-out) peer-checked:after:translate-x-5 motion-reduce:after:transition-none" aria-hidden="true"></span>
+            </label>
 
-            <div class="hidden gap-3 pt-2" data-second>
-              <p class="m-0 flex items-baseline justify-between gap-3 text-sm text-ink-soft"><span class="font-semibold text-burgundy-deep">Votre deuxième sac</span><span class="text-ink" data-second-name></span></p>
+            <div class="hidden gap-3" data-second>
+              <p class="m-0 flex items-baseline justify-between gap-3 text-sm text-ink-soft"><span class="font-semibold text-burgundy-deep">Choisissez votre deuxième sac</span><span class="text-ink" data-second-name></span></p>
               <div class="-m-1 flex gap-3 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-second-list role="radiogroup" aria-label="Deuxième sac"></div>
+              <p class="m-0 text-xs font-semibold text-rose-dusty tabular-nums" data-second-save></p>
             </div>
           </fieldset>
 

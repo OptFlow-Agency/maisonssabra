@@ -23,19 +23,21 @@ const h1b = h1rest.join(" – ");
           <div class="g-count" id="g-count" aria-live="polite"></div>
         </div>
 
-        <div class="g-thumbs" id="g-thumbs" role="group" aria-label="Photos du modèle sélectionné">{initial.images.map((im,i)=><button type="button" class="g-thumb" data-i={i} aria-label={`Voir la photo ${i+1}`} aria-current={i===0 ? "true" : "false"}><img src={im.src} alt="" width="64" height="64" loading="lazy"/></button>)}</div>
+        <div class="g-thumbs" id="g-thumbs" role="group" aria-label="Photos du modèle sélectionné">{initial.images.map((im,i)=><button type="button" class="g-thumb" data-i={i} aria-label={`Voir la photo ${i+1}`} aria-current={i===0 ? "true" : "false"}><img src={im.thumb ?? im.src} alt="" width="64" height="64" loading="lazy"/></button>)}</div>
       </div>
 
       <div class="hero-panel">
         <a id="rating-link" class="rating-link" href="#avis" hidden></a>
         <p class="rating-fallback" id="rating-fallback"><span class="rl-stars" aria-hidden="true">{stars}</span> {quotes.length} témoignages de clientes</p>
         <p class="eyebrow">{initial.collection === "bladi" ? "Collection Bladi · Fait main au Maroc" : "Édition Prestige · Brodé main à Casablanca"}</p>
-        <h1 id="h1"><span id="h1-main">{h1a}</span> <em id="h1-sub">{h1b}</em></h1>
+        <h1 id="h1"><span id="h1-main">{h1a}</span> <em id="h1-sub">{h1b.split("&").map((part, i) => <>{i > 0 && <span class="amp">&amp;</span>}{part}</>)}</em></h1>
         
         <div class="price-box">
         <p class="price-row"><strong class="price" id="p-price">{money(initial.price)}</strong><s id="p-ref" hidden={!(initial.referencePrice > initial.price)}>{money(initial.referencePrice)}</s><span id="discount" hidden={!(initial.referencePrice > initial.price)}>−{Math.round(100*(1-initial.price/initial.referencePrice))} %</span></p>
         <p class="saving" id="saving" hidden={!(initial.referencePrice > initial.price)}>Vous économisez <strong id="saving-amount">{money(initial.referencePrice - initial.price)}</strong></p>
         </div>
+        <ul class="promo-codes" id="promo-codes" aria-label="Codes promo" hidden></ul>
+        <p class="visually-hidden" id="promo-status" role="status"></p>
         <p class="assurance">Livraison gratuite · Payez à la réception, après inspection</p>
         <p class="lede" id="lede" hidden={!(initial.tagline || initial.officialDescription)}>{initial.officialDescription || initial.tagline}</p>
         <fieldset class="swatches">

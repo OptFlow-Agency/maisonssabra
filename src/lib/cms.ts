@@ -2,8 +2,9 @@
 // Runs on the server (pages) and in the browser (cart, product page, checkout). Only public, read-mostly endpoints
 // are used: no credentials exist on the storefront. The CMS stays authoritative for prices, stock and discounts.
 
-const BASE = (import.meta.env.PUBLIC_CMS_URL as string | undefined)?.replace(/\/$/, "");
-const TENANT = (import.meta.env.PUBLIC_CMS_TENANT as string | undefined) || "maisonsabra";
+// PUBLIC_CMS_* and PUBLIC_CRM_* name the same backend (lib/crm.ts): either pair works.
+const BASE = ((import.meta.env.PUBLIC_CMS_URL as string | undefined) || (import.meta.env.PUBLIC_CRM_URL as string | undefined))?.replace(/\/$/, "");
+const TENANT = (import.meta.env.PUBLIC_CMS_TENANT as string | undefined) || (import.meta.env.PUBLIC_CRM_TENANT as string | undefined) || "maisonsabra";
 
 export const cmsEnabled = !!BASE;
 const endpoint = (path: string) => `${BASE}/api/store/${TENANT}/${path}`;
@@ -40,6 +41,9 @@ export type CmsOffer = {
   /** Eligible product slugs. Empty: every product. */
   products: string[]; ends_at: string | null;
 };
+
+/** A promo code the CMS advertises on product pages (showOnProduct). Empty `products`: every product. */
+export type CmsPromo = { code: string; percent: number; second_item_only: boolean; min_subtotal: number | null; ends_at: string | null; products: string[] };
 
 export type CmsSettings = {
   store_name: string; tagline: string | null; announcement: string | null;
@@ -87,13 +91,31 @@ async function request<T>(path: string, init?: RequestInit & { timeout?: number 
 }
 
 /** Short in-memory memo: collapses the several identical reads one page render (or one browser page) makes. */
-const memo = new Map<string, { at: number; value: Promise<unknown> }>();
-const cached = <T>(key: string, ttl: number, load: () => Promise<T>): Promise<T> => {
+type Entry = { at: number; value: Promise<unknown>; ok: boolean; refreshing: boolean };
+const memo = new Map<string, Entry>();
+const STALE = 5 * 60_000; // server only: how long an expired copy may still answer while a fresh one loads
+const load = (key: string, fn: () => Promise<unknown>): Entry => {
+  const e: Entry = { at: Date.now(), value: Promise.resolve(), ok: false, refreshing: false };
+  e.value = fn().then((v) => { e.ok = true; return v; }, (err) => { if (memo.get(key) === e) memo.delete(key); throw err; });
+  return e;
+};
+const cached = <T>(key: string, ttl: number, fn: () => Promise<T>): Promise<T> => {
   const hit = memo.get(key);
-  if (hit && Date.now() - hit.at < ttl) return hit.value as Promise<T>;
-  const value = load().catch((e) => { memo.delete(key); throw e; });
-  memo.set(key, { at: Date.now(), value });
-  return value;
+  const age = hit ? Date.now() - hit.at : Infinity;
+  if (hit && age < ttl) return hit.value as Promise<T>;
+  // Server: an expired but recent copy answers now (stale-while-revalidate), so a page render never waits on the CMS
+  // once it has read it; the refresh runs behind it and only replaces it when it succeeds.
+  if (!browser && hit?.ok && age < STALE) {
+    if (!hit.refreshing) {
+      hit.refreshing = true;
+      const next = load(key, fn);
+      next.value.then(() => memo.set(key, next), () => { hit.refreshing = false; });
+    }
+    return hit.value as Promise<T>;
+  }
+  const e = load(key, fn);
+  memo.set(key, e);
+  return e.value as Promise<T>;
 };
 
 /** Forget cached reads (after a purchase attempt failed on stale data). */
@@ -106,6 +128,7 @@ const TTL = browser ? 20_000 : 10_000;
 export const fetchProducts = (q = "") => cached(`products${q}`, TTL, () => request<CmsProduct[]>(`products${q}`));
 export const fetchSettings = () => cached("settings", TTL, () => request<CmsSettings | null>("settings"));
 export const fetchOffers = () => cached("offers", TTL, () => request<CmsOffer[]>("offers"));
+export const fetchPromos = () => cached("promos", TTL, () => request<CmsPromo[]>("promos"));
 export const fetchCollections = () => cached("collections", TTL, () => request<CmsCollection[]>("collections"));
 export const fetchContent = (placement: string) => cached(`content${placement}`, TTL, () => request<CmsSection[]>(`content?placement=${encodeURIComponent(placement)}`));
 export const fetchStories = (kind: string) => cached(`stories${kind}`, TTL, () => request<CmsStory[]>(`stories?kind=${encodeURIComponent(kind)}`));

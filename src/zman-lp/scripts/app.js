@@ -21,6 +21,27 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
       : C.offers.filter(function (o) { return o.id !== "duo"; });
     if (crmOffer && crmOffer.products.length) DUO_ELIGIBLE = crmOffer.products;
   }
+  // Codes promo affichés (CRM → Codes promo → « Show on product page ») : ceux qui couvrent le sac sélectionné.
+  var PROMOS = JSON.parse((document.getElementById("crm-promos") || {}).textContent || "[]");
+  function renderPromoCodes(m) {
+    var box = document.getElementById("promo-codes");
+    if (!box) return;
+    var list = PROMOS.filter(function (p) { return !p.products.length || p.products.indexOf(m.slug) !== -1; });
+    box.hidden = !list.length || m.stockStatus === "out_of_stock";
+    box.innerHTML = list.map(function (p) {
+      var note = "à saisir à la commande" + (p.min_subtotal ? ", dès " + money(p.min_subtotal) : "");
+      return '<li><span class="pc-info"><span class="pc-line">Code <strong>' + esc(p.code) + '</strong> <b>−' + Number(p.percent) + " %" + (p.second_item_only ? " sur le 2ᵉ article" : "") + '</b></span>' +
+        '<span class="pc-note">' + esc(note) + '</span></span><button type="button" class="pc-copy" data-code="' + esc(p.code) + '" aria-label="Copier le code ' + esc(p.code) + '">Copier</button></li>';
+    }).join("");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".pc-copy");
+    if (!b || !navigator.clipboard) return;
+    navigator.clipboard.writeText(b.dataset.code).then(function () {
+      b.textContent = "Copié ✓"; var st = document.getElementById("promo-status"); if (st) st.textContent = "Code " + b.dataset.code + " copié.";
+      setTimeout(function () { b.textContent = "Copier"; }, 1600);
+    }, function () {});
+  });
   var duoEligible = function (m) { return !!m && (!DUO_ELIGIBLE || DUO_ELIGIBLE.indexOf(m.slug) !== -1); };
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -86,10 +107,13 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     $("#promo-end").hidden = ref.hidden || !(end > new Date());
     if (!$("#promo-end").hidden) $("#promo-end").textContent = "Offre −" + pct + " % jusqu’au " + localDate(end);
     $("#swatch-current").textContent = m.colorLabel;
+    renderPromoCodes(m);
     var ai = $("#artisan-img"), aim = m.images[1] || m.images[0];
     if (ai && aim && !ai.dataset.fixed) { ai.src = aim.src; ai.alt = aim.alt; }
     var parts = m.name.split(/\s+[–-]\s+/);
-    $("#h1-main").textContent = parts[0]; $("#h1-sub").textContent = parts.slice(1).join(" – ");
+    $("#h1-main").textContent = parts[0]; var sub = $("#h1-sub"); sub.textContent = "";
+    // "&" upright: the italic ampersand reads like "Et" to some customers.
+    parts.slice(1).join(" – ").split("&").forEach(function (t, i) { if (i) { var a = document.createElement("span"); a.className = "amp"; a.textContent = "&"; sub.append(a); } sub.append(t); });
     var lede = $("#lede"); lede.textContent = m.officialDescription || m.tagline || ""; lede.hidden = !lede.textContent;
     var bl = $("#benefits");
     bl.innerHTML = (m.benefits || []).map(function (b) { return "<li><span><strong>" + esc(b.title) + "</strong>" + (b.description ? '<span class="b-desc">' + esc(b.description) + "</span>" : "") + "</span></li>"; }).join("");
@@ -104,7 +128,7 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     }).join("");
     track.scrollLeft = 0;
     $("#g-thumbs").innerHTML = m.images.map(function (im, i) {
-      return '<button type="button" class="g-thumb" data-i="' + i + '" aria-label="Voir la photo ' + (i + 1) + '"><img src="' + esc(im.src) + '" alt="" width="64" height="64" loading="lazy"></button>';
+      return '<button type="button" class="g-thumb" data-i="' + i + '" aria-label="Voir la photo ' + (i + 1) + '"><img src="' + esc(im.thumb || im.src) + '" alt="" width="64" height="64" loading="lazy"></button>';
     }).join("");
     updateGalleryUI();
   }

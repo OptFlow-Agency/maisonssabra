@@ -9,6 +9,7 @@ export type OfferView = {
   eligible: Map<string, Verdict | null>; // slug -> what two of it earn (null: does not qualify)
   count: number; // eligible bags in the cart, by quantity
   min: number;
+  secondOnly: boolean; // CMS code discounts the second bag only ("2e sac −X %")
   verdict: Verdict | null; // server-confirmed discount for the current cart (count >= min)
   example: Verdict | null; // server-confirmed discount for `min` units of the first qualifying line
   title: string; // CMS offer title
@@ -37,8 +38,8 @@ export function buildOffer(v: OfferView): HTMLElement | null {
     const ic = el("span", "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-burgundy text-cream-soft"); ic.innerHTML = check;
     const txt = el("div", "grid gap-0.5");
     txt.append(
-      el("p", "m-0 font-display text-[1.25rem] leading-tight font-medium text-burgundy", duo ? "Votre avantage duo est activé !" : `${v.title} : avantage activé !`),
-      el("p", "m-0 text-[0.8125rem] text-ink-soft", `${v.verdict.percent} % de réduction appliqués à votre sélection.`),
+      el("p", "m-0 font-display text-[1.25rem] leading-tight font-medium text-burgundy", v.secondOnly ? "Votre 2e sac à prix réduit est activé !" : duo ? "Votre avantage duo est activé !" : `${v.title} : avantage activé !`),
+      el("p", "m-0 text-[0.8125rem] text-ink-soft", v.secondOnly ? `${v.verdict.percent} % de réduction appliqués à votre deuxième sac.` : `${v.verdict.percent} % de réduction appliqués à votre sélection.`),
       el("p", "m-0 text-[0.8125rem] font-semibold text-rose-dusty tabular-nums", `Vous économisez ${fmtMad(v.verdict.discount)}`),
     );
     s.append(ic, txt);
@@ -53,10 +54,10 @@ export function buildOffer(v: OfferView): HTMLElement | null {
   s.setAttribute("aria-labelledby", "offer-title");
   if (v.badge) s.append(el("p", "m-0 text-[0.625rem] leading-none font-semibold tracking-[0.2em] text-rose-dusty uppercase", v.badge));
   s.append(
-    Object.assign(el("h3", "m-0 font-display text-[1.375rem] leading-[1.15] font-medium text-burgundy", duo && missing === 1 ? `Votre deuxième sac vous fait économiser ${pct} % !` : `${v.title} : −${pct} % dès ${v.min} ${unit(v.min)}`), { id: "offer-title" }),
-    el("p", "m-0 text-[0.8125rem] text-ink-soft", duo && missing === 1 ? "Ajoutez un deuxième sac et profitez de notre avantage duo." : `Ajoutez ${missing} ${unit(missing)} de plus pour profiter de ${pct} % de réduction.`),
+    Object.assign(el("h3", "m-0 font-display text-[1.375rem] leading-[1.15] font-medium text-burgundy", v.secondOnly && missing === 1 ? `Votre deuxième sac à −${pct} % !` : duo && missing === 1 ? `Votre deuxième sac vous fait économiser ${pct} % !` : `${v.title} : −${pct} % dès ${v.min} ${unit(v.min)}`), { id: "offer-title" }),
+    el("p", "m-0 text-[0.8125rem] text-ink-soft", v.secondOnly && missing === 1 ? `Ajoutez un deuxième sac : il vous est proposé à −${pct} %.` : duo && missing === 1 ? "Ajoutez un deuxième sac et profitez de notre avantage duo." : `Ajoutez ${missing} ${unit(missing)} de plus pour profiter de ${pct} % de réduction.`),
   );
-  if (v.example && v.example.discount > 0) s.append(el("p", "m-0 text-[0.8125rem] text-burgundy tabular-nums", `Soit ${fmtMad(v.example.discount)} d’économie sur ${v.min} sacs.`));
+  if (v.example && v.example.discount > 0) s.append(el("p", "m-0 text-[0.8125rem] text-burgundy tabular-nums", v.secondOnly ? `Soit ${fmtMad(v.example.discount)} d’économie sur le deuxième sac.` : `Soit ${fmtMad(v.example.discount)} d’économie sur ${v.min} sacs.`));
   const cta = el("button", "btn-ghost mt-1 min-h-11 w-full", duo && missing === 1 ? "+ Choisir mon deuxième sac" : "+ Choisir un autre sac");
   cta.type = "button"; cta.setAttribute("data-offer-choose", "true");
   s.append(cta);

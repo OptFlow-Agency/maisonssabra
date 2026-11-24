@@ -10,7 +10,9 @@ import UpsellView from "./UpsellView.astro";
 import ThanksView from "./ThanksView.astro";
 import { shipLong } from "../lib/copy.js";
 import { loadCollection } from "../data/products.js";
-import { loadOffer } from "../../lib/offer";
+import { loadOffer, minUnits } from "../../lib/offer";
+import { variant } from "../../data/products";
+import { cmsEnabled, fetchPromos, type CmsPromo } from "../../lib/cms";
 import type { Product } from "../../data/products";
 interface Props { modelId?: string; catalog?: Product[]; collection?: string }
 const { modelId, catalog, collection = "zman" } = Astro.props;
@@ -20,18 +22,25 @@ const brand = bladi ? "Bladi" : "Z’man";
 const models = catalog ? products.flatMap(model => {
   const product = catalog.find(item => item.slug === model.slug);
   if (!product || product.variants?.length) return [];
+  // Slides at 800 px and thumbnails at 480 px (CRM sizes): the full 1000 px original was loaded even for 64 px thumbnails.
   const first = product.gallery?.[0] ?? product.img;
+  const slide = variant(first, 800), small = variant(first, 480);
   return [{
     ...model, name: product.name, price: product.price, referencePrice: product.was,
-    thumb: product.img, stock: product.stock,
+    thumb: variant(product.img, 480), stock: product.stock,
     stockStatus: product.purchasable === false ? "out_of_stock" : model.stockStatus,
-    images: [{ src: first, alt: product.alt, w: 1000, h: 988 }, ...model.images.filter(image => image.src !== first)],
+    images: [{ src: slide, thumb: small, alt: product.alt, w: slide === first ? 1000 : 800, h: slide === first ? 988 : 790 }, ...model.images.filter(image => image.src !== slide && image.src !== first)],
   }];
 }) : products;
 const initial = models.find(p => p.id === (modelId ?? "rouge")) ?? models[0];
-// "Offrez-en un, gardez-en un" is driven by the CRM (Sales → Offers): an active 2-bag bundle shows it, none hides it.
+// "Offrez-en un, gardez-en un" is driven by the CRM (Sales → Offers): an active 2-bag bundle or "2nd item −X %" code shows it, none hides it.
 const crmOffer = await loadOffer();
-const duoOffer = crmOffer?.quantity === 2 ? crmOffer : null;
+const duoOffer = crmOffer && minUnits(crmOffer) === 2 ? crmOffer : null;
+// Promo codes the CRM advertises (Promo codes → "Show on product page") for this collection's bags; the script picks the selected bag's.
+const slugs = models.map((m) => m.slug);
+const promos: CmsPromo[] = cmsEnabled
+  ? (await fetchPromos().catch(() => [] as CmsPromo[])).filter((p) => p.percent > 0 && p.code !== duoOffer?.code && (!p.products.length || p.products.some((s) => slugs.includes(s))))
+  : [];
 ---
 <Layout initial={initial} models={models} productRoute={!!modelId}>
   <a class="skip" href="#hero">Aller au contenu</a>
@@ -51,6 +60,7 @@ const duoOffer = crmOffer?.quantity === 2 ? crmOffer : null;
     <a class="support-link" id="support-link" href="#faq">Aide</a>
   </header>
 
+  <script type="application/json" id="crm-promos" set:html={JSON.stringify(promos).replace(/</g, "\\u003c")} />
   <script type="application/json" id="crm-offer" set:html={JSON.stringify(duoOffer).replace(/</g, "\\u003c")} />
   <script type="application/json" id="zman-models"set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />
   {catalog && <script type="application/json" id="catalog-models" set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />}

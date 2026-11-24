@@ -136,7 +136,7 @@ const tick = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke
 <script>
   import { getBuyableLines as getLines, subtotal, clearCart, resyncCart } from "../../scripts/cart";
   import { emptyConfig, getStoreConfig, shippingQuote, type StoreConfig } from "../../lib/store";
-  import { countBags, fmtMad, loadOffer, verify } from "../../lib/offer";
+  import { countBags, fmtMad, loadOffer, minUnits, offerOrder, verify, type Offer } from "../../lib/offer";
   import { checkPromo as cmsCheckPromo, placeOrder, cmsEnabled, CmsError } from "../../lib/cms";
   const fmt = fmtMad;
   const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
@@ -168,7 +168,9 @@ const tick = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke
   type Promo = { code: string; percent: number; discount: number; auto?: boolean; label?: string };
   let promo: Promo | null = null;
   const payable = () => subtotal() - (promo?.discount ?? 0);
-  const items = () => getLines().map((l) => ({ slug: l.id, qty: l.qty, ...(l.variant ? { variant: l.variant } : {}) }));
+  // Ordered for the store's second-bag offer (eligible lines last): the same order is checked by /promo and sent with the order.
+  let autoCfg: Offer | null = null;
+  const items = () => offerOrder(getLines().map((l) => ({ slug: l.id, qty: l.qty, ...(l.variant ? { variant: l.variant } : {}) })), autoCfg);
   const cityValue = () => (form.elements.namedItem("city") as HTMLInputElement).value;
   const quote = () => shippingQuote(store, payable(), cityValue());
   const toPay = () => payable() + (quote().cost ?? 0);
@@ -263,8 +265,9 @@ const tick = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke
     const my = ++bundleSeq;
     const lines = getLines();
     const cfg = await loadOffer();
+    autoCfg = cfg;
     let r = null;
-    if (cfg && lines.length && countBags(lines, cfg) >= cfg.quantity) r = await verify(cfg, items());
+    if (cfg && lines.length && countBags(lines, cfg) >= minUnits(cfg)) r = await verify(cfg, items());
     if (my !== bundleSeq || (promo && !promo.auto)) return;
     const hadAuto = promoMsg.dataset.auto === "1";
     promo = cfg && r ? { code: cfg.code, ...r, auto: true, label: cfg.title } : null;

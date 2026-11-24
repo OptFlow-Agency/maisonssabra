@@ -12,7 +12,7 @@ function image(im, name) {
   const src = im.sizes?.[800] || im.url;
   const w = im.sizes?.[800] ? 800 : im.width || 1000;
   const h = im.width && im.height ? Math.round((w * im.height) / im.width) : w;
-  return { src, w, h, alt: im.alt || name };
+  return { src, thumb: im.sizes?.[480] || src, w, h, alt: im.alt || name };
 }
 
 function toModel(row) {
@@ -73,8 +73,8 @@ async function fetchRows(url) {
 // Un 5xx est retenté une fois ; une erreur réseau garde l'image (on ne retire que ce qui est prouvé cassé).
 async function exists(url, retry = true) {
   try {
-    // GET (certaines routes média refusent HEAD) ; on n'en lit pas le corps.
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    // GET (certaines routes média refusent HEAD), limité au premier octet : on vérifie la photo sans la télécharger.
+    const res = await fetch(url, { headers: { Range: "bytes=0-0" }, signal: AbortSignal.timeout(8000) });
     res.body?.cancel().catch(() => {});
     if (res.ok) return (res.headers.get("content-type") || "").startsWith("image/");
     if (res.status >= 500 && retry) return exists(url, false);
@@ -105,7 +105,8 @@ const cache = new Map();
 /** Produits d'une collection du CRM (« zman », « bladi »…), chargés une fois par démarrage du serveur. Dans le navigateur : vide (le catalogue est dans la page). */
 export function loadCollection(collection) {
   if (typeof window !== "undefined") return Promise.resolve([]);
-  if (!cache.has(collection)) cache.set(collection, fromDb(collection));
+  // Un échec n'est pas gardé en cache : la requête suivante réessaie au lieu d'échouer jusqu'au redémarrage.
+  if (!cache.has(collection)) cache.set(collection, fromDb(collection).catch((e) => { cache.delete(collection); throw e; }));
   return cache.get(collection);
 }
 

@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1795124019.409823,
-    "ast_hash": "ca83e03cb6ffbcb9ae38c28f3c6c3831",
+    "mtime": 1795470581.6869566,
+    "ast_hash": "9791fa1b656e5651e77cc3965f96aabc",
     "semantic_hash": ""
   },
   ".vscode/extensions.json": {
@@ -25,13 +25,13 @@
     "semantic_hash": ""
   },
   "astro.config.mjs": {
-    "mtime": 1794904623.622117,
-    "ast_hash": "82b75b6eb7896a1051443d50112da043",
+    "mtime": 1795511602.2184606,
+    "ast_hash": "6cc7d2daf273393f94424d531844eca4",
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1794773807.1928124,
-    "ast_hash": "a7499d102263c2cc1fef6a0d100e6a60",
+    "mtime": 1795298552.1208487,
+    "ast_hash": "09f8d58a28837a0b0aac0745caea982f",
     "semantic_hash": ""
   },
   "src/components/AnnouncementBar.astro": {
@@ -65,8 +65,8 @@
     "semantic_hash": ""
   },
   "src/components/CollectionsShowcase.astro": {
-    "mtime": 1794773807.2162519,
-    "ast_hash": "9747d5db9eccfe4f183037cbd8eb3117",
+    "mtime": 1795511602.2180407,
+    "ast_hash": "3becef220d91f8ba9484acaca3ab81d7",
     "semantic_hash": ""
   },
   "src/components/ContactCta.astro": {
@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "src/components/ProductView.astro": {
-    "mtime": 1795165764.1749806,
-    "ast_hash": "95e42ca12d77f23c9da45470ee8a887c",
+    "mtime": 1795510414.5887825,
+    "ast_hash": "a8784ba6fcd956d010a1b9ad96d9a093",
     "semantic_hash": ""
   },
   "src/components/Reassurance.astro": {
@@ -195,8 +195,8 @@
     "semantic_hash": ""
   },
   "src/components/WhatsAppButton.astro": {
-    "mtime": 1794591708.5411184,
-    "ast_hash": "26909ec14fa59ceda6ec791e056c94c2",
+    "mtime": 1795470195.1142468,
+    "ast_hash": "04d362b01dfb49e672f5c49a50c226c0",
     "semantic_hash": ""
   },
   "src/data/collections.ts": {
@@ -230,7 +230,7 @@
     "semantic_hash": ""
   },
   "src/layouts/Base.astro": {
-    "mtime": 1794591708.5418215,
+    "mtime": 1795355977.4590957,
     "ast_hash": "94719eccce983189c095ff7a037620e7",
     "semantic_hash": ""
   },
@@ -245,8 +245,8 @@
     "semantic_hash": ""
   },
   "src/lib/cms.ts": {
-    "mtime": 1795165764.1768835,
-    "ast_hash": "38c0f3cee69929c0909760b33acfb8bb",
+    "mtime": 1795511614.2848032,
+    "ast_hash": "832fff729ea59a680612bc460b4792d1",
     "semantic_hash": ""
   },
   "src/lib/crm.ts": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "src/lib/offer.ts": {
-    "mtime": 1794591708.5423849,
-    "ast_hash": "9d646396ec2a36f2c6102000db9eb4e8",
+    "mtime": 1795510463.6765459,
+    "ast_hash": "6c45e1dedb46aea490ba4818a01ee08a",
     "semantic_hash": ""
   },
   "src/lib/store.ts": {
@@ -290,8 +290,8 @@
     "semantic_hash": ""
   },
   "src/pages/commande/index.astro": {
-    "mtime": 1794773807.22041,
-    "ast_hash": "0161928b048c3b8d1e049cba827ea351",
+    "mtime": 1795510463.6768465,
+    "ast_hash": "6170de520c6ed55af2f610b3b8c12745",
     "semantic_hash": ""
   },
   "src/pages/commande/merci.astro": {
@@ -305,8 +305,8 @@
     "semantic_hash": ""
   },
   "src/pages/produit/[slug].astro": {
-    "mtime": 1792792172.0089636,
-    "ast_hash": "3789efc46e7b0be2cb91303b4e76bf8c",
+    "mtime": 1795311316.0694878,
+    "ast_hash": "2a826e8f7d2a5561c3de2ad9e2bd943b",
     "semantic_hash": ""
   },
   "src/pages/robots.txt.ts": {
@@ -320,28 +320,28 @@
     "semantic_hash": ""
   },
   "src/pages/zmancollection/lp.astro": {
-    "mtime": 1794591952.9207833,
-    "ast_hash": "163b5eee69634463084e4c6c79e294a4",
+    "mtime": 1795464899.3080244,
+    "ast_hash": "27d628431f74197d3b23ec227db9e752",
     "semantic_hash": ""
   },
   "src/scripts/cart-offer.ts": {
-    "mtime": 1794773807.2209933,
-    "ast_hash": "4cbdc0bf7d8ef95161db48fbd7897ebf",
+    "mtime": 1795510450.6058786,
+    "ast_hash": "3f1d2eeb1d74937341eae861c5c34866",
     "semantic_hash": ""
   },
   "src/scripts/cart.ts": {
-    "mtime": 1794773807.2211142,
-    "ast_hash": "a3e172f9699970414d356db370a4e429",
+    "mtime": 1795510463.6766925,
+    "ast_hash": "a8911020403e75120e11c605c51bd8b2",
     "semantic_hash": ""
   },
   "src/scripts/motion.ts": {
-    "mtime": 1794591708.5437882,
-    "ast_hash": "98ace762e10c21abd1500da3ae7d7bf5",
+    "mtime": 1795511602.2166681,
+    "ast_hash": "b17d12c36c8c875744977383c33c9a4f",
     "semantic_hash": ""
   },
   "src/scripts/pdp.ts": {
-    "mtime": 1795166253.9514225,
-    "ast_hash": "b4955f4d599cfae4fa1e338762afc3c4",
+    "mtime": 1795510437.3827047,
+    "ast_hash": "6c9dbbd30adf7bea33a5707cd8910f8b",
     "semantic_hash": ""
   },
   "src/scripts/reveal.ts": {
@@ -350,8 +350,8 @@
     "semantic_hash": ""
   },
   "src/scripts/smooth.ts": {
-    "mtime": 1792667186.1609297,
-    "ast_hash": "3098965966b1bf5cf2f2b5d10cd610a4",
+    "mtime": 1795511602.2163448,
+    "ast_hash": "b061077954de1bfa9b659d0a4bb14c29",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Closing.astro": {
@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/Colors.astro": {
-    "mtime": 1792950513.498286,
-    "ast_hash": "41cfbe9242670d00e35349330a5cf660",
+    "mtime": 1795297813.5307584,
+    "ast_hash": "caf5204726b061e449df508447128d76",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Details.astro": {
@@ -370,8 +370,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/Faq.astro": {
-    "mtime": 1792950513.4980655,
-    "ast_hash": "4d71351011c0f7d68e81d00e9deec6dd",
+    "mtime": 1795292563.0691159,
+    "ast_hash": "59fce182bb9019f04fed382383b8964c",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Finish.astro": {
@@ -380,8 +380,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/Hero.astro": {
-    "mtime": 1792950513.4969895,
-    "ast_hash": "9464d0785d09af784e6e9b734a3a514d",
+    "mtime": 1795511602.2175043,
+    "ast_hash": "b888f84098147d65cdf1dc8422213394",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Moments.astro": {
@@ -395,8 +395,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/Reels.astro": {
-    "mtime": 1792950513.559506,
-    "ast_hash": "050ea6d7f72046fd33f4c153501f5e73",
+    "mtime": 1795373354.367853,
+    "ast_hash": "41655db07a062df8889e23f7318ea50e",
     "semantic_hash": ""
   },
   "src/zman-lp/components/SiteFooter.astro": {
@@ -405,13 +405,13 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/StickyCta.astro": {
-    "mtime": 1792950513.4960501,
-    "ast_hash": "1294d3cf395229e1865d4be5ae88c296",
+    "mtime": 1795294378.8018,
+    "ast_hash": "a7040b983fe0a193bcb38aba7b89adbc",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Story.astro": {
-    "mtime": 1792950513.5590098,
-    "ast_hash": "81665bf6fc14f261a3f3531ed36734ab",
+    "mtime": 1795311307.827598,
+    "ast_hash": "df068bdaf2530d46e28480041682ae50",
     "semantic_hash": ""
   },
   "src/zman-lp/components/ThanksView.astro": {
@@ -420,33 +420,33 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/UpsellView.astro": {
-    "mtime": 1792950513.5592616,
-    "ast_hash": "9c5db98a54f4ab9939ec66af079bed96",
+    "mtime": 1795311312.2082498,
+    "ast_hash": "3498905514cd0bcdf61528f86b987610",
     "semantic_hash": ""
   },
   "src/zman-lp/data/config.js": {
-    "mtime": 1794591952.9217534,
-    "ast_hash": "9c849d51af0e25138533723ef5c928dd",
+    "mtime": 1795293305.8196304,
+    "ast_hash": "14ad347600484b9d6f305cf638bd183f",
     "semantic_hash": ""
   },
   "src/zman-lp/data/products.js": {
-    "mtime": 1794591952.922079,
-    "ast_hash": "70e5779e6e92a9484d6f0fbd79884d3d",
+    "mtime": 1795511602.2172365,
+    "ast_hash": "7f71fc4d5652b602746214f7ea7e0910",
     "semantic_hash": ""
   },
   "src/zman-lp/layouts/Layout.astro": {
-    "mtime": 1792950513.558619,
-    "ast_hash": "158920e28b30498ba758eb9566163db0",
+    "mtime": 1795470287.4099355,
+    "ast_hash": "2dfa0043c644aca5c93a30d709b8fae7",
     "semantic_hash": ""
   },
   "src/zman-lp/lib/copy.js": {
-    "mtime": 1792950513.5018437,
-    "ast_hash": "8a1cca6988925967afcf57a8fc99c2c7",
+    "mtime": 1795311295.2969928,
+    "ast_hash": "c17b821d46653125b721b0a640a2468a",
     "semantic_hash": ""
   },
   "src/zman-lp/lib/crm.js": {
-    "mtime": 1794591952.9223497,
-    "ast_hash": "a0d95592896ecfa6bf030eb9f865ecaf",
+    "mtime": 1795311295.2972398,
+    "ast_hash": "d7398773a7d330d2326143745f86ccb5",
     "semantic_hash": ""
   },
   "src/zman-lp/lib/events.js": {
@@ -455,13 +455,13 @@
     "semantic_hash": ""
   },
   "src/zman-lp/lib/logic.js": {
-    "mtime": 1792950513.50161,
-    "ast_hash": "6a041ba0c026a44440cd78c10f35ab98",
+    "mtime": 1795311312.2073843,
+    "ast_hash": "d36eef0de9ade8b1eee5e2a924fcb27f",
     "semantic_hash": ""
   },
   "src/zman-lp/scripts/app.js": {
-    "mtime": 1794591952.9229074,
-    "ast_hash": "61032678985b4d8da244daeced56b9c7",
+    "mtime": 1795511602.2177746,
+    "ast_hash": "9e7e3d7d347eb9480d1b7ff62d0dab97",
     "semantic_hash": ""
   },
   "tsconfig.json": {
@@ -1532,6 +1532,11 @@
   "public/assets/videos/post-video-3.mp4": {
     "mtime": 1795027820.4454167,
     "ast_hash": "c8febfb8ee7e07a34172e72223123da1",
+    "semantic_hash": ""
+  },
+  "src/zman-lp/components/ZmanPage.astro": {
+    "mtime": 1795511602.2173707,
+    "ast_hash": "11102452dd1c4496d2065dfd401198e1",
     "semantic_hash": ""
   }
 }
