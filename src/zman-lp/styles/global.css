@@ -590,6 +590,9 @@ body:has(.checkout-step[open]){overflow:hidden}
 .benefits .b-desc{display:block;margin-top:2px;font-size:14px;line-height:1.5;color:var(--muted)}
 @media(max-width:767px){
   .hero-panel>.rating-link,.hero-panel>.rating-fallback{order:0;margin:0}
+  /* Offres juste sous les photos */
+  .hero-panel>.eyebrow,.hero-panel>h1,.hero-panel>.price-box,.hero-panel>.assurance,.hero-panel>#duo-copy{order:2}
+  .hero-panel>#duo-copy{margin:0}
 }
 @media(max-width:767px){
   .hero{grid-template-columns:minmax(0,1fr)}
