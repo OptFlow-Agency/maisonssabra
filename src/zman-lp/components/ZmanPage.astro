@@ -4,6 +4,7 @@ import OrderForm from "./OrderForm.astro";
 import Hero from "./Hero.astro";
 import Story from "./Story.astro";
 import Faq from "./Faq.astro";
+import Details from "./Details.astro";
 import SiteFooter from "./SiteFooter.astro";
 import StickyCta from "./StickyCta.astro";
 import UpsellView from "./UpsellView.astro";
@@ -59,6 +60,7 @@ const duoOffer = crmOffer && minUnits(crmOffer) === 2 ? crmOffer : null;
   {catalog && <script type="application/json" id="catalog-models" set:html={JSON.stringify(models).replace(/</g, "\\u003c")} />}
   <main id="main">
     <Hero models={models} initial={initial} />
+    <Details initial={initial} />
     <Story initial={initial} bladi={bladi} />
     <section class="parcel editorial">{!bladi && <img src="/zmancollection/lp/assets/videos/zman-deballage-rouge.jpg" loading="lazy" width="540" height="960" alt="Déballage du sac Z’man rouge"/>}<div><h2>Dans votre colis</h2>{bladi ? <p>Votre sac Maison Sabra, dans son emballage, prêt à offrir.</p> : <p>Votre sac Z’man, sa chaîne détachable et son écrin satin, prêt à offrir.</p>}</div></section>
     <section class="editorial" id="avis" hidden><h2>Avis de nos clientes</h2><p id="review-summary"></p><div id="review-list"></div></section>

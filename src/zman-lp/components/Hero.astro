@@ -49,6 +49,7 @@ const h1b = h1rest.join(" – ");
             ))}
           </div>
         </fieldset>
+        <ul class="benefits" id="benefits" hidden={!initial.benefits.length}>{initial.benefits.map((b)=><li><span class="b-icon" set:html={b.icon} /><span><strong>{b.title}</strong>{b.description ? <span class="b-desc">{b.description}</span> : null}</span></li>)}</ul>
         <div id="duo-copy" hidden>
           <!-- Offer cards (rendered by app.js, mirrored with the order form's offer radios). The duo's code is applied silently. -->
           <fieldset class="offer-set hero-offers">
@@ -66,7 +67,6 @@ const h1b = h1rest.join(" – ");
             <p id="duo-error" role="status"></p>
           </fieldset>
         </div>
-        <ul class="benefits" id="benefits" hidden={!initial.benefits.length}>{initial.benefits.map((b)=><li><span><strong>{b.title}</strong>{b.description ? <span class="b-desc">{b.description}</span> : null}</span></li>)}</ul>
         <div class="tcar" aria-roledescription="carrousel" aria-label="Témoignages clientes">
           <ul class="tcar-track" id="tcar-track" tabindex="0">
             {quotes.map((q)=><li><figure><span class="rl-stars" aria-hidden="true">{stars}</span><blockquote lang={q.arabic?"ar":"fr"} dir={q.arabic?"rtl":undefined}>«&nbsp;{q.quote}&nbsp;»</blockquote><figcaption>{q.name}</figcaption></figure></li>)}

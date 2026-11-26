@@ -4,6 +4,7 @@
  * Champs absents côté CRM → valeur vide, et l'interface masque la ligne correspondante.
  */
 import { crmReady, crmUrl } from "../../lib/crm";
+import { benefitIcon } from "../../data/icons";
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const extra = (row, re) => (row.details?.extra || []).find((e) => re.test(e.label))?.value ?? null;
@@ -36,10 +37,13 @@ function toModel(row) {
     tagline: row.short_description || "",
     blurb: row.short_description || "",
     officialDescription: row.description || row.short_description || "",
-    benefits: (row.benefits || []).map((b) => ({ title: b.title, description: b.description })),
+    // icon : SVG Lucide choisi dans le CRM (champ « icon »), coche par défaut — même jeu que la fiche produit.
+    benefits: (row.benefits || []).map((b) => ({ title: b.title, description: b.description, icon: benefitIcon(b.icon) })),
     materials: d.materials || null,
     color: extra(row, /couleur|color/i),
     dimensions: dim && (dim.width || dim.height || dim.depth) ? `L ${dim.width ?? "?"} × H ${dim.height ?? "?"} × P ${dim.depth ?? "?"} cm` : null,
+    extra: (d.extra || []).filter((e) => e.label && e.value).map((e) => ({ label: e.label, value: e.value })),
+    strapDrop: dim?.strap_drop ? dim.strap_drop + " cm" : null,
     weight: d.weight_g ? "≈ " + d.weight_g + " g" : null,
     care: d.care || null,
     thumb: first?.sizes?.[480] || first?.url || row.image,
@@ -102,12 +106,35 @@ async function fromDb(collection) {
 }
 
 const cache = new Map();
-/** Produits d'une collection du CRM (« zman », « bladi »…), chargés une fois par démarrage du serveur. Dans le navigateur : vide (le catalogue est dans la page). */
+// Une modification dans le CRM apparaît au plus ~30 s après (au lieu d'attendre un redémarrage du serveur).
+const TTL = 30_000;
+/**
+ * Produits d'une collection du CRM (« zman », « bladi »…). Dans le navigateur : vide (le catalogue est dans la page).
+ * Copie périmée : servie tout de suite pendant qu'une nouvelle lecture se fait derrière (le rendu n'attend jamais le CRM
+ * une fois la première lecture réussie) ; elle n'est remplacée que si la nouvelle lecture réussit.
+ */
 export function loadCollection(collection) {
   if (typeof window !== "undefined") return Promise.resolve([]);
+  const hit = cache.get(collection);
+  if (hit?.ok) {
+    if (Date.now() - hit.at > TTL && !hit.refreshing) {
+      hit.refreshing = true;
+      fromDb(collection).then(
+        (rows) => cache.set(collection, { value: Promise.resolve(rows), at: Date.now(), ok: true }),
+        () => { hit.refreshing = false; hit.at = Date.now(); } // CRM injoignable : on garde la copie et on réessaie plus tard
+      );
+    }
+    return hit.value;
+  }
+  if (hit) return hit.value; // première lecture en cours
   // Un échec n'est pas gardé en cache : la requête suivante réessaie au lieu d'échouer jusqu'au redémarrage.
-  if (!cache.has(collection)) cache.set(collection, fromDb(collection).catch((e) => { cache.delete(collection); throw e; }));
-  return cache.get(collection);
+  const entry = { value: null, at: Date.now(), ok: false };
+  entry.value = fromDb(collection).then(
+    (rows) => { entry.ok = true; entry.at = Date.now(); return rows; },
+    (e) => { cache.delete(collection); throw e; }
+  );
+  cache.set(collection, entry);
+  return entry.value;
 }
 
 export const products = await loadCollection("zman");

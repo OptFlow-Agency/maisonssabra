@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1795627517.6850975,
-    "ast_hash": "684d54fdc10a3bdb36798c279c59d9e1",
+    "mtime": 1795690687.8233607,
+    "ast_hash": "bb429d784bef734ee0f1335665a19d7a",
     "semantic_hash": ""
   },
   ".vscode/extensions.json": {
@@ -365,8 +365,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/Details.astro": {
-    "mtime": 1792950513.497202,
-    "ast_hash": "e217e39e18020b919c8d35bec1758c5a",
+    "mtime": 1795690376.1276724,
+    "ast_hash": "5eb8324ef6446276e61cc5eaa8b2ecf0",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Faq.astro": {
@@ -380,8 +380,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/Hero.astro": {
-    "mtime": 1795541448.8116143,
-    "ast_hash": "b60f3e889f6ac2539214a83f37c4c386",
+    "mtime": 1795690376.2814066,
+    "ast_hash": "929b89051b08073648a9b718e0649815",
     "semantic_hash": ""
   },
   "src/zman-lp/components/Moments.astro": {
@@ -430,8 +430,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/data/products.js": {
-    "mtime": 1795511602.2172365,
-    "ast_hash": "7f71fc4d5652b602746214f7ea7e0910",
+    "mtime": 1795690939.611431,
+    "ast_hash": "3f21acfe2b3b1bea5a974ea16e881d38",
     "semantic_hash": ""
   },
   "src/zman-lp/layouts/Layout.astro": {
@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/scripts/app.js": {
-    "mtime": 1795541782.3219573,
-    "ast_hash": "652f809a0719051e46c22b30cd11fc74",
+    "mtime": 1795690376.2816854,
+    "ast_hash": "50e2b3261aedffca0fa2f9d0ceec6a28",
     "semantic_hash": ""
   },
   "tsconfig.json": {
@@ -1535,8 +1535,8 @@
     "semantic_hash": ""
   },
   "src/zman-lp/components/ZmanPage.astro": {
-    "mtime": 1795541230.33332,
-    "ast_hash": "bea88d0a6c5df4c2a4206290b7b7c3ae",
+    "mtime": 1795690675.7499204,
+    "ast_hash": "39f12b86eaa4f75a82fbc88b2fb494ab",
     "semantic_hash": ""
   },
   "docs/GUIDE.md": {
@@ -1547,6 +1547,21 @@
   "docs/STYLE.md": {
     "mtime": 1795520103.4889686,
     "ast_hash": "c6df43250cd715bb72048335f8c058e2",
+    "semantic_hash": ""
+  },
+  "sw360.png": {
+    "mtime": 1795639814.7722507,
+    "ast_hash": "bf863ce5d41e9b868210117be1dd23b9",
+    "semantic_hash": ""
+  },
+  "src/zman-lp/lib/details.js": {
+    "mtime": 1795690398.7113855,
+    "ast_hash": "3b84c9248bd9f83d9c46b0f488e72cc3",
+    "semantic_hash": ""
+  },
+  "dt1280.png": {
+    "mtime": 1795690401.2912357,
+    "ast_hash": "48f8fa4a82b387c3addcb843dde2101c",
     "semantic_hash": ""
   }
 }

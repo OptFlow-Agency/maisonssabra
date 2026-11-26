@@ -591,10 +591,16 @@ body:has(.checkout-step[open]){overflow:hidden}
 @media(max-width:767px){
   .hero-panel>.rating-link,.hero-panel>.rating-fallback{order:0;margin:0}
   /* Offres juste sous les photos */
-  .hero-panel>.eyebrow,.hero-panel>h1,.hero-panel>.price-box,.hero-panel>.assurance,.hero-panel>#duo-copy{order:2}
+  .hero-panel>.eyebrow,.hero-panel>h1,.hero-panel>.price-box,.hero-panel>.assurance,.hero-panel>.benefits,.hero-panel>#duo-copy{order:2}
   .hero-panel>#duo-copy{margin:0}
 }
 @media(max-width:767px){
+  /* Colonnes égales : un libellé long (« Multicolore ») ne doit pas élargir sa carte ni pousser la rangée hors écran */
+  .swatch-list{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .sw label{min-width:0;height:100%;box-sizing:border-box}
+  .hero-panel .sw label{font-size:clamp(10px,2.9vw,12px)}
+  .sw label span{max-width:100%;hyphens:auto;overflow-wrap:anywhere}
+  .pillars{grid-template-columns:repeat(2,minmax(0,1fr))}
   .hero{grid-template-columns:minmax(0,1fr)}
   .hero>*,.hero-panel>*{min-width:0;max-width:100%}
   .tcar,.tcar-track{max-width:100%}
@@ -652,7 +658,7 @@ em,blockquote{font-synthesis:none}
 .hero-panel .saving[hidden]{display:none}
 /* Mobile: colour cards right under the photo slider (the panel is display:contents there, so order places it). */
 @media (max-width:767px){
-  .hero-panel>.swatches{order:2;margin:14px 0 4px}
+  .hero-panel>.swatches{order:1;margin:0 0 4px}
   .hero-panel>#duo-copy{order:2}
 }
 /* Mobile: floating WhatsApp and cart buttons sit above the sticky "Commander" bar while it is shown. */
@@ -662,3 +668,10 @@ em,blockquote{font-synthesis:none}
 }
 
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* Benefits: the icon chosen in the CRM (white Lucide glyph in the burgundy badge) replaces the fixed check mark. */
+.benefits li::before{content:none}
+.benefits li{grid-template-columns:36px minmax(0,1fr);column-gap:14px;align-items:center}
+.benefits .b-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:color-mix(in srgb,var(--burgundy) 9%,transparent);color:var(--burgundy)}
+.benefits .b-icon svg{display:block;width:18px;height:18px;stroke-width:1.75}
+

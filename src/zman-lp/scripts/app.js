@@ -4,6 +4,7 @@ import * as L from "../lib/logic.js";
 import { analytics as A } from "../lib/events.js";
 import { crmReady, placeOrder, checkPromo } from "../lib/crm.js";
 import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
+import { specsHtml } from "../lib/details.js";
 
 (function () {
   if (!document.querySelector("#order-form") || !document.querySelector("#g-track")) return;
@@ -94,8 +95,10 @@ import { freeShip, shipFrag, noDot, esc, waHref } from "../lib/copy.js";
     parts.slice(1).join(" – ").split("&").forEach(function (t, i) { if (i) { var a = document.createElement("span"); a.className = "amp"; a.textContent = "&"; sub.append(a); } sub.append(t); });
     var lede = $("#lede"); lede.textContent = m.officialDescription || m.tagline || ""; lede.hidden = !lede.textContent;
     var bl = $("#benefits");
-    bl.innerHTML = (m.benefits || []).map(function (b) { return "<li><span><strong>" + esc(b.title) + "</strong>" + (b.description ? '<span class="b-desc">' + esc(b.description) + "</span>" : "") + "</span></li>"; }).join("");
+    bl.innerHTML = (m.benefits || []).map(function (b) { return "<li><span class=\"b-icon\">" + (b.icon || "") + "</span><span><strong>" + esc(b.title) + "</strong>" + (b.description ? '<span class="b-desc">' + esc(b.description) + "</span>" : "") + "</span></li>"; }).join("");
     bl.hidden = !(m.benefits || []).length;
+    var specs = $("#specs");
+    if (specs) { specs.innerHTML = specsHtml(m); $("#details").hidden = !specs.innerHTML; $("#d-model").textContent = m.name; }
 
     var track = $("#g-track");
     track.innerHTML = m.images.map(function (im, i) {
